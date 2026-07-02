@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Target, Truck, FileText, Calendar,
-  Sparkles, Settings, Truck as TruckIcon,
+  Sparkles, Settings, Truck as TruckIcon, Tags,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -84,6 +84,14 @@ export function AppSidebar() {
                     <Link to="/admin/usuarios">
                       <Settings className="h-4 w-4" />
                       {!collapsed && <span>Usuarios y roles</span>}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive("/admin/sectores")} tooltip="Sectores">
+                    <Link to="/admin/sectores">
+                      <Tags className="h-4 w-4" />
+                      {!collapsed && <span>Sectores</span>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

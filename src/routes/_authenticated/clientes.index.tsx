@@ -26,7 +26,10 @@ type Cliente = {
   correo: string | null;
   estado: "prospecto" | "en_negociacion" | "activo" | "inactivo" | "perdido";
   created_at: string;
+  sector_id: string | null;
 };
+
+type Sector = { id: string; nombre: string };
 
 const estadoColor: Record<string, string> = {
   prospecto: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
@@ -50,15 +53,21 @@ function ClientesList() {
   const [q, setQ] = useState("");
   const [tipoFilter, setTipoFilter] = useState<string>("todos");
   const [estadoFilter, setEstadoFilter] = useState<string>("todos");
+  const [sectorFilter, setSectorFilter] = useState<string>("todos");
+  const [sectores, setSectores] = useState<Sector[]>([]);
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("clientes")
-      .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at")
-      .order("created_at", { ascending: false });
+    const [{ data, error }, { data: secs }] = await Promise.all([
+      supabase
+        .from("clientes")
+        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id")
+        .order("created_at", { ascending: false }),
+      supabase.from("sectores").select("id, nombre").order("nombre"),
+    ]);
     if (error) toast.error("No pudimos cargar los clientes");
     setRows((data as Cliente[]) ?? []);
+    setSectores(secs ?? []);
     setLoading(false);
   };
 
@@ -69,12 +78,18 @@ function ClientesList() {
     return rows.filter((r) => {
       if (tipoFilter !== "todos" && r.tipo !== tipoFilter) return false;
       if (estadoFilter !== "todos" && r.estado !== estadoFilter) return false;
+      if (sectorFilter !== "todos") {
+        if (sectorFilter === "__none__") { if (r.sector_id) return false; }
+        else if (r.sector_id !== sectorFilter) return false;
+      }
       if (!term) return true;
       const hay = [r.razon_social, r.nombre_completo, r.ruc, r.dni, r.correo, r.telefono, r.ciudad]
         .filter(Boolean).join(" ").toLowerCase();
       return hay.includes(term);
     });
-  }, [rows, q, tipoFilter, estadoFilter]);
+  }, [rows, q, tipoFilter, estadoFilter, sectorFilter]);
+
+  const sectoresMap = useMemo(() => new Map(sectores.map((s) => [s.id, s.nombre])), [sectores]);
 
   const updateEstado = async (id: string, nuevo: Cliente["estado"]) => {
     const prev = rows;
@@ -85,6 +100,18 @@ function ClientesList() {
       toast.error("No se pudo actualizar: " + error.message);
     } else {
       toast.success("Estado actualizado");
+    }
+  };
+
+  const updateSector = async (id: string, sectorId: string | null) => {
+    const prev = rows;
+    setRows((r) => r.map((x) => (x.id === id ? { ...x, sector_id: sectorId } : x)));
+    const { error } = await supabase.from("clientes").update({ sector_id: sectorId }).eq("id", id);
+    if (error) {
+      setRows(prev);
+      toast.error("No se pudo actualizar sector: " + error.message);
+    } else {
+      toast.success("Sector actualizado");
     }
   };
 
@@ -107,7 +134,7 @@ function ClientesList() {
 
       <Card>
         <CardContent className="p-4 space-y-3">
-          <div className="grid md:grid-cols-[1fr_auto_auto] gap-2">
+          <div className="grid md:grid-cols-[1fr_auto_auto_auto] gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input value={q} onChange={(e) => setQ(e.target.value)}
@@ -130,6 +157,16 @@ function ClientesList() {
                 <SelectItem value="activo">Activo</SelectItem>
                 <SelectItem value="inactivo">Inactivo</SelectItem>
                 <SelectItem value="perdido">Perdido</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sectorFilter} onValueChange={setSectorFilter}>
+              <SelectTrigger className="w-full md:w-56"><SelectValue /></SelectTrigger>
+              <SelectContent className="max-h-72">
+                <SelectItem value="todos">Todos los sectores</SelectItem>
+                <SelectItem value="__none__">Sin sector</SelectItem>
+                {sectores.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -171,10 +208,23 @@ function ClientesList() {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{nombre || "(sin nombre)"}</p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {[doc, c.ciudad, c.correo].filter(Boolean).join(" · ") || "Sin datos adicionales"}
+                          {[doc, c.ciudad, c.correo, c.sector_id ? sectoresMap.get(c.sector_id) : null].filter(Boolean).join(" · ") || "Sin datos adicionales"}
                         </p>
                       </div>
                     </Link>
+                    <Select value={c.sector_id ?? "__none__"} onValueChange={(v) => void updateSector(c.id, v === "__none__" ? null : v)}>
+                      <SelectTrigger className="h-8 w-[180px] text-xs" title="Cambiar sector">
+                        <SelectValue placeholder="Sin sector">
+                          {c.sector_id ? sectoresMap.get(c.sector_id) : "Sin sector"}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="max-h-72">
+                        <SelectItem value="__none__">Sin sector</SelectItem>
+                        {sectores.map((s) => (
+                          <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <Select value={c.estado} onValueChange={(v) => void updateEstado(c.id, v as Cliente["estado"])}>
                       <SelectTrigger
                         className={`h-8 w-[150px] text-xs capitalize border ${estadoColor[c.estado] ?? ""}`}

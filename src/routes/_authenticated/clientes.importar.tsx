@@ -43,6 +43,7 @@ const CAMPOS: Campo[] = [
   { key: "categoria_cliente", label: "Categoría cliente", aliases: ["categoria cliente", "categoría cliente", "categoria", "categoría"] },
   { key: "area_comercial", label: "Área comercial", aliases: ["area comercial", "área comercial", "area", "área"] },
   { key: "canal", label: "Canal", aliases: ["canal"] },
+  { key: "sector", label: "Sector", aliases: ["sector", "sector economico", "sector económico"] },
   { key: "ejecutivo", label: "Ejecutivo", aliases: ["ejecutivo", "asesor", "vendedor", "ejecutivo asignado", "asesor comercial"] },
 ];
 
@@ -70,6 +71,8 @@ type PreviewRow = {
   area_comercial: "b2b" | "b2c";
   ejecutivo_id: string | null;
   ejecutivo_nombre: string;
+  sector_id: string | null;
+  sector_nombre: string;
 };
 
 function ImportarClientes() {
@@ -84,6 +87,7 @@ function ImportarClientes() {
   const [result, setResult] = useState<{ creados: number; actualizados: number; errores: number; log: string[] } | null>(null);
   const [existingDocs, setExistingDocs] = useState<Set<string>>(new Set());
   const [ejecutivos, setEjecutivos] = useState<Array<{ id: string; nombre: string }>>([]);
+  const [sectores, setSectores] = useState<Array<{ id: string; nombre: string }>>([]);
 
   const handleFile = async (file: File) => {
     setFileName(file.name);
@@ -110,6 +114,8 @@ function ImportarClientes() {
     // fetch ejecutivos to match by name
     const { data: profs } = await supabase.from("profiles").select("id, nombre");
     setEjecutivos(profs ?? []);
+    const { data: secs } = await supabase.from("sectores").select("id, nombre");
+    setSectores(secs ?? []);
     setStep(2);
   };
 
@@ -155,6 +161,11 @@ function ImportarClientes() {
         ? ejecutivos.find((e) => NORM(e.nombre) === NORM(ejecNombre))
         : null;
 
+      const sectorNombre = getVal(r, "sector");
+      const sectorMatch = sectorNombre
+        ? sectores.find((s) => NORM(s.nombre) === NORM(sectorNombre))
+        : null;
+
       let error: string | null = null;
       if (!nombre) error = tipo === "empresa" ? "Falta razón social" : "Falta nombre";
       else if (area_comercial === "b2b" && categoria_cliente !== "institucional")
@@ -165,10 +176,12 @@ function ImportarClientes() {
         categoria_cliente, area_comercial,
         ejecutivo_id: ejecMatch?.id ?? null,
         ejecutivo_nombre: ejecNombre || (ejecMatch?.nombre ?? ""),
+        sector_id: sectorMatch?.id ?? null,
+        sector_nombre: sectorNombre,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, rows, mapping, existingDocs, ejecutivos]);
+  }, [step, rows, mapping, existingDocs, ejecutivos, sectores]);
 
   const validCount = preview.filter((p) => !p.error).length;
   const dupCount = preview.filter((p) => p.duplicado).length;
@@ -198,6 +211,7 @@ function ImportarClientes() {
         categoria_cliente: p.categoria_cliente,
         area_comercial: p.area_comercial,
         canal: getVal(r, "canal") || null,
+        sector_id: p.sector_id,
         ejecutivo_id: p.ejecutivo_id ?? user?.id ?? null,
         created_by: user?.id ?? null,
       };
@@ -373,6 +387,7 @@ function ImportarClientes() {
                     <th className="text-left p-2">Doc.</th>
                     <th className="text-left p-2">Área</th>
                     <th className="text-left p-2">Categoría</th>
+                    <th className="text-left p-2">Sector</th>
                     <th className="text-left p-2">Ejecutivo</th>
                     <th className="text-left p-2">Estado</th>
                   </tr>
@@ -386,6 +401,13 @@ function ImportarClientes() {
                       <td className="p-2 text-muted-foreground">{p.identificador ?? "—"}</td>
                       <td className="p-2 uppercase text-xs">{p.area_comercial}</td>
                       <td className="p-2 capitalize text-xs">{p.categoria_cliente}</td>
+                      <td className="p-2 text-xs">
+                        {p.sector_nombre
+                          ? (p.sector_id
+                              ? p.sector_nombre
+                              : <span className="text-amber-600" title="Sector no encontrado; se dejará vacío">{p.sector_nombre} ⚠</span>)
+                          : <span className="text-muted-foreground">—</span>}
+                      </td>
                       <td className="p-2 text-xs">
                         {p.ejecutivo_nombre
                           ? (p.ejecutivo_id

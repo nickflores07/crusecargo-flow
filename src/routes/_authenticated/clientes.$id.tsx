@@ -38,6 +38,7 @@ type ClienteRow = {
   categoria_cliente: "institucional" | "comun";
   area_comercial: "b2b" | "b2c";
   canal: string | null;
+  sector_id: string | null;
 };
 
 function ClienteDetalle() {
@@ -79,6 +80,7 @@ function ClienteDetalle() {
       categoria_cliente: v.categoria_cliente,
       area_comercial: v.area_comercial,
       canal: v.canal || null,
+      sector_id: v.sector_id,
     }).eq("id", id);
     setSaving(false);
     if (error) {
@@ -180,6 +182,7 @@ function ClienteDetalle() {
                   categoria_cliente: cliente.categoria_cliente,
                   area_comercial: cliente.area_comercial,
                   canal: cliente.canal ?? "",
+                  sector_id: cliente.sector_id,
                 }}
                 submitting={saving}
                 onSubmit={handleSave}

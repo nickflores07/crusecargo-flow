@@ -34,6 +34,7 @@ export type Database = {
           razon_social: string | null
           rubro: string | null
           ruc: string | null
+          sector_id: string | null
           telefono: string | null
           tipo: Database["public"]["Enums"]["tipo_cliente"]
           updated_at: string
@@ -57,6 +58,7 @@ export type Database = {
           razon_social?: string | null
           rubro?: string | null
           ruc?: string | null
+          sector_id?: string | null
           telefono?: string | null
           tipo: Database["public"]["Enums"]["tipo_cliente"]
           updated_at?: string
@@ -80,11 +82,20 @@ export type Database = {
           razon_social?: string | null
           rubro?: string | null
           ruc?: string | null
+          sector_id?: string | null
           telefono?: string | null
           tipo?: Database["public"]["Enums"]["tipo_cliente"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clientes_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contactos: {
         Row: {
@@ -369,6 +380,27 @@ export type Database = {
           id?: string
           nombre?: string
           telefono?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sectores: {
+        Row: {
+          created_at: string
+          id: string
+          nombre: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nombre: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nombre?: string
           updated_at?: string
         }
         Relationships: []

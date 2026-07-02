@@ -201,9 +201,12 @@ function ImportarClientes() {
         ejecutivo_id: p.ejecutivo_id ?? user?.id ?? null,
         created_by: user?.id ?? null,
       };
-      const estado = NORM(getVal(r, "estado"));
-      if (["prospecto", "activo", "inactivo", "perdido"].includes(estado)) {
+      const estado = NORM(getVal(r, "estado")).replace(/\s+/g, "_");
+      if (["prospecto", "en_negociacion", "activo", "inactivo", "perdido"].includes(estado)) {
         payload.estado = estado as TablesInsert<"clientes">["estado"];
+      } else {
+        // Estado por defecto para importaciones sin columna de estado.
+        payload.estado = "activo";
       }
 
       if (p.duplicado && p.identificador) {

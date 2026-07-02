@@ -18,7 +18,7 @@ export type ClienteFormValues = {
   ciudad: string;
   telefono: string;
   correo: string;
-  estado: "prospecto" | "activo" | "inactivo" | "perdido";
+  estado: "prospecto" | "en_negociacion" | "activo" | "inactivo" | "perdido";
   notas: string;
   categoria_cliente: "institucional" | "comun";
   area_comercial: "b2b" | "b2c";
@@ -103,9 +103,9 @@ export function ClienteForm({
                 >
                   <Icon className={cn("h-5 w-5", active ? "text-primary" : "text-muted-foreground")} />
                   <div>
-                    <p className="font-medium capitalize">{t === "empresa" ? "Empresa (B2B)" : "Persona (B2C)"}</p>
+                    <p className="font-medium">{t === "empresa" ? "Cliente Institucional" : "Cliente Común"}</p>
                     <p className="text-xs text-muted-foreground">
-                      {t === "empresa" ? "Envíos recurrentes" : "Envíos ocasionales"}
+                      {t === "empresa" ? "Empresa con RUC · envíos recurrentes" : "Persona con DNI · envíos ocasionales"}
                     </p>
                   </div>
                 </button>
@@ -217,6 +217,7 @@ export function ClienteForm({
             <SelectTrigger id="estado"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="prospecto">Prospecto</SelectItem>
+              <SelectItem value="en_negociacion">En negociación</SelectItem>
               <SelectItem value="activo">Activo</SelectItem>
               <SelectItem value="inactivo">Inactivo</SelectItem>
               <SelectItem value="perdido">Perdido</SelectItem>

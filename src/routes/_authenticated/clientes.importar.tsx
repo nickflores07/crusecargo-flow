@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
+import type { TablesInsert } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -141,7 +142,7 @@ function ImportarClientes() {
       const p = preview[i];
       if (p.error) { errores++; log.push(`Fila ${i + 2}: ${p.error}`); continue; }
       const r = p.raw;
-      const payload: Record<string, unknown> = {
+      const payload: TablesInsert<"clientes"> = {
         tipo: p.tipo,
         razon_social: p.tipo === "empresa" ? getVal(r, "razon_social") || null : null,
         ruc: p.tipo === "empresa" ? getVal(r, "ruc") || null : null,
@@ -157,7 +158,9 @@ function ImportarClientes() {
         created_by: user?.id ?? null,
       };
       const estado = NORM(getVal(r, "estado"));
-      if (["prospecto", "activo", "inactivo", "perdido"].includes(estado)) payload.estado = estado;
+      if (["prospecto", "activo", "inactivo", "perdido"].includes(estado)) {
+        payload.estado = estado as TablesInsert<"clientes">["estado"];
+      }
 
       if (p.duplicado && p.identificador) {
         const col = p.tipo === "empresa" ? "ruc" : "dni";

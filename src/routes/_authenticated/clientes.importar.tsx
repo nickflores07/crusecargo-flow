@@ -247,7 +247,7 @@ function ImportarClientes() {
         notas: getVal(r, "notas") || null,
         categoria_cliente: p.categoria_cliente,
         area_comercial: p.area_comercial,
-        canal: getVal(r, "canal") || null,
+        canal: normalizeCanal(getVal(r, "canal")),
         sector_id: p.sector_id,
         ejecutivo_id: p.ejecutivo_id ?? user?.id ?? null,
         created_by: user?.id ?? null,

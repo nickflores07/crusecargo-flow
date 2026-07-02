@@ -31,6 +31,7 @@ type Cliente = {
   ejecutivo_id: string | null;
   area_comercial: "b2b" | "b2c" | null;
   categoria_cliente: "institucional" | "comun" | null;
+  canal: string | null;
 };
 
 type Sector = { id: string; nombre: string };
@@ -63,6 +64,7 @@ function ClientesList() {
   const [estadoFilter, setEstadoFilter] = useState<string>("todos");
   const [sectorFilter, setSectorFilter] = useState<string>("todos");
   const [ejecutivoFilter, setEjecutivoFilter] = useState<string>("todos");
+  const [canalFilter, setCanalFilter] = useState<string>("todos");
   const [sectores, setSectores] = useState<Sector[]>([]);
   const [ejecutivos, setEjecutivos] = useState<Ejecutivo[]>([]);
 
@@ -71,7 +73,7 @@ function ClientesList() {
     const [{ data, error }, { data: secs }, { data: profs }] = await Promise.all([
       supabase
         .from("clientes")
-        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id, ejecutivo_id, area_comercial, categoria_cliente")
+        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id, ejecutivo_id, area_comercial, categoria_cliente, canal")
         .order("created_at", { ascending: false }),
       supabase.from("sectores").select("id, nombre").order("nombre"),
       supabase.from("profiles").select("id, nombre").order("nombre"),
@@ -99,25 +101,38 @@ function ClientesList() {
         if (ejecutivoFilter === "__none__") { if (r.ejecutivo_id) return false; }
         else if (r.ejecutivo_id !== ejecutivoFilter) return false;
       }
+      if (canalFilter !== "todos") {
+        if (canalFilter === "__none__") { if (r.canal) return false; }
+        else if (r.canal !== canalFilter) return false;
+      }
       if (!term) return true;
       const hay = [r.razon_social, r.nombre_completo, r.ruc, r.dni, r.correo, r.telefono, r.ciudad]
         .filter(Boolean).join(" ").toLowerCase();
       return hay.includes(term);
     });
-  }, [rows, q, areaFilter, categoriaFilter, estadoFilter, sectorFilter, ejecutivoFilter]);
+  }, [rows, q, areaFilter, categoriaFilter, estadoFilter, sectorFilter, ejecutivoFilter, canalFilter]);
+
+  const canales = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of rows) if (r.canal) set.add(r.canal);
+    return Array.from(set).sort();
+  }, [rows]);
 
   const activeFilters =
     (areaFilter !== "todos" ? 1 : 0) +
     (categoriaFilter !== "todos" ? 1 : 0) +
     (estadoFilter !== "todos" ? 1 : 0) +
     (sectorFilter !== "todos" ? 1 : 0) +
-    (ejecutivoFilter !== "todos" ? 1 : 0);
+    (ejecutivoFilter !== "todos" ? 1 : 0) +
+    (canalFilter !== "todos" ? 1 : 0);
 
   const clearFilters = () => {
     setAreaFilter("todos");
     setCategoriaFilter("todos");
     setEstadoFilter("todos");
     setSectorFilter("todos");
+    setEjecutivoFilter("todos");
+    setCanalFilter("todos");
     setEjecutivoFilter("todos");
     setQ("");
   };

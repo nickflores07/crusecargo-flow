@@ -22,6 +22,7 @@ import { Route as AuthenticatedAsistenteIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authenticated/clientes.nuevo'
 import { Route as AuthenticatedClientesImportarRouteImport } from './routes/_authenticated/clientes.importar'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
+import { Route as AuthenticatedAsistenteThreadIdRouteImport } from './routes/_authenticated/asistente.$threadId'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdminSectoresRouteImport } from './routes/_authenticated/admin.sectores'
 
@@ -94,6 +95,12 @@ const AuthenticatedClientesIdRoute = AuthenticatedClientesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedClientesRoute,
 } as any)
+const AuthenticatedAsistenteThreadIdRoute =
+  AuthenticatedAsistenteThreadIdRouteImport.update({
+    id: '/$threadId',
+    path: '/$threadId',
+    getParentRoute: () => AuthenticatedAsistenteRoute,
+  } as any)
 const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/admin/usuarios',
@@ -117,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/asistente/$threadId': typeof AuthenticatedAsistenteThreadIdRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
@@ -131,6 +139,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/asistente/$threadId': typeof AuthenticatedAsistenteThreadIdRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
@@ -149,6 +158,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/asistente/$threadId': typeof AuthenticatedAsistenteThreadIdRoute
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/_authenticated/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/admin/sectores'
     | '/admin/usuarios'
+    | '/asistente/$threadId'
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/sectores'
     | '/admin/usuarios'
+    | '/asistente/$threadId'
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
@@ -198,6 +210,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/admin/sectores'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/asistente/$threadId'
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/importar'
     | '/_authenticated/clientes/nuevo'
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesIdRouteImport
       parentRoute: typeof AuthenticatedClientesRoute
     }
+    '/_authenticated/asistente/$threadId': {
+      id: '/_authenticated/asistente/$threadId'
+      path: '/$threadId'
+      fullPath: '/asistente/$threadId'
+      preLoaderRoute: typeof AuthenticatedAsistenteThreadIdRouteImport
+      parentRoute: typeof AuthenticatedAsistenteRoute
+    }
     '/_authenticated/admin/usuarios': {
       id: '/_authenticated/admin/usuarios'
       path: '/admin/usuarios'
@@ -322,11 +342,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAsistenteRouteChildren {
+  AuthenticatedAsistenteThreadIdRoute: typeof AuthenticatedAsistenteThreadIdRoute
   AuthenticatedAsistenteIndexRoute: typeof AuthenticatedAsistenteIndexRoute
 }
 
 const AuthenticatedAsistenteRouteChildren: AuthenticatedAsistenteRouteChildren =
   {
+    AuthenticatedAsistenteThreadIdRoute: AuthenticatedAsistenteThreadIdRoute,
     AuthenticatedAsistenteIndexRoute: AuthenticatedAsistenteIndexRoute,
   }
 

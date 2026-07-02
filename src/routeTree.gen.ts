@@ -15,6 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
+import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authenticated/clientes.nuevo'
@@ -51,6 +52,11 @@ const AuthenticatedOportunidadesRoute =
 const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAsistenteRoute = AuthenticatedAsistenteRouteImport.update({
+  id: '/asistente',
+  path: '/asistente',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/asistente': typeof AuthenticatedAsistenteRoute
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/api/chat': typeof ApiChatRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/asistente': typeof AuthenticatedAsistenteRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/asistente': typeof AuthenticatedAsistenteRoute
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/api/chat': typeof ApiChatRoute
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/agenda'
+    | '/asistente'
     | '/clientes'
     | '/oportunidades'
     | '/api/chat'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/agenda'
+    | '/asistente'
     | '/oportunidades'
     | '/api/chat'
     | '/'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/agenda'
+    | '/_authenticated/asistente'
     | '/_authenticated/clientes'
     | '/_authenticated/oportunidades'
     | '/api/chat'
@@ -230,6 +242,13 @@ declare module '@tanstack/react-router' {
       path: '/clientes'
       fullPath: '/clientes'
       preLoaderRoute: typeof AuthenticatedClientesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/asistente': {
+      id: '/_authenticated/asistente'
+      path: '/asistente'
+      fullPath: '/asistente'
+      preLoaderRoute: typeof AuthenticatedAsistenteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/agenda': {
@@ -305,6 +324,7 @@ const AuthenticatedClientesRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRoute
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRouteWithChildren
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -314,6 +334,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedAsistenteRoute: AuthenticatedAsistenteRoute,
   AuthenticatedClientesRoute: AuthenticatedClientesRouteWithChildren,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,

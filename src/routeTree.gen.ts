@@ -15,6 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authenticated/clientes.nuevo'
+import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 
 const AuthRoute = AuthRouteImport.update({
@@ -48,6 +49,11 @@ const AuthenticatedClientesNuevoRoute =
     path: '/nuevo',
     getParentRoute: () => AuthenticatedClientesRoute,
   } as any)
+const AuthenticatedClientesIdRoute = AuthenticatedClientesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedClientesRoute,
+} as any)
 const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/admin/usuarios',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
 }
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
 }
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
 }
@@ -87,10 +96,17 @@ export interface FileRouteTypes {
     | '/auth'
     | '/clientes'
     | '/admin/usuarios'
+    | '/clientes/$id'
     | '/clientes/nuevo'
     | '/clientes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/' | '/admin/usuarios' | '/clientes/nuevo' | '/clientes'
+  to:
+    | '/auth'
+    | '/'
+    | '/admin/usuarios'
+    | '/clientes/$id'
+    | '/clientes/nuevo'
+    | '/clientes'
   id:
     | '__root__'
     | '/_authenticated'
@@ -98,6 +114,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes'
     | '/_authenticated/'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/nuevo'
     | '/_authenticated/clientes/'
   fileRoutesById: FileRoutesById
@@ -151,6 +168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesNuevoRouteImport
       parentRoute: typeof AuthenticatedClientesRoute
     }
+    '/_authenticated/clientes/$id': {
+      id: '/_authenticated/clientes/$id'
+      path: '/$id'
+      fullPath: '/clientes/$id'
+      preLoaderRoute: typeof AuthenticatedClientesIdRouteImport
+      parentRoute: typeof AuthenticatedClientesRoute
+    }
     '/_authenticated/admin/usuarios': {
       id: '/_authenticated/admin/usuarios'
       path: '/admin/usuarios'
@@ -162,11 +186,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedClientesRouteChildren {
+  AuthenticatedClientesIdRoute: typeof AuthenticatedClientesIdRoute
   AuthenticatedClientesNuevoRoute: typeof AuthenticatedClientesNuevoRoute
   AuthenticatedClientesIndexRoute: typeof AuthenticatedClientesIndexRoute
 }
 
 const AuthenticatedClientesRouteChildren: AuthenticatedClientesRouteChildren = {
+  AuthenticatedClientesIdRoute: AuthenticatedClientesIdRoute,
   AuthenticatedClientesNuevoRoute: AuthenticatedClientesNuevoRoute,
   AuthenticatedClientesIndexRoute: AuthenticatedClientesIndexRoute,
 }

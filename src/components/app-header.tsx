@@ -159,8 +159,8 @@ export function AppHeader() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              <UserIcon className="h-4 w-4 mr-2" /> Mi perfil (pronto)
+            <DropdownMenuItem onClick={() => navigate({ to: "/configuracion" })}>
+              <UserIcon className="h-4 w-4 mr-2" /> Mi perfil
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

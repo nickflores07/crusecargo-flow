@@ -431,6 +431,7 @@ function ImportarClientes() {
                     <th className="text-left p-2">Área</th>
                     <th className="text-left p-2">Categoría</th>
                     <th className="text-left p-2">Sector</th>
+                    <th className="text-left p-2">Canal</th>
                     <th className="text-left p-2">Ejecutivo</th>
                     <th className="text-left p-2">Estado</th>
                   </tr>
@@ -449,6 +450,13 @@ function ImportarClientes() {
                           ? (p.sector_id
                               ? p.sector_nombre
                               : <span className="text-amber-600" title="Sector no encontrado; se dejará vacío">{p.sector_nombre} ⚠</span>)
+                          : <span className="text-muted-foreground">—</span>}
+                      </td>
+                      <td className="p-2 text-xs">
+                        {p.canal
+                          ? (CANALES.includes(p.canal)
+                              ? p.canal
+                              : <span className="text-amber-600" title={`Canal "${p.canal_raw}" no coincide con la lista oficial`}>{p.canal} ⚠</span>)
                           : <span className="text-muted-foreground">—</span>}
                       </td>
                       <td className="p-2 text-xs">

@@ -14,6 +14,264 @@ export type Database = {
   }
   public: {
     Tables: {
+      clientes: {
+        Row: {
+          ciudad: string | null
+          correo: string | null
+          created_at: string
+          created_by: string | null
+          direccion: string | null
+          dni: string | null
+          ejecutivo_id: string | null
+          estado: Database["public"]["Enums"]["estado_cliente"]
+          fecha_alta: string
+          id: string
+          nombre_completo: string | null
+          notas: string | null
+          razon_social: string | null
+          rubro: string | null
+          ruc: string | null
+          telefono: string | null
+          tipo: Database["public"]["Enums"]["tipo_cliente"]
+          updated_at: string
+        }
+        Insert: {
+          ciudad?: string | null
+          correo?: string | null
+          created_at?: string
+          created_by?: string | null
+          direccion?: string | null
+          dni?: string | null
+          ejecutivo_id?: string | null
+          estado?: Database["public"]["Enums"]["estado_cliente"]
+          fecha_alta?: string
+          id?: string
+          nombre_completo?: string | null
+          notas?: string | null
+          razon_social?: string | null
+          rubro?: string | null
+          ruc?: string | null
+          telefono?: string | null
+          tipo: Database["public"]["Enums"]["tipo_cliente"]
+          updated_at?: string
+        }
+        Update: {
+          ciudad?: string | null
+          correo?: string | null
+          created_at?: string
+          created_by?: string | null
+          direccion?: string | null
+          dni?: string | null
+          ejecutivo_id?: string | null
+          estado?: Database["public"]["Enums"]["estado_cliente"]
+          fecha_alta?: string
+          id?: string
+          nombre_completo?: string | null
+          notas?: string | null
+          razon_social?: string | null
+          rubro?: string | null
+          ruc?: string | null
+          telefono?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_cliente"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contactos: {
+        Row: {
+          cargo: string | null
+          celular: string | null
+          cliente_id: string
+          correo: string | null
+          created_at: string
+          cumpleanos: string | null
+          es_principal: boolean
+          id: string
+          nombre: string
+          notas: string | null
+          updated_at: string
+        }
+        Insert: {
+          cargo?: string | null
+          celular?: string | null
+          cliente_id: string
+          correo?: string | null
+          created_at?: string
+          cumpleanos?: string | null
+          es_principal?: boolean
+          id?: string
+          nombre: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cargo?: string | null
+          celular?: string | null
+          cliente_id?: string
+          correo?: string | null
+          created_at?: string
+          cumpleanos?: string | null
+          es_principal?: boolean
+          id?: string
+          nombre?: string
+          notas?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contactos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      datos_comerciales_cliente: {
+        Row: {
+          cliente_id: string
+          competidor_actual: string | null
+          contrato: boolean
+          created_at: string
+          facturacion_mensual_estimada: number | null
+          frecuencia_envio: string | null
+          id: string
+          observaciones: string | null
+          pct_devoluciones: number | null
+          pct_entregas_a_tiempo: number | null
+          peso_promedio_kg: number | null
+          tarifa_negociada: number | null
+          tipo_paquete: string | null
+          updated_at: string
+          volumen_envios_mes: number | null
+          zonas_frecuentes: string | null
+        }
+        Insert: {
+          cliente_id: string
+          competidor_actual?: string | null
+          contrato?: boolean
+          created_at?: string
+          facturacion_mensual_estimada?: number | null
+          frecuencia_envio?: string | null
+          id?: string
+          observaciones?: string | null
+          pct_devoluciones?: number | null
+          pct_entregas_a_tiempo?: number | null
+          peso_promedio_kg?: number | null
+          tarifa_negociada?: number | null
+          tipo_paquete?: string | null
+          updated_at?: string
+          volumen_envios_mes?: number | null
+          zonas_frecuentes?: string | null
+        }
+        Update: {
+          cliente_id?: string
+          competidor_actual?: string | null
+          contrato?: boolean
+          created_at?: string
+          facturacion_mensual_estimada?: number | null
+          frecuencia_envio?: string | null
+          id?: string
+          observaciones?: string | null
+          pct_devoluciones?: number | null
+          pct_entregas_a_tiempo?: number | null
+          peso_promedio_kg?: number | null
+          tarifa_negociada?: number | null
+          tipo_paquete?: string | null
+          updated_at?: string
+          volumen_envios_mes?: number | null
+          zonas_frecuentes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "datos_comerciales_cliente_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: true
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      direcciones_entrega: {
+        Row: {
+          ciudad: string | null
+          cliente_id: string
+          created_at: string
+          direccion: string
+          es_principal: boolean
+          etiqueta: string | null
+          id: string
+          referencia: string | null
+          updated_at: string
+        }
+        Insert: {
+          ciudad?: string | null
+          cliente_id: string
+          created_at?: string
+          direccion: string
+          es_principal?: boolean
+          etiqueta?: string | null
+          id?: string
+          referencia?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ciudad?: string | null
+          cliente_id?: string
+          created_at?: string
+          direccion?: string
+          es_principal?: boolean
+          etiqueta?: string | null
+          id?: string
+          referencia?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direcciones_entrega_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      importaciones_clientes: {
+        Row: {
+          actualizados: number
+          archivo_nombre: string | null
+          creados: number
+          created_at: string
+          errores: number
+          id: string
+          log: Json | null
+          total: number
+          user_id: string
+        }
+        Insert: {
+          actualizados?: number
+          archivo_nombre?: string | null
+          creados?: number
+          created_at?: string
+          errores?: number
+          id?: string
+          log?: Json | null
+          total?: number
+          user_id: string
+        }
+        Update: {
+          actualizados?: number
+          archivo_nombre?: string | null
+          creados?: number
+          created_at?: string
+          errores?: number
+          id?: string
+          log?: Json | null
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           activo: boolean
@@ -84,6 +342,8 @@ export type Database = {
     }
     Enums: {
       app_role: "administrador" | "supervisor" | "ejecutivo"
+      estado_cliente: "prospecto" | "activo" | "inactivo" | "perdido"
+      tipo_cliente: "empresa" | "persona"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -212,6 +472,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["administrador", "supervisor", "ejecutivo"],
+      estado_cliente: ["prospecto", "activo", "inactivo", "perdido"],
+      tipo_cliente: ["empresa", "persona"],
     },
   },
 } as const

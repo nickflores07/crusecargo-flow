@@ -131,9 +131,9 @@ function OportunidadesPage() {
 
   const moverA = async (op: Oport, nuevo: EstadoOp, motivo?: string) => {
     if (op.estado === nuevo) return;
-    const patch: Partial<Oport> & { motivo_perdida?: string | null } = { estado: nuevo };
+    const patch: { estado: EstadoOp; motivo_perdida?: string | null } = { estado: nuevo };
     if (nuevo === "perdida") patch.motivo_perdida = motivo ?? "";
-    if (nuevo !== "perdida") patch.motivo_perdida = null;
+    else patch.motivo_perdida = null;
     // Optimistic update
     setItems((prev) => prev.map((x) => (x.id === op.id ? { ...x, estado: nuevo, motivo_perdida: patch.motivo_perdida ?? null } : x)));
     const { error } = await supabase.from("oportunidades").update(patch).eq("id", op.id);

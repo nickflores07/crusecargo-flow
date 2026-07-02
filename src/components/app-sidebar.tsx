@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 const nav = [
   { title: "Inicio", url: "/", icon: LayoutDashboard },
-  { title: "Clientes", url: "/clientes", icon: Users, soon: true },
+  { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Seguimiento", url: "/seguimiento", icon: ClipboardList, soon: true },
   { title: "Oportunidades", url: "/oportunidades", icon: Target, soon: true },
   { title: "Envíos", url: "/envios", icon: Truck, soon: true },

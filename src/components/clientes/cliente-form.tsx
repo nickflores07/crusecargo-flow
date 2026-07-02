@@ -71,15 +71,21 @@ export function ClienteForm({
   const set = <K extends keyof ClienteFormValues>(k: K, v: ClienteFormValues[K]) =>
     setValues((s) => {
       const next = { ...s, [k]: v } as ClienteFormValues;
-      // Regla: B2B => solo Institucional. Si cambias a B2B forzamos institucional.
-      if (k === "area_comercial" && v === "b2b") next.categoria_cliente = "institucional";
-      // Si eliges Común, el área debe ser B2C.
+      // Regla: Común solo puede ser B2C. Institucional puede ser B2B o B2C.
       if (k === "categoria_cliente" && v === "comun") next.area_comercial = "b2c";
       return next;
     });
 
   const invalidRule =
-    values.area_comercial === "b2b" && values.categoria_cliente !== "institucional";
+    values.categoria_cliente === "comun" && values.area_comercial === "b2b";
+
+  const canales = [
+    "Transporte y Distribución",
+    "Agencia",
+    "Negocios",
+    "Web",
+    "Almacenaje",
+  ];
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -156,10 +162,15 @@ export function ClienteForm({
           <Select value={values.area_comercial} onValueChange={(v) => set("area_comercial", v as ClienteFormValues["area_comercial"])}>
             <SelectTrigger id="area_comercial"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="b2b">B2B</SelectItem>
+              <SelectItem value="b2b" disabled={values.categoria_cliente === "comun"}>B2B</SelectItem>
               <SelectItem value="b2c">B2C</SelectItem>
             </SelectContent>
           </Select>
+          {values.categoria_cliente === "comun" && (
+            <p className="text-[11px] text-muted-foreground mt-1">
+              Los clientes Comunes solo pueden ser B2C.
+            </p>
+          )}
         </div>
         <div>
           <Label htmlFor="categoria_cliente">Categoría cliente *</Label>
@@ -170,24 +181,24 @@ export function ClienteForm({
             <SelectTrigger id="categoria_cliente"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="institucional">Institucional (crédito)</SelectItem>
-              <SelectItem
-                value="comun"
-                disabled={values.area_comercial === "b2b"}
-              >
-                Común (contado / agencia)
-              </SelectItem>
+              <SelectItem value="comun">Común (contado / agencia)</SelectItem>
             </SelectContent>
           </Select>
-          {values.area_comercial === "b2b" && (
-            <p className="text-[11px] text-muted-foreground mt-1">
-              B2B solo atiende clientes Institucionales.
-            </p>
-          )}
         </div>
         <div>
           <Label htmlFor="canal">Canal</Label>
-          <Input id="canal" value={values.canal} onChange={(e) => set("canal", e.target.value)}
-            placeholder="Ej: Agencia, Web, Call center..." />
+          <Select
+            value={values.canal || "__none__"}
+            onValueChange={(v) => set("canal", v === "__none__" ? "" : v)}
+          >
+            <SelectTrigger id="canal"><SelectValue placeholder="Elegir canal..." /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">— Sin canal —</SelectItem>
+              {canales.map((c) => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="md:col-span-3">
           <Label htmlFor="sector_id">Sector</Label>
@@ -207,7 +218,7 @@ export function ClienteForm({
         {invalidRule && (
           <div className="md:col-span-3 flex items-center gap-2 text-xs text-destructive">
             <AlertCircle className="h-4 w-4" />
-            El área B2B solo permite clientes de categoría Institucional.
+            Los clientes Comunes solo pueden ser B2C.
           </div>
         )}
       </div>

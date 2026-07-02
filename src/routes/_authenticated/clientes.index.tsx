@@ -103,18 +103,6 @@ function ClientesList() {
     }
   };
 
-  const updateSector = async (id: string, sectorId: string | null) => {
-    const prev = rows;
-    setRows((r) => r.map((x) => (x.id === id ? { ...x, sector_id: sectorId } : x)));
-    const { error } = await supabase.from("clientes").update({ sector_id: sectorId }).eq("id", id);
-    if (error) {
-      setRows(prev);
-      toast.error("No se pudo actualizar sector: " + error.message);
-    } else {
-      toast.success("Sector actualizado");
-    }
-  };
-
   return (
     <div className="space-y-5 max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -212,19 +200,6 @@ function ClientesList() {
                         </p>
                       </div>
                     </Link>
-                    <Select value={c.sector_id ?? "__none__"} onValueChange={(v) => void updateSector(c.id, v === "__none__" ? null : v)}>
-                      <SelectTrigger className="h-8 w-[180px] text-xs" title="Cambiar sector">
-                        <SelectValue placeholder="Sin sector">
-                          {c.sector_id ? sectoresMap.get(c.sector_id) : "Sin sector"}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="max-h-72">
-                        <SelectItem value="__none__">Sin sector</SelectItem>
-                        {sectores.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <Select value={c.estado} onValueChange={(v) => void updateEstado(c.id, v as Cliente["estado"])}>
                       <SelectTrigger
                         className={`h-8 w-[150px] text-xs capitalize border ${estadoColor[c.estado] ?? ""}`}

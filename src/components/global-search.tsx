@@ -6,8 +6,8 @@ import {
 } from "@/components/ui/command";
 import { Users, Target, User as UserIcon, Loader2 } from "lucide-react";
 
-type Cliente = { id: string; nombre_comercial: string | null; razon_social: string | null; ruc_dni: string | null; telefono: string | null };
-type Contacto = { id: string; nombre: string | null; cliente_id: string; email: string | null; telefono: string | null };
+type Cliente = { id: string; nombre_completo: string | null; razon_social: string | null; ruc: string | null; telefono: string | null };
+type Contacto = { id: string; nombre: string; cliente_id: string; correo: string | null; celular: string | null };
 type Oportunidad = { id: string; titulo: string | null; cliente_id: string; estado: string | null };
 
 export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
@@ -31,12 +31,12 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
     (async () => {
       const [c, k, o] = await Promise.all([
         supabase.from("clientes")
-          .select("id, nombre_comercial, razon_social, ruc_dni, telefono")
-          .or(`nombre_comercial.ilike.${like},razon_social.ilike.${like},ruc_dni.ilike.${like},telefono.ilike.${like}`)
+          .select("id, nombre_completo, razon_social, ruc, telefono")
+          .or(`nombre_completo.ilike.${like},razon_social.ilike.${like},ruc.ilike.${like},telefono.ilike.${like}`)
           .limit(6),
         supabase.from("contactos")
-          .select("id, nombre, cliente_id, email, telefono")
-          .or(`nombre.ilike.${like},email.ilike.${like},telefono.ilike.${like}`)
+          .select("id, nombre, cliente_id, correo, celular")
+          .or(`nombre.ilike.${like},correo.ilike.${like},celular.ilike.${like}`)
           .limit(6),
         supabase.from("oportunidades")
           .select("id, titulo, cliente_id, estado")
@@ -44,9 +44,9 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
           .limit(6),
       ]);
       if (cancel) return;
-      setClientes((c.data as Cliente[]) ?? []);
-      setContactos((k.data as Contacto[]) ?? []);
-      setOportunidades((o.data as Oportunidad[]) ?? []);
+        setClientes((c.data as unknown as Cliente[]) ?? []);
+        setContactos((k.data as unknown as Contacto[]) ?? []);
+        setOportunidades((o.data as unknown as Oportunidad[]) ?? []);
       setLoading(false);
     })();
     return () => { cancel = true; };
@@ -86,8 +86,8 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
               <CommandItem key={c.id} value={`c-${c.id}`} onSelect={() => go(`/clientes/${c.id}`)}>
                 <Users className="h-4 w-4 mr-2" />
                 <div className="flex flex-col">
-                  <span>{c.nombre_comercial || c.razon_social || "Sin nombre"}</span>
-                  <span className="text-xs text-muted-foreground">{c.ruc_dni || c.telefono || ""}</span>
+                  <span>{c.nombre_completo || c.razon_social || "Sin nombre"}</span>
+                  <span className="text-xs text-muted-foreground">{c.ruc || c.telefono || ""}</span>
                 </div>
               </CommandItem>
             ))}
@@ -103,7 +103,7 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
                   <UserIcon className="h-4 w-4 mr-2" />
                   <div className="flex flex-col">
                     <span>{k.nombre || "Sin nombre"}</span>
-                    <span className="text-xs text-muted-foreground">{k.email || k.telefono || ""}</span>
+                    <span className="text-xs text-muted-foreground">{k.correo || k.celular || ""}</span>
                   </div>
                 </CommandItem>
               ))}

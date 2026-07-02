@@ -135,11 +135,6 @@ export function ClienteForm({
             <Label htmlFor="ruc">RUC</Label>
             <Input id="ruc" value={values.ruc} onChange={(e) => set("ruc", e.target.value)} />
           </div>
-          <div className="md:col-span-2">
-            <Label htmlFor="rubro">Rubro / Industria</Label>
-            <Input id="rubro" value={values.rubro} onChange={(e) => set("rubro", e.target.value)}
-              placeholder="Ej: Retail, E-commerce, Farmacia..." />
-          </div>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">

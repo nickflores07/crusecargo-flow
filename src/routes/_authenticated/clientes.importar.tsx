@@ -387,6 +387,7 @@ function ImportarClientes() {
                     <th className="text-left p-2">Doc.</th>
                     <th className="text-left p-2">Área</th>
                     <th className="text-left p-2">Categoría</th>
+                    <th className="text-left p-2">Sector</th>
                     <th className="text-left p-2">Ejecutivo</th>
                     <th className="text-left p-2">Estado</th>
                   </tr>
@@ -400,6 +401,13 @@ function ImportarClientes() {
                       <td className="p-2 text-muted-foreground">{p.identificador ?? "—"}</td>
                       <td className="p-2 uppercase text-xs">{p.area_comercial}</td>
                       <td className="p-2 capitalize text-xs">{p.categoria_cliente}</td>
+                      <td className="p-2 text-xs">
+                        {p.sector_nombre
+                          ? (p.sector_id
+                              ? p.sector_nombre
+                              : <span className="text-amber-600" title="Sector no encontrado; se dejará vacío">{p.sector_nombre} ⚠</span>)
+                          : <span className="text-muted-foreground">—</span>}
+                      </td>
                       <td className="p-2 text-xs">
                         {p.ejecutivo_nombre
                           ? (p.ejecutivo_id

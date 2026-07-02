@@ -13,6 +13,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare,
 } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { ClienteForm, type ClienteFormValues } from "@/components/clientes/cliente-form";
 import { useAuth } from "@/hooks/use-auth";
 import { Seguimientos } from "@/components/clientes/seguimientos";
@@ -39,25 +42,32 @@ type ClienteRow = {
   area_comercial: "b2b" | "b2c";
   canal: string | null;
   sector_id: string | null;
+  ejecutivo_id: string | null;
 };
 
 function ClienteDetalle() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin, isSupervisor } = useAuth();
+  const canReassign = isAdmin || isSupervisor;
   const [cliente, setCliente] = useState<ClienteRow | null>(null);
+  const [ejecutivos, setEjecutivos] = useState<Array<{ id: string; nombre: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("clientes").select("*").eq("id", id).maybeSingle();
+    const [{ data, error }, { data: profs }] = await Promise.all([
+      supabase.from("clientes").select("*").eq("id", id).maybeSingle(),
+      supabase.from("profiles").select("id, nombre").order("nombre"),
+    ]);
     if (error || !data) {
       toast.error("No se encontró el cliente");
       setLoading(false);
       return;
     }
     setCliente(data as ClienteRow);
+    setEjecutivos(profs ?? []);
     setLoading(false);
   };
 
@@ -102,6 +112,19 @@ function ClienteDetalle() {
     void navigate({ to: "/clientes" });
   };
 
+  const reassign = async (ejecutivoId: string | null) => {
+    if (!cliente) return;
+    const prev = cliente;
+    setCliente({ ...cliente, ejecutivo_id: ejecutivoId });
+    const { error } = await supabase.from("clientes").update({ ejecutivo_id: ejecutivoId }).eq("id", id);
+    if (error) {
+      setCliente(prev);
+      toast.error("No se pudo reasignar: " + error.message);
+    } else {
+      toast.success("Ejecutivo actualizado");
+    }
+  };
+
   if (loading) {
     return <div className="grid place-items-center py-16"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
   }
@@ -116,6 +139,9 @@ function ClienteDetalle() {
 
   const nombre = cliente.tipo === "empresa" ? cliente.razon_social : cliente.nombre_completo;
   const Icon = cliente.tipo === "empresa" ? Building2 : UserIcon;
+  const ejecutivoNombre = cliente.ejecutivo_id
+    ? (ejecutivos.find((e) => e.id === cliente.ejecutivo_id)?.nombre ?? "—")
+    : null;
 
   return (
     <div className="max-w-4xl mx-auto space-y-4">
@@ -142,6 +168,12 @@ function ClienteDetalle() {
                   </Badge>
                   <Badge variant="outline" className="capitalize">{cliente.estado.replace("_", " ")}</Badge>
                 </CardDescription>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Ejecutivo asignado:{" "}
+                  {ejecutivoNombre
+                    ? <span className="font-medium text-foreground">{ejecutivoNombre}</span>
+                    : <span className="text-amber-600">sin asignar</span>}
+                </p>
               </div>
             </div>
             {isAdmin && (
@@ -150,6 +182,28 @@ function ClienteDetalle() {
               </Button>
             )}
           </div>
+          {canReassign && (
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-2 border-t pt-4">
+              <Label className="text-xs text-muted-foreground sm:w-40">Reasignar ejecutivo</Label>
+              <Select
+                value={cliente.ejecutivo_id ?? "__none__"}
+                onValueChange={(v) => void reassign(v === "__none__" ? null : v)}
+              >
+                <SelectTrigger className="sm:max-w-xs">
+                  <SelectValue placeholder="Elegir ejecutivo..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="__none__">— Sin asignar —</SelectItem>
+                  {ejecutivos.map((e) => (
+                    <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button asChild variant="link" size="sm" className="sm:ml-auto">
+                <Link to="/admin/usuarios">+ Crear ejecutivo</Link>
+              </Button>
+            </div>
+          )}
         </CardHeader>
       </Card>
 

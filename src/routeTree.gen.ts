@@ -19,6 +19,7 @@ import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authen
 import { Route as AuthenticatedClientesImportarRouteImport } from './routes/_authenticated/clientes.importar'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedAdminSectoresRouteImport } from './routes/_authenticated/admin.sectores'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -74,12 +75,19 @@ const AuthenticatedAdminUsuariosRoute =
     path: '/admin/usuarios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminSectoresRoute =
+  AuthenticatedAdminSectoresRouteImport.update({
+    id: '/admin/sectores',
+    path: '/admin/sectores',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
@@ -90,6 +98,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
@@ -103,6 +112,7 @@ export interface FileRoutesById {
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/importar': typeof AuthenticatedClientesImportarRoute
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/clientes'
     | '/oportunidades'
+    | '/admin/sectores'
     | '/admin/usuarios'
     | '/clientes/$id'
     | '/clientes/importar'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/oportunidades'
     | '/'
+    | '/admin/sectores'
     | '/admin/usuarios'
     | '/clientes/$id'
     | '/clientes/importar'
@@ -138,6 +150,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes'
     | '/_authenticated/oportunidades'
     | '/_authenticated/'
+    | '/_authenticated/admin/sectores'
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/importar'
@@ -222,6 +235,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/sectores': {
+      id: '/_authenticated/admin/sectores'
+      path: '/admin/sectores'
+      fullPath: '/admin/sectores'
+      preLoaderRoute: typeof AuthenticatedAdminSectoresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -248,6 +268,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRouteWithChildren
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAdminSectoresRoute: typeof AuthenticatedAdminSectoresRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
 }
 
@@ -255,6 +276,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientesRoute: AuthenticatedClientesRouteWithChildren,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAdminSectoresRoute: AuthenticatedAdminSectoresRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
 }
 

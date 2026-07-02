@@ -13,8 +13,8 @@ const nav = [
   { title: "Inicio", url: "/", icon: LayoutDashboard },
   { title: "Clientes", url: "/clientes", icon: Users },
   { title: "Oportunidades", url: "/oportunidades", icon: Target },
-  { title: "Envíos", url: "/envios", icon: Truck, soon: true },
-  { title: "Cotizaciones", url: "/cotizaciones", icon: FileText, soon: true },
+  { title: "Envíos", url: "/envios", icon: Truck },
+  { title: "Cotizaciones", url: "/cotizaciones", icon: FileText },
   { title: "Agenda", url: "/agenda", icon: Calendar },
   { title: "Asistente IA", url: "/asistente", icon: Sparkles },
   { title: "Configuración", url: "/configuracion", icon: Settings },
@@ -52,22 +52,10 @@ export function AppSidebar() {
               {nav.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-                    {item.soon ? (
-                      <button type="button" className="opacity-60 cursor-not-allowed w-full" title="Muy pronto">
-                        <item.icon className="h-4 w-4" />
-                        {!collapsed && (
-                          <span className="flex items-center justify-between w-full">
-                            <span>{item.title}</span>
-                            <span className="text-[9px] uppercase tracking-wide text-sidebar-foreground/50">pronto</span>
-                          </span>
-                        )}
-                      </button>
-                    ) : (
-                      <Link to={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
-                      </Link>
-                    )}
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

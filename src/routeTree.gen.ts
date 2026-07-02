@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
+import { Route as AuthenticatedEnviosRouteImport } from './routes/_authenticated/envios'
+import { Route as AuthenticatedCotizacionesRouteImport } from './routes/_authenticated/cotizaciones'
 import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authenticated/configuracion'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
 import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
@@ -50,6 +52,17 @@ const AuthenticatedOportunidadesRoute =
   AuthenticatedOportunidadesRouteImport.update({
     id: '/oportunidades',
     path: '/oportunidades',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEnviosRoute = AuthenticatedEnviosRouteImport.update({
+  id: '/envios',
+  path: '/envios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCotizacionesRoute =
+  AuthenticatedCotizacionesRouteImport.update({
+    id: '/cotizaciones',
+    path: '/cotizaciones',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedConfiguracionRoute =
@@ -128,6 +141,8 @@ export interface FileRoutesByFullPath {
   '/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/configuracion': typeof AuthenticatedConfiguracionRoute
+  '/cotizaciones': typeof AuthenticatedCotizacionesRoute
+  '/envios': typeof AuthenticatedEnviosRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/api/chat': typeof ApiChatRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
@@ -143,6 +158,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
+  '/cotizaciones': typeof AuthenticatedCotizacionesRoute
+  '/envios': typeof AuthenticatedEnviosRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
@@ -163,6 +180,8 @@ export interface FileRoutesById {
   '/_authenticated/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/configuracion': typeof AuthenticatedConfiguracionRoute
+  '/_authenticated/cotizaciones': typeof AuthenticatedCotizacionesRoute
+  '/_authenticated/envios': typeof AuthenticatedEnviosRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -184,6 +203,8 @@ export interface FileRouteTypes {
     | '/asistente'
     | '/clientes'
     | '/configuracion'
+    | '/cotizaciones'
+    | '/envios'
     | '/oportunidades'
     | '/api/chat'
     | '/admin/sectores'
@@ -199,6 +220,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/agenda'
     | '/configuracion'
+    | '/cotizaciones'
+    | '/envios'
     | '/oportunidades'
     | '/api/chat'
     | '/'
@@ -218,6 +241,8 @@ export interface FileRouteTypes {
     | '/_authenticated/asistente'
     | '/_authenticated/clientes'
     | '/_authenticated/configuracion'
+    | '/_authenticated/cotizaciones'
+    | '/_authenticated/envios'
     | '/_authenticated/oportunidades'
     | '/api/chat'
     | '/_authenticated/'
@@ -272,6 +297,20 @@ declare module '@tanstack/react-router' {
       path: '/oportunidades'
       fullPath: '/oportunidades'
       preLoaderRoute: typeof AuthenticatedOportunidadesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/envios': {
+      id: '/_authenticated/envios'
+      path: '/envios'
+      fullPath: '/envios'
+      preLoaderRoute: typeof AuthenticatedEnviosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cotizaciones': {
+      id: '/_authenticated/cotizaciones'
+      path: '/cotizaciones'
+      fullPath: '/cotizaciones'
+      preLoaderRoute: typeof AuthenticatedCotizacionesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/configuracion': {
@@ -401,6 +440,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRouteWithChildren
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRouteWithChildren
   AuthenticatedConfiguracionRoute: typeof AuthenticatedConfiguracionRoute
+  AuthenticatedCotizacionesRoute: typeof AuthenticatedCotizacionesRoute
+  AuthenticatedEnviosRoute: typeof AuthenticatedEnviosRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminSectoresRoute: typeof AuthenticatedAdminSectoresRoute
@@ -412,6 +453,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAsistenteRoute: AuthenticatedAsistenteRouteWithChildren,
   AuthenticatedClientesRoute: AuthenticatedClientesRouteWithChildren,
   AuthenticatedConfiguracionRoute: AuthenticatedConfiguracionRoute,
+  AuthenticatedCotizacionesRoute: AuthenticatedCotizacionesRoute,
+  AuthenticatedEnviosRoute: AuthenticatedEnviosRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminSectoresRoute: AuthenticatedAdminSectoresRoute,

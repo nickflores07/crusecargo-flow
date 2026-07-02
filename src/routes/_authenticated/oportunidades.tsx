@@ -2,19 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, Plus, Target, GripVertical, Trophy, XCircle, Clock } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Loader2, Plus, Target, GripVertical, Trophy, XCircle, Clock, Pencil, Check, ChevronsUpDown, Weight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/oportunidades")({
@@ -29,10 +28,12 @@ type Oport = {
   titulo: string;
   servicio: string | null;
   monto_potencial: number | null;
+  peso_estimado_kg: number | null;
   probabilidad: number;
   fecha_cierre_estimada: string | null;
   estado: EstadoOp;
   motivo_perdida: string | null;
+  notas: string | null;
   cliente_nombre: string;
 };
 
@@ -49,16 +50,80 @@ function fmtMoney(n: number | null) {
   return "S/ " + n.toLocaleString("es-PE", { maximumFractionDigits: 2 });
 }
 
+type FormState = {
+  cliente_id: string;
+  titulo: string;
+  servicio: string;
+  monto: string;
+  peso: string;
+  probabilidad: number;
+  fecha_cierre: string;
+  notas: string;
+};
+
+const emptyForm: FormState = {
+  cliente_id: "", titulo: "", servicio: "", monto: "", peso: "",
+  probabilidad: 50, fecha_cierre: "", notas: "",
+};
+
+function ClienteCombobox({
+  clientes, value, onChange,
+}: { clientes: ClienteOpt[]; value: string; onChange: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const selected = clientes.find((c) => c.id === value);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          <span className={cn("truncate", !selected && "text-muted-foreground")}>
+            {selected ? selected.label : "Busca un cliente por nombre…"}
+          </span>
+          <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+        <Command
+          filter={(val, search) => {
+            // val is the CommandItem value; we store the label lowercased there
+            return val.includes(search.toLowerCase()) ? 1 : 0;
+          }}
+        >
+          <CommandInput placeholder="Escribe parte del nombre…" />
+          <CommandList>
+            <CommandEmpty>Sin coincidencias. Crea el cliente primero en el módulo Clientes.</CommandEmpty>
+            <CommandGroup>
+              {clientes.map((c) => (
+                <CommandItem
+                  key={c.id}
+                  value={c.label.toLowerCase()}
+                  onSelect={() => { onChange(c.id); setOpen(false); }}
+                >
+                  <Check className={cn("h-4 w-4", value === c.id ? "opacity-100" : "opacity-0")} />
+                  <span className="truncate">{c.label}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function OportunidadesPage() {
   const { user } = useAuth();
   const [items, setItems] = useState<Oport[]>([]);
   const [loading, setLoading] = useState(true);
   const [clientes, setClientes] = useState<ClienteOpt[]>([]);
-  const [openNew, setOpenNew] = useState(false);
+  const [editing, setEditing] = useState<{ open: boolean; id: string | null }>({ open: false, id: null });
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
-    cliente_id: "", titulo: "", servicio: "", monto: "", probabilidad: 50, fecha_cierre: "",
-  });
+  const [form, setForm] = useState<FormState>(emptyForm);
   const [dragged, setDragged] = useState<Oport | null>(null);
   const [motivoDialog, setMotivoDialog] = useState<{ open: boolean; oport: Oport | null; motivo: string }>({
     open: false, oport: null, motivo: "",
@@ -68,7 +133,7 @@ function OportunidadesPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("oportunidades")
-      .select(`id, cliente_id, titulo, servicio, monto_potencial, probabilidad, fecha_cierre_estimada, estado, motivo_perdida,
+      .select(`id, cliente_id, titulo, servicio, monto_potencial, peso_estimado_kg, probabilidad, fecha_cierre_estimada, estado, motivo_perdida, notas,
                clientes ( razon_social, nombre_completo )`)
       .order("created_at", { ascending: false });
     if (error) {
@@ -81,8 +146,10 @@ function OportunidadesPage() {
       return {
         id: r.id, cliente_id: r.cliente_id, titulo: r.titulo, servicio: r.servicio,
         monto_potencial: r.monto_potencial as number | null,
+        peso_estimado_kg: (r as { peso_estimado_kg: number | null }).peso_estimado_kg,
         probabilidad: r.probabilidad, fecha_cierre_estimada: r.fecha_cierre_estimada,
         estado: r.estado as EstadoOp, motivo_perdida: r.motivo_perdida,
+        notas: r.notas ?? null,
         cliente_nombre: c?.razon_social || c?.nombre_completo || "Cliente",
       };
     });
@@ -92,7 +159,7 @@ function OportunidadesPage() {
 
   const loadClientes = async () => {
     const { data } = await supabase.from("clientes")
-      .select("id, razon_social, nombre_completo").order("razon_social", { nullsFirst: false });
+      .select("id, razon_social, nombre_completo").order("created_at", { ascending: false });
     setClientes((data ?? []).map((c) => ({
       id: c.id,
       label: c.razon_social || c.nombre_completo || "(sin nombre)",
@@ -107,25 +174,51 @@ function OportunidadesPage() {
     return g;
   }, [items]);
 
-  const create = async () => {
+  const openCreate = () => {
+    setForm(emptyForm);
+    setEditing({ open: true, id: null });
+  };
+
+  const openEdit = (o: Oport) => {
+    setForm({
+      cliente_id: o.cliente_id,
+      titulo: o.titulo,
+      servicio: o.servicio ?? "",
+      monto: o.monto_potencial != null ? String(o.monto_potencial) : "",
+      peso: o.peso_estimado_kg != null ? String(o.peso_estimado_kg) : "",
+      probabilidad: o.probabilidad,
+      fecha_cierre: o.fecha_cierre_estimada ?? "",
+      notas: o.notas ?? "",
+    });
+    setEditing({ open: true, id: o.id });
+  };
+
+  const save = async () => {
     if (!form.cliente_id) return toast.error("Selecciona el cliente");
     if (!form.titulo.trim()) return toast.error("Ponle un título a la oportunidad");
     setSaving(true);
-    const { error } = await supabase.from("oportunidades").insert({
+    const payload = {
       cliente_id: form.cliente_id,
       titulo: form.titulo.trim(),
       servicio: form.servicio || null,
       monto_potencial: form.monto ? Number(form.monto) : null,
+      peso_estimado_kg: form.peso ? Number(form.peso) : null,
       probabilidad: form.probabilidad,
       fecha_cierre_estimada: form.fecha_cierre || null,
-      ejecutivo_id: user?.id ?? null,
-      created_by: user?.id ?? null,
-    });
+      notas: form.notas || null,
+    };
+    const { error } = editing.id
+      ? await supabase.from("oportunidades").update(payload).eq("id", editing.id)
+      : await supabase.from("oportunidades").insert({
+          ...payload,
+          ejecutivo_id: user?.id ?? null,
+          created_by: user?.id ?? null,
+        });
     setSaving(false);
-    if (error) return toast.error("No se pudo crear: " + error.message);
-    toast.success("Oportunidad creada");
-    setOpenNew(false);
-    setForm({ cliente_id: "", titulo: "", servicio: "", monto: "", probabilidad: 50, fecha_cierre: "" });
+    if (error) return toast.error("No se pudo guardar: " + error.message);
+    toast.success(editing.id ? "Oportunidad actualizada" : "Oportunidad creada");
+    setEditing({ open: false, id: null });
+    setForm(emptyForm);
     void load();
   };
 
@@ -167,9 +260,9 @@ function OportunidadesPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2"><Target className="h-6 w-6" /> Oportunidades</h1>
-          <p className="text-sm text-muted-foreground">Arrastra las tarjetas entre columnas para mover cada oportunidad.</p>
+          <p className="text-sm text-muted-foreground">Arrastra las tarjetas entre columnas o toca el lápiz para editar cada oportunidad.</p>
         </div>
-        <Button onClick={() => setOpenNew(true)}><Plus className="h-4 w-4" /> Nueva oportunidad</Button>
+        <Button onClick={openCreate}><Plus className="h-4 w-4" /> Nueva oportunidad</Button>
       </div>
 
       {loading ? (
@@ -204,20 +297,37 @@ function OportunidadesPage() {
                       key={o.id}
                       draggable
                       onDragStart={() => setDragged(o)}
-                      className="rounded-md border bg-background p-3 cursor-grab active:cursor-grabbing shadow-sm hover:shadow transition-shadow"
+                      className="group rounded-md border bg-background p-3 cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
                     >
                       <div className="flex items-start gap-2">
                         <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
-                          <Link to="/clientes/$id" params={{ id: o.cliente_id }} className="text-xs text-primary hover:underline truncate block">
-                            {o.cliente_nombre}
-                          </Link>
-                          <p className="font-medium text-sm truncate">{o.titulo}</p>
+                          <div className="flex items-start justify-between gap-2">
+                            <Link to="/clientes/$id" params={{ id: o.cliente_id }} className="text-xs text-primary hover:underline truncate block">
+                              {o.cliente_nombre}
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); openEdit(o); }}
+                              onMouseDown={(e) => e.stopPropagation()}
+                              draggable={false}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
+                              aria-label="Editar oportunidad"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          <p className="font-medium text-sm truncate mt-0.5">{o.titulo}</p>
                           {o.servicio && <p className="text-xs text-muted-foreground truncate">{o.servicio}</p>}
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-sm font-semibold">{fmtMoney(o.monto_potencial)}</span>
                             <Badge variant="outline" className="text-[10px]">{o.probabilidad}%</Badge>
                           </div>
+                          {o.peso_estimado_kg != null && (
+                            <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
+                              <Weight className="h-3 w-3" /> {o.peso_estimado_kg.toLocaleString("es-PE")} Kg
+                            </p>
+                          )}
                           {o.fecha_cierre_estimada && (
                             <p className="text-[11px] text-muted-foreground mt-1">
                               Cierre: {new Date(o.fecha_cierre_estimada).toLocaleDateString("es-PE")}
@@ -237,22 +347,28 @@ function OportunidadesPage() {
         </div>
       )}
 
-      {/* Dialog: nueva oportunidad */}
-      <Dialog open={openNew} onOpenChange={setOpenNew}>
-        <DialogContent>
+      {/* Dialog: crear / editar oportunidad */}
+      <Dialog open={editing.open} onOpenChange={(o) => setEditing((s) => ({ ...s, open: o }))}>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Nueva oportunidad</DialogTitle>
-            <DialogDescription>Registra una posible venta para dar seguimiento.</DialogDescription>
+            <DialogTitle>{editing.id ? "Editar oportunidad" : "Nueva oportunidad"}</DialogTitle>
+            <DialogDescription>
+              {editing.id ? "Actualiza los datos de esta oportunidad." : "Registra una posible venta para dar seguimiento."}
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
             <div>
               <Label className="text-xs">Cliente *</Label>
-              <Select value={form.cliente_id} onValueChange={(v) => setForm((s) => ({ ...s, cliente_id: v }))}>
-                <SelectTrigger><SelectValue placeholder="Elige un cliente" /></SelectTrigger>
-                <SelectContent className="max-h-64">
-                  {clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <ClienteCombobox
+                clientes={clientes}
+                value={form.cliente_id}
+                onChange={(id) => setForm((s) => ({ ...s, cliente_id: id }))}
+              />
+              {clientes.length === 0 && (
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Aún no tienes clientes. Créalos primero en <Link to="/clientes" className="text-primary hover:underline">Clientes</Link>.
+                </p>
+              )}
             </div>
             <div>
               <Label className="text-xs">Título *</Label>
@@ -264,12 +380,20 @@ function OportunidadesPage() {
               <Input value={form.servicio} onChange={(e) => setForm((s) => ({ ...s, servicio: e.target.value }))}
                 placeholder="Ej: Última milla, courier documentario..." />
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label className="text-xs">Monto (S/)</Label>
-                <Input type="number" step="0.01" value={form.monto}
+                <Input type="number" step="0.01" min={0} value={form.monto}
                   onChange={(e) => setForm((s) => ({ ...s, monto: e.target.value }))} />
               </div>
+              <div>
+                <Label className="text-xs">Peso estimado (Kg)</Label>
+                <Input type="number" step="0.01" min={0} value={form.peso}
+                  onChange={(e) => setForm((s) => ({ ...s, peso: e.target.value }))}
+                  placeholder="Ej: 250" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               <div>
                 <Label className="text-xs">Probabilidad %</Label>
                 <Input type="number" min={0} max={100} value={form.probabilidad}
@@ -281,11 +405,17 @@ function OportunidadesPage() {
                   onChange={(e) => setForm((s) => ({ ...s, fecha_cierre: e.target.value }))} />
               </div>
             </div>
+            <div>
+              <Label className="text-xs">Notas</Label>
+              <Textarea rows={2} value={form.notas}
+                onChange={(e) => setForm((s) => ({ ...s, notas: e.target.value }))}
+                placeholder="Detalles internos, próximos pasos…" />
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenNew(false)}>Cancelar</Button>
-            <Button onClick={create} disabled={saving}>
-              {saving && <Loader2 className="h-4 w-4 animate-spin" />} Crear
+            <Button variant="outline" onClick={() => setEditing({ open: false, id: null })}>Cancelar</Button>
+            <Button onClick={save} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />} {editing.id ? "Guardar cambios" : "Crear"}
             </Button>
           </DialogFooter>
         </DialogContent>

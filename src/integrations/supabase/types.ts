@@ -16,6 +16,9 @@ export type Database = {
     Tables: {
       clientes: {
         Row: {
+          area_comercial: Database["public"]["Enums"]["area_comercial"]
+          canal: string | null
+          categoria_cliente: Database["public"]["Enums"]["categoria_cliente"]
           ciudad: string | null
           correo: string | null
           created_at: string
@@ -36,6 +39,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          area_comercial?: Database["public"]["Enums"]["area_comercial"]
+          canal?: string | null
+          categoria_cliente?: Database["public"]["Enums"]["categoria_cliente"]
           ciudad?: string | null
           correo?: string | null
           created_at?: string
@@ -56,6 +62,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          area_comercial?: Database["public"]["Enums"]["area_comercial"]
+          canal?: string | null
+          categoria_cliente?: Database["public"]["Enums"]["categoria_cliente"]
           ciudad?: string | null
           correo?: string | null
           created_at?: string
@@ -342,6 +351,8 @@ export type Database = {
     }
     Enums: {
       app_role: "administrador" | "supervisor" | "ejecutivo"
+      area_comercial: "b2b" | "b2c"
+      categoria_cliente: "institucional" | "comun"
       estado_cliente: "prospecto" | "activo" | "inactivo" | "perdido"
       tipo_cliente: "empresa" | "persona"
     }
@@ -472,6 +483,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["administrador", "supervisor", "ejecutivo"],
+      area_comercial: ["b2b", "b2c"],
+      categoria_cliente: ["institucional", "comun"],
       estado_cliente: ["prospecto", "activo", "inactivo", "perdido"],
       tipo_cliente: ["empresa", "persona"],
     },

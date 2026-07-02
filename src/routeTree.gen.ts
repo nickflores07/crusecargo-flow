@@ -18,6 +18,7 @@ import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
+import { Route as AuthenticatedAsistenteIndexRouteImport } from './routes/_authenticated/asistente.index'
 import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authenticated/clientes.nuevo'
 import { Route as AuthenticatedClientesImportarRouteImport } from './routes/_authenticated/clientes.importar'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
@@ -70,6 +71,12 @@ const AuthenticatedClientesIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedClientesRoute,
   } as any)
+const AuthenticatedAsistenteIndexRoute =
+  AuthenticatedAsistenteIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAsistenteRoute,
+  } as any)
 const AuthenticatedClientesNuevoRoute =
   AuthenticatedClientesNuevoRouteImport.update({
     id: '/nuevo',
@@ -104,7 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
-  '/asistente': typeof AuthenticatedAsistenteRoute
+  '/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/api/chat': typeof ApiChatRoute
@@ -113,12 +120,12 @@ export interface FileRoutesByFullPath {
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
-  '/asistente': typeof AuthenticatedAsistenteRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/asistente': typeof AuthenticatedAsistenteIndexRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRoutesById {
@@ -134,7 +142,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
-  '/_authenticated/asistente': typeof AuthenticatedAsistenteRoute
+  '/_authenticated/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/api/chat': typeof ApiChatRoute
@@ -144,6 +152,7 @@ export interface FileRoutesById {
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/_authenticated/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/_authenticated/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRouteTypes {
@@ -161,12 +170,12 @@ export interface FileRouteTypes {
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
+    | '/asistente/'
     | '/clientes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
     | '/agenda'
-    | '/asistente'
     | '/oportunidades'
     | '/api/chat'
     | '/'
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
+    | '/asistente'
     | '/clientes'
   id:
     | '__root__'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/importar'
     | '/_authenticated/clientes/nuevo'
+    | '/_authenticated/asistente/'
     | '/_authenticated/clientes/'
   fileRoutesById: FileRoutesById
 }
@@ -265,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesIndexRouteImport
       parentRoute: typeof AuthenticatedClientesRoute
     }
+    '/_authenticated/asistente/': {
+      id: '/_authenticated/asistente/'
+      path: '/'
+      fullPath: '/asistente/'
+      preLoaderRoute: typeof AuthenticatedAsistenteIndexRouteImport
+      parentRoute: typeof AuthenticatedAsistenteRoute
+    }
     '/_authenticated/clientes/nuevo': {
       id: '/_authenticated/clientes/nuevo'
       path: '/nuevo'
@@ -303,6 +321,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAsistenteRouteChildren {
+  AuthenticatedAsistenteIndexRoute: typeof AuthenticatedAsistenteIndexRoute
+}
+
+const AuthenticatedAsistenteRouteChildren: AuthenticatedAsistenteRouteChildren =
+  {
+    AuthenticatedAsistenteIndexRoute: AuthenticatedAsistenteIndexRoute,
+  }
+
+const AuthenticatedAsistenteRouteWithChildren =
+  AuthenticatedAsistenteRoute._addFileChildren(
+    AuthenticatedAsistenteRouteChildren,
+  )
+
 interface AuthenticatedClientesRouteChildren {
   AuthenticatedClientesIdRoute: typeof AuthenticatedClientesIdRoute
   AuthenticatedClientesImportarRoute: typeof AuthenticatedClientesImportarRoute
@@ -324,7 +356,7 @@ const AuthenticatedClientesRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
-  AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRoute
+  AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRouteWithChildren
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRouteWithChildren
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -334,7 +366,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
-  AuthenticatedAsistenteRoute: AuthenticatedAsistenteRoute,
+  AuthenticatedAsistenteRoute: AuthenticatedAsistenteRouteWithChildren,
   AuthenticatedClientesRoute: AuthenticatedClientesRouteWithChildren,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,

@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, User as UserIcon, Loader2 } from "lucide-react";
+import { Building2, User as UserIcon, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ClienteFormValues = {
@@ -20,6 +20,9 @@ export type ClienteFormValues = {
   correo: string;
   estado: "prospecto" | "activo" | "inactivo" | "perdido";
   notas: string;
+  categoria_cliente: "institucional" | "comun";
+  area_comercial: "b2b" | "b2c";
+  canal: string;
 };
 
 export const emptyCliente: ClienteFormValues = {
@@ -35,6 +38,9 @@ export const emptyCliente: ClienteFormValues = {
   correo: "",
   estado: "prospecto",
   notas: "",
+  categoria_cliente: "institucional",
+  area_comercial: "b2b",
+  canal: "",
 };
 
 export function ClienteForm({
@@ -54,10 +60,21 @@ export function ClienteForm({
 }) {
   const [values, setValues] = useState<ClienteFormValues>({ ...emptyCliente, ...initial });
   const set = <K extends keyof ClienteFormValues>(k: K, v: ClienteFormValues[K]) =>
-    setValues((s) => ({ ...s, [k]: v }));
+    setValues((s) => {
+      const next = { ...s, [k]: v } as ClienteFormValues;
+      // Regla: B2B => solo Institucional. Si cambias a B2B forzamos institucional.
+      if (k === "area_comercial" && v === "b2b") next.categoria_cliente = "institucional";
+      // Si eliges Común, el área debe ser B2C.
+      if (k === "categoria_cliente" && v === "comun") next.area_comercial = "b2c";
+      return next;
+    });
+
+  const invalidRule =
+    values.area_comercial === "b2b" && values.categoria_cliente !== "institucional";
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (invalidRule) return;
     void onSubmit(values);
   };
 
@@ -129,6 +146,53 @@ export function ClienteForm({
         </div>
       )}
 
+      <div className="grid md:grid-cols-3 gap-4 rounded-lg border bg-muted/30 p-4">
+        <div>
+          <Label htmlFor="area_comercial">Área comercial *</Label>
+          <Select value={values.area_comercial} onValueChange={(v) => set("area_comercial", v as ClienteFormValues["area_comercial"])}>
+            <SelectTrigger id="area_comercial"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="b2b">B2B</SelectItem>
+              <SelectItem value="b2c">B2C</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label htmlFor="categoria_cliente">Categoría cliente *</Label>
+          <Select
+            value={values.categoria_cliente}
+            onValueChange={(v) => set("categoria_cliente", v as ClienteFormValues["categoria_cliente"])}
+          >
+            <SelectTrigger id="categoria_cliente"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="institucional">Institucional (crédito)</SelectItem>
+              <SelectItem
+                value="comun"
+                disabled={values.area_comercial === "b2b"}
+              >
+                Común (contado / agencia)
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          {values.area_comercial === "b2b" && (
+            <p className="text-[11px] text-muted-foreground mt-1">
+              B2B solo atiende clientes Institucionales.
+            </p>
+          )}
+        </div>
+        <div>
+          <Label htmlFor="canal">Canal</Label>
+          <Input id="canal" value={values.canal} onChange={(e) => set("canal", e.target.value)}
+            placeholder="Ej: Agencia, Web, Call center..." />
+        </div>
+        {invalidRule && (
+          <div className="md:col-span-3 flex items-center gap-2 text-xs text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            El área B2B solo permite clientes de categoría Institucional.
+          </div>
+        )}
+      </div>
+
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="telefono">Teléfono</Label>
@@ -174,7 +238,7 @@ export function ClienteForm({
             Cancelar
           </Button>
         )}
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" disabled={submitting || invalidRule}>
           {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
           {submitLabel}
         </Button>

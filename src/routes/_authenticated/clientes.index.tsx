@@ -251,6 +251,19 @@ function ClientesList() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="min-w-0">
+                <label className="text-[11px] font-medium text-muted-foreground block mb-1">Canal</label>
+                <Select value={canalFilter} onValueChange={setCanalFilter}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem value="todos">Todos los canales</SelectItem>
+                    <SelectItem value="__none__">Sin canal</SelectItem>
+                    {canales.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             {activeFilters > 0 && (
               <div className="flex items-center justify-between pt-1">

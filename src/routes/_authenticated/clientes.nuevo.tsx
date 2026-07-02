@@ -37,9 +37,12 @@ function NuevoCliente() {
     };
     const { data, error } = await supabase.from("clientes").insert(payload).select("id").single();
     setSaving(false);
-    if (error) return toast.error("No se pudo crear: " + error.message);
+    if (error) {
+      toast.error("No se pudo crear: " + error.message);
+      return;
+    }
     toast.success("Cliente creado");
-    navigate({ to: "/clientes/$id", params: { id: data.id } });
+    void navigate({ to: "/clientes/$id", params: { id: data.id } });
   };
 
   return (

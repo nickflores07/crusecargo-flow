@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
+import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authenticated/clientes.nuevo'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 
 const AuthRoute = AuthRouteImport.update({
@@ -41,6 +42,12 @@ const AuthenticatedClientesIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedClientesRoute,
   } as any)
+const AuthenticatedClientesNuevoRoute =
+  AuthenticatedClientesNuevoRouteImport.update({
+    id: '/nuevo',
+    path: '/nuevo',
+    getParentRoute: () => AuthenticatedClientesRoute,
+  } as any)
 const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/admin/usuarios',
@@ -53,12 +60,14 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRoutesById {
@@ -68,13 +77,20 @@ export interface FileRoutesById {
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/clientes' | '/admin/usuarios' | '/clientes/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/clientes'
+    | '/admin/usuarios'
+    | '/clientes/nuevo'
+    | '/clientes/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/' | '/admin/usuarios' | '/clientes'
+  to: '/auth' | '/' | '/admin/usuarios' | '/clientes/nuevo' | '/clientes'
   id:
     | '__root__'
     | '/_authenticated'
@@ -82,6 +98,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes'
     | '/_authenticated/'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/clientes/nuevo'
     | '/_authenticated/clientes/'
   fileRoutesById: FileRoutesById
 }
@@ -127,6 +144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesIndexRouteImport
       parentRoute: typeof AuthenticatedClientesRoute
     }
+    '/_authenticated/clientes/nuevo': {
+      id: '/_authenticated/clientes/nuevo'
+      path: '/nuevo'
+      fullPath: '/clientes/nuevo'
+      preLoaderRoute: typeof AuthenticatedClientesNuevoRouteImport
+      parentRoute: typeof AuthenticatedClientesRoute
+    }
     '/_authenticated/admin/usuarios': {
       id: '/_authenticated/admin/usuarios'
       path: '/admin/usuarios'
@@ -138,10 +162,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedClientesRouteChildren {
+  AuthenticatedClientesNuevoRoute: typeof AuthenticatedClientesNuevoRoute
   AuthenticatedClientesIndexRoute: typeof AuthenticatedClientesIndexRoute
 }
 
 const AuthenticatedClientesRouteChildren: AuthenticatedClientesRouteChildren = {
+  AuthenticatedClientesNuevoRoute: AuthenticatedClientesNuevoRoute,
   AuthenticatedClientesIndexRoute: AuthenticatedClientesIndexRoute,
 }
 

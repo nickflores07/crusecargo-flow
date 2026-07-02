@@ -181,7 +181,7 @@ export function ClienteForm({
             <SelectTrigger id="categoria_cliente"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="institucional">Institucional (crédito)</SelectItem>
-              <SelectItem value="comun">Común (contado / agencia)</SelectItem>
+              <SelectItem value="comun">Común (contado / pago destino)</SelectItem>
             </SelectContent>
           </Select>
         </div>

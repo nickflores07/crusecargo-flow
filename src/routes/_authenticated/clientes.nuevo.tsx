@@ -35,6 +35,7 @@ function NuevoCliente() {
       categoria_cliente: v.categoria_cliente,
       area_comercial: v.area_comercial,
       canal: v.canal || null,
+      sector_id: v.sector_id,
       ejecutivo_id: user?.id ?? null,
       created_by: user?.id ?? null,
     };

@@ -194,6 +194,21 @@ export function ClienteForm({
           <Input id="canal" value={values.canal} onChange={(e) => set("canal", e.target.value)}
             placeholder="Ej: Agencia, Web, Call center..." />
         </div>
+        <div className="md:col-span-3">
+          <Label htmlFor="sector_id">Sector</Label>
+          <Select
+            value={values.sector_id ?? "__none__"}
+            onValueChange={(v) => set("sector_id", v === "__none__" ? null : v)}
+          >
+            <SelectTrigger id="sector_id"><SelectValue placeholder="Elegir sector..." /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">— Sin sector —</SelectItem>
+              {sectores.map((s) => (
+                <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         {invalidRule && (
           <div className="md:col-span-3 flex items-center gap-2 text-xs text-destructive">
             <AlertCircle className="h-4 w-4" />

@@ -57,7 +57,6 @@ const CANALES = [
   "Negocios",
   "Web",
   "Almacenaje",
-  "Televentas",
 ];
 const CANAL_ALIASES: Record<string, string> = {
   "transporte y distribucion": "Transporte y Distribución",
@@ -74,10 +73,10 @@ const CANAL_ALIASES: Record<string, string> = {
   "almacenaje": "Almacenaje",
   "almacen": "Almacenaje",
   "almacén": "Almacenaje",
-  "televentas": "Televentas",
-  "televenta": "Televentas",
-  "call center": "Televentas",
-  "callcenter": "Televentas",
+  "televentas": "Negocios",
+  "televenta": "Negocios",
+  "call center": "Negocios",
+  "callcenter": "Negocios",
 };
 function normalizeCanal(raw: string): string | null {
   if (!raw) return null;

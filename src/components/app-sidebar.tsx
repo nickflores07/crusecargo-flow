@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, ClipboardList, Target, Truck, FileText, Calendar,
+  LayoutDashboard, Users, Target, Truck, FileText, Calendar,
   Sparkles, Settings, Truck as TruckIcon,
 } from "lucide-react";
 import {
@@ -12,8 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 const nav = [
   { title: "Inicio", url: "/", icon: LayoutDashboard },
   { title: "Clientes", url: "/clientes", icon: Users },
-  { title: "Seguimiento", url: "/seguimiento", icon: ClipboardList, soon: true },
-  { title: "Oportunidades", url: "/oportunidades", icon: Target, soon: true },
+  { title: "Oportunidades", url: "/oportunidades", icon: Target },
   { title: "Envíos", url: "/envios", icon: Truck, soon: true },
   { title: "Cotizaciones", url: "/cotizaciones", icon: FileText, soon: true },
   { title: "Agenda", url: "/agenda", icon: Calendar, soon: true },

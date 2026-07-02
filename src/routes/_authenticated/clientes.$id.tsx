@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus,
+  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare,
 } from "lucide-react";
 import { ClienteForm, type ClienteFormValues } from "@/components/clientes/cliente-form";
 import { useAuth } from "@/hooks/use-auth";
+import { Seguimientos } from "@/components/clientes/seguimientos";
 
 export const Route = createFileRoute("/_authenticated/clientes/$id")({
   component: ClienteDetalle,
@@ -32,7 +33,7 @@ type ClienteRow = {
   ciudad: string | null;
   telefono: string | null;
   correo: string | null;
-  estado: "prospecto" | "activo" | "inactivo" | "perdido";
+  estado: "prospecto" | "en_negociacion" | "activo" | "inactivo" | "perdido";
   notas: string | null;
   categoria_cliente: "institucional" | "comun";
   area_comercial: "b2b" | "b2c";
@@ -130,14 +131,14 @@ function ClienteDetalle() {
               <div className="min-w-0">
                 <CardTitle className="truncate">{nombre || "(sin nombre)"}</CardTitle>
                 <CardDescription className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline" className="capitalize">
-                    {cliente.tipo === "empresa" ? "Empresa" : "Persona"}
+                  <Badge variant="outline">
+                    {cliente.tipo === "empresa" ? "Cliente Institucional" : "Cliente Común"}
                   </Badge>
                   <Badge variant="outline" className="uppercase">{cliente.area_comercial}</Badge>
                   <Badge variant="outline" className="capitalize">
                     {cliente.categoria_cliente === "institucional" ? "Institucional" : "Común"}
                   </Badge>
-                  <Badge variant="outline" className="capitalize">{cliente.estado}</Badge>
+                  <Badge variant="outline" className="capitalize">{cliente.estado.replace("_", " ")}</Badge>
                 </CardDescription>
               </div>
             </div>
@@ -154,11 +155,9 @@ function ClienteDetalle() {
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="general">Datos generales</TabsTrigger>
           <TabsTrigger value="comercial">Datos comerciales</TabsTrigger>
-          {cliente.tipo === "empresa" ? (
-            <TabsTrigger value="contactos">Contactos</TabsTrigger>
-          ) : (
-            <TabsTrigger value="direcciones">Direcciones</TabsTrigger>
-          )}
+          <TabsTrigger value="contactos">Contactos</TabsTrigger>
+          <TabsTrigger value="direcciones">Direcciones</TabsTrigger>
+          <TabsTrigger value="seguimiento"><MessageSquare className="h-3.5 w-3.5 mr-1" />Seguimiento</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-4">
@@ -195,15 +194,15 @@ function ClienteDetalle() {
           <DatosComerciales clienteId={id} />
         </TabsContent>
 
-        {cliente.tipo === "empresa" ? (
-          <TabsContent value="contactos" className="mt-4">
-            <Contactos clienteId={id} />
-          </TabsContent>
-        ) : (
-          <TabsContent value="direcciones" className="mt-4">
-            <Direcciones clienteId={id} />
-          </TabsContent>
-        )}
+        <TabsContent value="contactos" className="mt-4">
+          <Contactos clienteId={id} />
+        </TabsContent>
+        <TabsContent value="direcciones" className="mt-4">
+          <Direcciones clienteId={id} />
+        </TabsContent>
+        <TabsContent value="seguimiento" className="mt-4">
+          <Seguimientos clienteId={id} />
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -322,14 +321,14 @@ function DatosComerciales({ clienteId }: { clienteId: string }) {
 }
 
 function Contactos({ clienteId }: { clienteId: string }) {
-  const [items, setItems] = useState<Array<{ id: string; nombre: string; cargo: string | null; celular: string | null; correo: string | null }>>([]);
+  const [items, setItems] = useState<Array<{ id: string; nombre: string; cargo: string | null; celular: string | null; correo: string | null; cumpleanos: string | null; notas: string | null }>>([]);
   const [loading, setLoading] = useState(true);
-  const [nuevo, setNuevo] = useState({ nombre: "", cargo: "", celular: "", correo: "" });
+  const [nuevo, setNuevo] = useState({ nombre: "", cargo: "", celular: "", correo: "", cumpleanos: "", notas: "" });
   const [adding, setAdding] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from("contactos").select("id, nombre, cargo, celular, correo").eq("cliente_id", clienteId).order("created_at");
+    const { data } = await supabase.from("contactos").select("id, nombre, cargo, celular, correo, cumpleanos, notas").eq("cliente_id", clienteId).order("created_at");
     setItems(data ?? []);
     setLoading(false);
   };
@@ -338,10 +337,19 @@ function Contactos({ clienteId }: { clienteId: string }) {
   const add = async () => {
     if (!nuevo.nombre.trim()) return toast.error("El nombre es obligatorio");
     setAdding(true);
-    const { error } = await supabase.from("contactos").insert({ cliente_id: clienteId, ...nuevo });
+    const payload = {
+      cliente_id: clienteId,
+      nombre: nuevo.nombre,
+      cargo: nuevo.cargo || null,
+      celular: nuevo.celular || null,
+      correo: nuevo.correo || null,
+      cumpleanos: nuevo.cumpleanos || null,
+      notas: nuevo.notas || null,
+    };
+    const { error } = await supabase.from("contactos").insert(payload);
     setAdding(false);
     if (error) return toast.error("No se pudo agregar: " + error.message);
-    setNuevo({ nombre: "", cargo: "", celular: "", correo: "" });
+    setNuevo({ nombre: "", cargo: "", celular: "", correo: "", cumpleanos: "", notas: "" });
     toast.success("Contacto agregado");
     void load();
   };
@@ -355,8 +363,8 @@ function Contactos({ clienteId }: { clienteId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Contactos de la empresa</CardTitle>
-        <CardDescription>Personas con las que hablas dentro del cliente.</CardDescription>
+        <CardTitle className="text-base">Personas de contacto</CardTitle>
+        <CardDescription>Registra a quienes hablas dentro del cliente para no perder ningún dato.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {loading ? (
@@ -372,6 +380,13 @@ function Contactos({ clienteId }: { clienteId: string }) {
                   <p className="text-xs text-muted-foreground truncate">
                     {[c.cargo, c.celular, c.correo].filter(Boolean).join(" · ") || "—"}
                   </p>
+                  {(c.cumpleanos || c.notas) && (
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                      {c.cumpleanos && `🎂 ${new Date(c.cumpleanos).toLocaleDateString("es-PE", { day: "2-digit", month: "long" })}`}
+                      {c.cumpleanos && c.notas ? " · " : ""}
+                      {c.notas ?? ""}
+                    </p>
+                  )}
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => remove(c.id)}>
                   <Trash2 className="h-4 w-4" />
@@ -387,6 +402,11 @@ function Contactos({ clienteId }: { clienteId: string }) {
             <Input placeholder="Cargo" value={nuevo.cargo} onChange={(e) => setNuevo((s) => ({ ...s, cargo: e.target.value }))} />
             <Input placeholder="Celular" value={nuevo.celular} onChange={(e) => setNuevo((s) => ({ ...s, celular: e.target.value }))} />
             <Input placeholder="Correo" value={nuevo.correo} onChange={(e) => setNuevo((s) => ({ ...s, correo: e.target.value }))} />
+            <div>
+              <Label className="text-[11px] text-muted-foreground">Cumpleaños</Label>
+              <Input type="date" value={nuevo.cumpleanos} onChange={(e) => setNuevo((s) => ({ ...s, cumpleanos: e.target.value }))} />
+            </div>
+            <Input placeholder="Notas" value={nuevo.notas} onChange={(e) => setNuevo((s) => ({ ...s, notas: e.target.value }))} />
           </div>
           <div className="flex justify-end">
             <Button onClick={add} disabled={adding} size="sm">

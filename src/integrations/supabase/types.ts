@@ -281,6 +281,68 @@ export type Database = {
         }
         Relationships: []
       }
+      oportunidades: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          ejecutivo_id: string | null
+          estado: Database["public"]["Enums"]["estado_oportunidad"]
+          fecha_cierre_estimada: string | null
+          id: string
+          monto_potencial: number | null
+          motivo_perdida: string | null
+          notas: string | null
+          orden: number
+          probabilidad: number
+          servicio: string | null
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          ejecutivo_id?: string | null
+          estado?: Database["public"]["Enums"]["estado_oportunidad"]
+          fecha_cierre_estimada?: string | null
+          id?: string
+          monto_potencial?: number | null
+          motivo_perdida?: string | null
+          notas?: string | null
+          orden?: number
+          probabilidad?: number
+          servicio?: string | null
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          ejecutivo_id?: string | null
+          estado?: Database["public"]["Enums"]["estado_oportunidad"]
+          fecha_cierre_estimada?: string | null
+          id?: string
+          monto_potencial?: number | null
+          motivo_perdida?: string | null
+          notas?: string | null
+          orden?: number
+          probabilidad?: number
+          servicio?: string | null
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oportunidades_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           activo: boolean
@@ -310,6 +372,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      seguimientos: {
+        Row: {
+          cliente_id: string
+          compromiso: string | null
+          created_at: string
+          fecha: string
+          id: string
+          proxima_accion_fecha: string | null
+          proxima_accion_nota: string | null
+          resultado: string | null
+          tipo: Database["public"]["Enums"]["tipo_interaccion"]
+          updated_at: string
+          usuario_id: string | null
+        }
+        Insert: {
+          cliente_id: string
+          compromiso?: string | null
+          created_at?: string
+          fecha?: string
+          id?: string
+          proxima_accion_fecha?: string | null
+          proxima_accion_nota?: string | null
+          resultado?: string | null
+          tipo: Database["public"]["Enums"]["tipo_interaccion"]
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Update: {
+          cliente_id?: string
+          compromiso?: string | null
+          created_at?: string
+          fecha?: string
+          id?: string
+          proxima_accion_fecha?: string | null
+          proxima_accion_nota?: string | null
+          resultado?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_interaccion"]
+          updated_at?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seguimientos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -353,8 +465,21 @@ export type Database = {
       app_role: "administrador" | "supervisor" | "ejecutivo"
       area_comercial: "b2b" | "b2c"
       categoria_cliente: "institucional" | "comun"
-      estado_cliente: "prospecto" | "activo" | "inactivo" | "perdido"
+      estado_cliente:
+        | "prospecto"
+        | "en_negociacion"
+        | "activo"
+        | "inactivo"
+        | "perdido"
+      estado_oportunidad: "en_proceso" | "ganada" | "perdida"
       tipo_cliente: "empresa" | "persona"
+      tipo_interaccion:
+        | "llamada"
+        | "visita"
+        | "reunion"
+        | "whatsapp"
+        | "correo"
+        | "otro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -485,8 +610,23 @@ export const Constants = {
       app_role: ["administrador", "supervisor", "ejecutivo"],
       area_comercial: ["b2b", "b2c"],
       categoria_cliente: ["institucional", "comun"],
-      estado_cliente: ["prospecto", "activo", "inactivo", "perdido"],
+      estado_cliente: [
+        "prospecto",
+        "en_negociacion",
+        "activo",
+        "inactivo",
+        "perdido",
+      ],
+      estado_oportunidad: ["en_proceso", "ganada", "perdida"],
       tipo_cliente: ["empresa", "persona"],
+      tipo_interaccion: [
+        "llamada",
+        "visita",
+        "reunion",
+        "whatsapp",
+        "correo",
+        "otro",
+      ],
     },
   },
 } as const

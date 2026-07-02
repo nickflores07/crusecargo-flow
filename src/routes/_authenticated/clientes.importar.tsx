@@ -109,6 +109,8 @@ type PreviewRow = {
   ejecutivo_nombre: string;
   sector_id: string | null;
   sector_nombre: string;
+  canal: string | null;
+  canal_raw: string;
 };
 
 function ImportarClientes() {
@@ -202,6 +204,9 @@ function ImportarClientes() {
         ? sectores.find((s) => NORM(s.nombre) === NORM(sectorNombre))
         : null;
 
+      const canalRaw = getVal(r, "canal");
+      const canalNorm = normalizeCanal(canalRaw);
+
       let error: string | null = null;
       if (!nombre) error = tipo === "empresa" ? "Falta razón social" : "Falta nombre";
       else if (area_comercial === "b2b" && categoria_cliente !== "institucional")
@@ -214,6 +219,8 @@ function ImportarClientes() {
         ejecutivo_nombre: ejecNombre || (ejecMatch?.nombre ?? ""),
         sector_id: sectorMatch?.id ?? null,
         sector_nombre: sectorNombre,
+        canal: canalNorm,
+        canal_raw: canalRaw,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -50,6 +50,43 @@ const CAMPOS: Campo[] = [
 const NORM = (s: string) =>
   s.toString().toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
+// Canales válidos y sinónimos comunes desde Excel
+const CANALES = [
+  "Transporte y Distribución",
+  "Agencia",
+  "Negocios",
+  "Web",
+  "Almacenaje",
+  "Televentas",
+];
+const CANAL_ALIASES: Record<string, string> = {
+  "transporte y distribucion": "Transporte y Distribución",
+  "transporte y distribución": "Transporte y Distribución",
+  "transporte": "Transporte y Distribución",
+  "distribucion": "Transporte y Distribución",
+  "distribución": "Transporte y Distribución",
+  "agencia": "Agencia",
+  "agencias": "Agencia",
+  "negocios": "Negocios",
+  "negocio": "Negocios",
+  "web": "Web",
+  "online": "Web",
+  "almacenaje": "Almacenaje",
+  "almacen": "Almacenaje",
+  "almacén": "Almacenaje",
+  "televentas": "Televentas",
+  "televenta": "Televentas",
+  "call center": "Televentas",
+  "callcenter": "Televentas",
+};
+function normalizeCanal(raw: string): string | null {
+  if (!raw) return null;
+  const k = NORM(raw);
+  if (CANAL_ALIASES[k]) return CANAL_ALIASES[k];
+  const hit = CANALES.find((c) => NORM(c) === k);
+  return hit ?? raw.trim();
+}
+
 function autoMap(headers: string[]) {
   const map: Record<string, string> = {};
   for (const campo of CAMPOS) {
@@ -210,7 +247,7 @@ function ImportarClientes() {
         notas: getVal(r, "notas") || null,
         categoria_cliente: p.categoria_cliente,
         area_comercial: p.area_comercial,
-        canal: getVal(r, "canal") || null,
+        canal: normalizeCanal(getVal(r, "canal")),
         sector_id: p.sector_id,
         ejecutivo_id: p.ejecutivo_id ?? user?.id ?? null,
         created_by: user?.id ?? null,

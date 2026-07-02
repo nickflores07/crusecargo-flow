@@ -85,7 +85,6 @@ export function ClienteForm({
     "Negocios",
     "Web",
     "Almacenaje",
-    "Televentas",
   ];
 
   const handleSubmit = (e: FormEvent) => {

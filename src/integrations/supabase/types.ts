@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_messages: {
+        Row: {
+          contenido: Json
+          created_at: string
+          id: string
+          rol: string
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          contenido: Json
+          created_at?: string
+          id?: string
+          rol: string
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          contenido?: Json
+          created_at?: string
+          id?: string
+          rol?: string
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "ai_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_threads: {
+        Row: {
+          created_at: string
+          id: string
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          titulo?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clientes: {
         Row: {
           area_comercial: Database["public"]["Enums"]["area_comercial"]

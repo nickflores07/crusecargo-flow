@@ -16,7 +16,7 @@ const nav = [
   { title: "Envíos", url: "/envios", icon: Truck, soon: true },
   { title: "Cotizaciones", url: "/cotizaciones", icon: FileText, soon: true },
   { title: "Agenda", url: "/agenda", icon: Calendar },
-  { title: "Asistente IA", url: "/asistente", icon: Sparkles, soon: true },
+  { title: "Asistente IA", url: "/asistente", icon: Sparkles },
 ];
 
 export function AppSidebar() {

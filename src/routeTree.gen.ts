@@ -12,13 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
+import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
+import { Route as AuthenticatedAsistenteIndexRouteImport } from './routes/_authenticated/asistente.index'
 import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authenticated/clientes.nuevo'
 import { Route as AuthenticatedClientesImportarRouteImport } from './routes/_authenticated/clientes.importar'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
+import { Route as AuthenticatedAsistenteThreadIdRouteImport } from './routes/_authenticated/asistente.$threadId'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdminSectoresRouteImport } from './routes/_authenticated/admin.sectores'
 
@@ -36,6 +40,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedOportunidadesRoute =
   AuthenticatedOportunidadesRouteImport.update({
     id: '/oportunidades',
@@ -45,6 +54,11 @@ const AuthenticatedOportunidadesRoute =
 const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAsistenteRoute = AuthenticatedAsistenteRouteImport.update({
+  id: '/asistente',
+  path: '/asistente',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
@@ -57,6 +71,12 @@ const AuthenticatedClientesIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedClientesRoute,
+  } as any)
+const AuthenticatedAsistenteIndexRoute =
+  AuthenticatedAsistenteIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAsistenteRoute,
   } as any)
 const AuthenticatedClientesNuevoRoute =
   AuthenticatedClientesNuevoRouteImport.update({
@@ -75,6 +95,12 @@ const AuthenticatedClientesIdRoute = AuthenticatedClientesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedClientesRoute,
 } as any)
+const AuthenticatedAsistenteThreadIdRoute =
+  AuthenticatedAsistenteThreadIdRouteImport.update({
+    id: '/$threadId',
+    path: '/$threadId',
+    getParentRoute: () => AuthenticatedAsistenteRoute,
+  } as any)
 const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/admin/usuarios',
@@ -92,25 +118,32 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/api/chat': typeof ApiChatRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/asistente/$threadId': typeof AuthenticatedAsistenteThreadIdRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/asistente/$threadId': typeof AuthenticatedAsistenteThreadIdRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/asistente': typeof AuthenticatedAsistenteIndexRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRoutesById {
@@ -118,14 +151,18 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/api/chat': typeof ApiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/asistente/$threadId': typeof AuthenticatedAsistenteThreadIdRoute
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/_authenticated/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/_authenticated/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
 }
 export interface FileRouteTypes {
@@ -134,45 +171,57 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/agenda'
+    | '/asistente'
     | '/clientes'
     | '/oportunidades'
+    | '/api/chat'
     | '/admin/sectores'
     | '/admin/usuarios'
+    | '/asistente/$threadId'
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
+    | '/asistente/'
     | '/clientes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
     | '/agenda'
     | '/oportunidades'
+    | '/api/chat'
     | '/'
     | '/admin/sectores'
     | '/admin/usuarios'
+    | '/asistente/$threadId'
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
+    | '/asistente'
     | '/clientes'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/agenda'
+    | '/_authenticated/asistente'
     | '/_authenticated/clientes'
     | '/_authenticated/oportunidades'
+    | '/api/chat'
     | '/_authenticated/'
     | '/_authenticated/admin/sectores'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/asistente/$threadId'
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/importar'
     | '/_authenticated/clientes/nuevo'
+    | '/_authenticated/asistente/'
     | '/_authenticated/clientes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -198,6 +247,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/oportunidades': {
       id: '/_authenticated/oportunidades'
       path: '/oportunidades'
@@ -210,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/clientes'
       fullPath: '/clientes'
       preLoaderRoute: typeof AuthenticatedClientesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/asistente': {
+      id: '/_authenticated/asistente'
+      path: '/asistente'
+      fullPath: '/asistente'
+      preLoaderRoute: typeof AuthenticatedAsistenteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/agenda': {
@@ -225,6 +288,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/clientes/'
       preLoaderRoute: typeof AuthenticatedClientesIndexRouteImport
       parentRoute: typeof AuthenticatedClientesRoute
+    }
+    '/_authenticated/asistente/': {
+      id: '/_authenticated/asistente/'
+      path: '/'
+      fullPath: '/asistente/'
+      preLoaderRoute: typeof AuthenticatedAsistenteIndexRouteImport
+      parentRoute: typeof AuthenticatedAsistenteRoute
     }
     '/_authenticated/clientes/nuevo': {
       id: '/_authenticated/clientes/nuevo'
@@ -247,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesIdRouteImport
       parentRoute: typeof AuthenticatedClientesRoute
     }
+    '/_authenticated/asistente/$threadId': {
+      id: '/_authenticated/asistente/$threadId'
+      path: '/$threadId'
+      fullPath: '/asistente/$threadId'
+      preLoaderRoute: typeof AuthenticatedAsistenteThreadIdRouteImport
+      parentRoute: typeof AuthenticatedAsistenteRoute
+    }
     '/_authenticated/admin/usuarios': {
       id: '/_authenticated/admin/usuarios'
       path: '/admin/usuarios'
@@ -263,6 +340,22 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAsistenteRouteChildren {
+  AuthenticatedAsistenteThreadIdRoute: typeof AuthenticatedAsistenteThreadIdRoute
+  AuthenticatedAsistenteIndexRoute: typeof AuthenticatedAsistenteIndexRoute
+}
+
+const AuthenticatedAsistenteRouteChildren: AuthenticatedAsistenteRouteChildren =
+  {
+    AuthenticatedAsistenteThreadIdRoute: AuthenticatedAsistenteThreadIdRoute,
+    AuthenticatedAsistenteIndexRoute: AuthenticatedAsistenteIndexRoute,
+  }
+
+const AuthenticatedAsistenteRouteWithChildren =
+  AuthenticatedAsistenteRoute._addFileChildren(
+    AuthenticatedAsistenteRouteChildren,
+  )
 
 interface AuthenticatedClientesRouteChildren {
   AuthenticatedClientesIdRoute: typeof AuthenticatedClientesIdRoute
@@ -285,6 +378,7 @@ const AuthenticatedClientesRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRouteWithChildren
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRouteWithChildren
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -294,6 +388,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedAsistenteRoute: AuthenticatedAsistenteRouteWithChildren,
   AuthenticatedClientesRoute: AuthenticatedClientesRouteWithChildren,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
@@ -307,6 +402,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

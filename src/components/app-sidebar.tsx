@@ -15,7 +15,7 @@ const nav = [
   { title: "Oportunidades", url: "/oportunidades", icon: Target },
   { title: "Envíos", url: "/envios", icon: Truck, soon: true },
   { title: "Cotizaciones", url: "/cotizaciones", icon: FileText, soon: true },
-  { title: "Agenda", url: "/agenda", icon: Calendar, soon: true },
+  { title: "Agenda", url: "/agenda", icon: Calendar },
   { title: "Asistente IA", url: "/asistente", icon: Sparkles, soon: true },
 ];
 

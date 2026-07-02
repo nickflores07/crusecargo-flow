@@ -133,7 +133,6 @@ function ClientesList() {
     setSectorFilter("todos");
     setEjecutivoFilter("todos");
     setCanalFilter("todos");
-    setEjecutivoFilter("todos");
     setQ("");
   };
 

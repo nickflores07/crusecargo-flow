@@ -532,6 +532,7 @@ export type Database = {
           motivo_perdida: string | null
           notas: string | null
           orden: number
+          peso_estimado_kg: number | null
           probabilidad: number
           servicio: string | null
           titulo: string
@@ -549,6 +550,7 @@ export type Database = {
           motivo_perdida?: string | null
           notas?: string | null
           orden?: number
+          peso_estimado_kg?: number | null
           probabilidad?: number
           servicio?: string | null
           titulo: string
@@ -566,6 +568,7 @@ export type Database = {
           motivo_perdida?: string | null
           notas?: string | null
           orden?: number
+          peso_estimado_kg?: number | null
           probabilidad?: number
           servicio?: string | null
           titulo?: string

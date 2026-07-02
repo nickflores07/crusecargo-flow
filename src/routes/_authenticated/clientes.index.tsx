@@ -9,6 +9,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/clientes/")({
   component: ClientesList,
@@ -27,9 +28,11 @@ type Cliente = {
   estado: "prospecto" | "en_negociacion" | "activo" | "inactivo" | "perdido";
   created_at: string;
   sector_id: string | null;
+  ejecutivo_id: string | null;
 };
 
 type Sector = { id: string; nombre: string };
+type Ejecutivo = { id: string; nombre: string };
 
 const estadoColor: Record<string, string> = {
   prospecto: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
@@ -48,26 +51,32 @@ const ESTADO_LABELS: Record<string, string> = {
 };
 
 function ClientesList() {
+  const { isAdmin, isSupervisor } = useAuth();
+  const canReassign = isAdmin || isSupervisor;
   const [rows, setRows] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [tipoFilter, setTipoFilter] = useState<string>("todos");
   const [estadoFilter, setEstadoFilter] = useState<string>("todos");
   const [sectorFilter, setSectorFilter] = useState<string>("todos");
+  const [ejecutivoFilter, setEjecutivoFilter] = useState<string>("todos");
   const [sectores, setSectores] = useState<Sector[]>([]);
+  const [ejecutivos, setEjecutivos] = useState<Ejecutivo[]>([]);
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: secs }] = await Promise.all([
+    const [{ data, error }, { data: secs }, { data: profs }] = await Promise.all([
       supabase
         .from("clientes")
-        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id")
+        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id, ejecutivo_id")
         .order("created_at", { ascending: false }),
       supabase.from("sectores").select("id, nombre").order("nombre"),
+      supabase.from("profiles").select("id, nombre").order("nombre"),
     ]);
     if (error) toast.error("No pudimos cargar los clientes");
     setRows((data as Cliente[]) ?? []);
     setSectores(secs ?? []);
+    setEjecutivos(profs ?? []);
     setLoading(false);
   };
 
@@ -82,14 +91,19 @@ function ClientesList() {
         if (sectorFilter === "__none__") { if (r.sector_id) return false; }
         else if (r.sector_id !== sectorFilter) return false;
       }
+      if (ejecutivoFilter !== "todos") {
+        if (ejecutivoFilter === "__none__") { if (r.ejecutivo_id) return false; }
+        else if (r.ejecutivo_id !== ejecutivoFilter) return false;
+      }
       if (!term) return true;
       const hay = [r.razon_social, r.nombre_completo, r.ruc, r.dni, r.correo, r.telefono, r.ciudad]
         .filter(Boolean).join(" ").toLowerCase();
       return hay.includes(term);
     });
-  }, [rows, q, tipoFilter, estadoFilter, sectorFilter]);
+  }, [rows, q, tipoFilter, estadoFilter, sectorFilter, ejecutivoFilter]);
 
   const sectoresMap = useMemo(() => new Map(sectores.map((s) => [s.id, s.nombre])), [sectores]);
+  const ejecutivosMap = useMemo(() => new Map(ejecutivos.map((e) => [e.id, e.nombre])), [ejecutivos]);
 
   const updateEstado = async (id: string, nuevo: Cliente["estado"]) => {
     const prev = rows;
@@ -100,6 +114,18 @@ function ClientesList() {
       toast.error("No se pudo actualizar: " + error.message);
     } else {
       toast.success("Estado actualizado");
+    }
+  };
+
+  const updateEjecutivo = async (id: string, ejecutivoId: string | null) => {
+    const prev = rows;
+    setRows((r) => r.map((x) => (x.id === id ? { ...x, ejecutivo_id: ejecutivoId } : x)));
+    const { error } = await supabase.from("clientes").update({ ejecutivo_id: ejecutivoId }).eq("id", id);
+    if (error) {
+      setRows(prev);
+      toast.error("No se pudo reasignar: " + error.message);
+    } else {
+      toast.success("Ejecutivo asignado");
     }
   };
 
@@ -122,7 +148,7 @@ function ClientesList() {
 
       <Card>
         <CardContent className="p-4 space-y-3">
-          <div className="grid md:grid-cols-[1fr_auto_auto_auto] gap-2">
+          <div className="grid md:grid-cols-[1fr_auto_auto_auto_auto] gap-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input value={q} onChange={(e) => setQ(e.target.value)}
@@ -154,6 +180,16 @@ function ClientesList() {
                 <SelectItem value="__none__">Sin sector</SelectItem>
                 {sectores.map((s) => (
                   <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={ejecutivoFilter} onValueChange={setEjecutivoFilter}>
+              <SelectTrigger className="w-full md:w-56"><SelectValue placeholder="Ejecutivo" /></SelectTrigger>
+              <SelectContent className="max-h-72">
+                <SelectItem value="todos">Todos los ejecutivos</SelectItem>
+                <SelectItem value="__none__">Sin asignar</SelectItem>
+                {ejecutivos.map((e) => (
+                  <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -198,8 +234,29 @@ function ClientesList() {
                         <p className="text-xs text-muted-foreground truncate">
                           {[doc, c.ciudad, c.correo, c.sector_id ? sectoresMap.get(c.sector_id) : null].filter(Boolean).join(" · ") || "Sin datos adicionales"}
                         </p>
+                        <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                          Ejecutivo: {c.ejecutivo_id ? (ejecutivosMap.get(c.ejecutivo_id) ?? "—") : <span className="text-amber-600">sin asignar</span>}
+                        </p>
                       </div>
                     </Link>
+                    {canReassign && (
+                      <Select
+                        value={c.ejecutivo_id ?? "__none__"}
+                        onValueChange={(v) => void updateEjecutivo(c.id, v === "__none__" ? null : v)}
+                      >
+                        <SelectTrigger className="h-8 w-[170px] text-xs" title="Reasignar ejecutivo">
+                          <SelectValue placeholder="Sin asignar">
+                            {c.ejecutivo_id ? (ejecutivosMap.get(c.ejecutivo_id) ?? "—") : "Sin asignar"}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          <SelectItem value="__none__">Sin asignar</SelectItem>
+                          {ejecutivos.map((e) => (
+                            <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                     <Select value={c.estado} onValueChange={(v) => void updateEstado(c.id, v as Cliente["estado"])}>
                       <SelectTrigger
                         className={`h-8 w-[150px] text-xs capitalize border ${estadoColor[c.estado] ?? ""}`}

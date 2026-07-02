@@ -40,6 +40,10 @@ const CAMPOS: Campo[] = [
   { key: "correo", label: "Correo", aliases: ["correo", "email", "e-mail"] },
   { key: "estado", label: "Estado", aliases: ["estado", "status"] },
   { key: "notas", label: "Notas", aliases: ["notas", "observaciones", "comentarios"] },
+  { key: "categoria_cliente", label: "Categoría cliente", aliases: ["categoria cliente", "categoría cliente", "categoria", "categoría"] },
+  { key: "area_comercial", label: "Área comercial", aliases: ["area comercial", "área comercial", "area", "área"] },
+  { key: "canal", label: "Canal", aliases: ["canal"] },
+  { key: "ejecutivo", label: "Ejecutivo", aliases: ["ejecutivo", "asesor", "vendedor", "ejecutivo asignado", "asesor comercial"] },
 ];
 
 const NORM = (s: string) =>
@@ -62,6 +66,10 @@ type PreviewRow = {
   nombre: string;
   duplicado: boolean;
   error: string | null;
+  categoria_cliente: "institucional" | "comun";
+  area_comercial: "b2b" | "b2c";
+  ejecutivo_id: string | null;
+  ejecutivo_nombre: string;
 };
 
 function ImportarClientes() {
@@ -75,6 +83,7 @@ function ImportarClientes() {
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ creados: number; actualizados: number; errores: number; log: string[] } | null>(null);
   const [existingDocs, setExistingDocs] = useState<Set<string>>(new Set());
+  const [ejecutivos, setEjecutivos] = useState<Array<{ id: string; nombre: string }>>([]);
 
   const handleFile = async (file: File) => {
     setFileName(file.name);
@@ -98,6 +107,9 @@ function ImportarClientes() {
       if (r.dni) set.add("dni:" + r.dni);
     });
     setExistingDocs(set);
+    // fetch ejecutivos to match by name
+    const { data: profs } = await supabase.from("profiles").select("id, nombre");
+    setEjecutivos(profs ?? []);
     setStep(2);
   };
 
@@ -111,23 +123,52 @@ function ImportarClientes() {
   const preview = useMemo<PreviewRow[]>(() => {
     if (step < 3) return [];
     return rows.map((r) => {
-      const tipoRaw = NORM(getVal(r, "tipo"));
-      const tipo: "empresa" | "persona" =
-        tipoRaw.startsWith("p") || tipoRaw === "persona" || tipoRaw === "b2c" ? "persona" : "empresa";
       const ruc = getVal(r, "ruc");
       const dni = getVal(r, "dni");
       const razon = getVal(r, "razon_social");
       const nombreP = getVal(r, "nombre_completo");
+      const tipoRaw = NORM(getVal(r, "tipo"));
+      // Inferir tipo: por columna 'tipo', o por presencia de RUC/DNI
+      let tipo: "empresa" | "persona";
+      if (tipoRaw) {
+        tipo = tipoRaw.startsWith("p") || tipoRaw === "persona" ? "persona" : "empresa";
+      } else if (ruc && !dni) tipo = "empresa";
+      else if (dni && !ruc) tipo = "persona";
+      else tipo = razon ? "empresa" : "persona";
+
       const nombre = tipo === "empresa" ? razon || nombreP : nombreP || razon;
       const identificador = tipo === "empresa" ? ruc || null : dni || null;
-      let error: string | null = null;
-      if (!nombre) error = tipo === "empresa" ? "Falta razón social" : "Falta nombre";
       const dupKey = tipo === "empresa" ? (ruc ? "ruc:" + ruc : null) : (dni ? "dni:" + dni : null);
       const duplicado = dupKey ? existingDocs.has(dupKey) : false;
-      return { raw: r, tipo, identificador, nombre, duplicado, error };
+
+      // Categoría / Área
+      const catRaw = NORM(getVal(r, "categoria_cliente"));
+      const categoria_cliente: "institucional" | "comun" =
+        catRaw.startsWith("inst") ? "institucional" : catRaw.startsWith("com") ? "comun" : "institucional";
+      const areaRaw = NORM(getVal(r, "area_comercial"));
+      let area_comercial: "b2b" | "b2c" =
+        areaRaw.includes("b2b") ? "b2b" : areaRaw.includes("b2c") ? "b2c" : (categoria_cliente === "institucional" ? "b2b" : "b2c");
+
+      // Ejecutivo por nombre
+      const ejecNombre = getVal(r, "ejecutivo");
+      const ejecMatch = ejecNombre
+        ? ejecutivos.find((e) => NORM(e.nombre) === NORM(ejecNombre))
+        : null;
+
+      let error: string | null = null;
+      if (!nombre) error = tipo === "empresa" ? "Falta razón social" : "Falta nombre";
+      else if (area_comercial === "b2b" && categoria_cliente !== "institucional")
+        error = "B2B requiere categoría Institucional";
+
+      return {
+        raw: r, tipo, identificador, nombre, duplicado, error,
+        categoria_cliente, area_comercial,
+        ejecutivo_id: ejecMatch?.id ?? null,
+        ejecutivo_nombre: ejecNombre || (ejecMatch?.nombre ?? ""),
+      };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, rows, mapping, existingDocs]);
+  }, [step, rows, mapping, existingDocs, ejecutivos]);
 
   const validCount = preview.filter((p) => !p.error).length;
   const dupCount = preview.filter((p) => p.duplicado).length;
@@ -154,7 +195,10 @@ function ImportarClientes() {
         telefono: getVal(r, "telefono") || null,
         correo: getVal(r, "correo") || null,
         notas: getVal(r, "notas") || null,
-        ejecutivo_id: user?.id ?? null,
+        categoria_cliente: p.categoria_cliente,
+        area_comercial: p.area_comercial,
+        canal: getVal(r, "canal") || null,
+        ejecutivo_id: p.ejecutivo_id ?? user?.id ?? null,
         created_by: user?.id ?? null,
       };
       const estado = NORM(getVal(r, "estado"));
@@ -324,6 +368,9 @@ function ImportarClientes() {
                     <th className="text-left p-2">Tipo</th>
                     <th className="text-left p-2">Nombre</th>
                     <th className="text-left p-2">Doc.</th>
+                    <th className="text-left p-2">Área</th>
+                    <th className="text-left p-2">Categoría</th>
+                    <th className="text-left p-2">Ejecutivo</th>
                     <th className="text-left p-2">Estado</th>
                   </tr>
                 </thead>
@@ -334,6 +381,15 @@ function ImportarClientes() {
                       <td className="p-2 capitalize">{p.tipo}</td>
                       <td className="p-2">{p.nombre || <span className="text-muted-foreground">—</span>}</td>
                       <td className="p-2 text-muted-foreground">{p.identificador ?? "—"}</td>
+                      <td className="p-2 uppercase text-xs">{p.area_comercial}</td>
+                      <td className="p-2 capitalize text-xs">{p.categoria_cliente}</td>
+                      <td className="p-2 text-xs">
+                        {p.ejecutivo_nombre
+                          ? (p.ejecutivo_id
+                              ? p.ejecutivo_nombre
+                              : <span className="text-amber-600" title="No coincide con un usuario; se asignará a ti">{p.ejecutivo_nombre} ⚠</span>)
+                          : <span className="text-muted-foreground">tú</span>}
+                      </td>
                       <td className="p-2">
                         {p.error ? (
                           <Badge variant="destructive" className="text-[10px]">{p.error}</Badge>

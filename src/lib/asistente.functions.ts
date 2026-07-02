@@ -89,7 +89,7 @@ export const confirmAction = createServerFn({ method: "POST" })
       if (p.action === "crear_seguimiento") {
         const { error } = await supabase.from("seguimientos").insert({
           cliente_id: p.args.cliente_id,
-          user_id: userId,
+          usuario_id: userId,
           tipo: p.args.tipo,
           fecha: p.args.fecha,
           resultado: p.args.notas ?? "",
@@ -101,7 +101,7 @@ export const confirmAction = createServerFn({ method: "POST" })
           cliente_id: p.args.cliente_id,
           ejecutivo_id: userId,
           titulo: p.args.titulo,
-          monto_estimado: p.args.monto_estimado ?? null,
+          monto_potencial: p.args.monto_potencial ?? null,
           probabilidad: p.args.probabilidad ?? 25,
           fecha_cierre_estimada: p.args.fecha_cierre_estimada ?? null,
           estado: "en_proceso",

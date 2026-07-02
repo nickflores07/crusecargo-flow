@@ -73,6 +73,15 @@ export function ClienteForm({
       const next = { ...s, [k]: v } as ClienteFormValues;
       // Regla: Común solo puede ser B2C. Institucional puede ser B2B o B2C.
       if (k === "categoria_cliente" && v === "comun") next.area_comercial = "b2c";
+      // Sincronizar Tipo → Categoría cliente y Área comercial
+      if (k === "tipo") {
+        if (v === "empresa") {
+          next.categoria_cliente = "institucional";
+        } else {
+          next.categoria_cliente = "comun";
+          next.area_comercial = "b2c";
+        }
+      }
       return next;
     });
 
@@ -162,7 +171,9 @@ export function ClienteForm({
           <Select value={values.area_comercial} onValueChange={(v) => set("area_comercial", v as ClienteFormValues["area_comercial"])}>
             <SelectTrigger id="area_comercial"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="b2b" disabled={values.categoria_cliente === "comun"}>B2B</SelectItem>
+              <SelectItem value="b2b" disabled={values.categoria_cliente === "comun"}>
+                B2B{values.categoria_cliente === "comun" ? " (no disponible)" : ""}
+              </SelectItem>
               <SelectItem value="b2c">B2C</SelectItem>
             </SelectContent>
           </Select>
@@ -180,10 +191,19 @@ export function ClienteForm({
           >
             <SelectTrigger id="categoria_cliente"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="institucional">Institucional (crédito)</SelectItem>
-              <SelectItem value="comun">Común (contado / pago destino)</SelectItem>
+              <SelectItem value="institucional" disabled={values.tipo === "persona"}>
+                Institucional (crédito)
+              </SelectItem>
+              <SelectItem value="comun" disabled={values.tipo === "empresa"}>
+                Común (contado / pago destino)
+              </SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            {values.tipo === "empresa"
+              ? "Cliente Institucional solo permite categoría Institucional."
+              : "Cliente Común solo permite categoría Común."}
+          </p>
         </div>
         <div>
           <Label htmlFor="canal">Canal</Label>

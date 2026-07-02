@@ -180,7 +180,7 @@ function ClientesList() {
                 <Select value={areaFilter} onValueChange={setAreaFilter}>
                   <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="todos">Todas las áreas comerciales</SelectItem>
+                    <SelectItem value="todos">Todas las áreas</SelectItem>
                     <SelectItem value="b2b">B2B</SelectItem>
                     <SelectItem value="b2c">B2C</SelectItem>
                   </SelectContent>

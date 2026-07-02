@@ -147,6 +147,109 @@ export type Database = {
           },
         ]
       }
+      cotizacion_items: {
+        Row: {
+          cantidad: number
+          cotizacion_id: string
+          created_at: string
+          descripcion: string
+          id: string
+          importe: number
+          orden: number
+          precio_unit: number
+        }
+        Insert: {
+          cantidad?: number
+          cotizacion_id: string
+          created_at?: string
+          descripcion: string
+          id?: string
+          importe?: number
+          orden?: number
+          precio_unit?: number
+        }
+        Update: {
+          cantidad?: number
+          cotizacion_id?: string
+          created_at?: string
+          descripcion?: string
+          id?: string
+          importe?: number
+          orden?: number
+          precio_unit?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cotizacion_items_cotizacion_id_fkey"
+            columns: ["cotizacion_id"]
+            isOneToOne: false
+            referencedRelation: "cotizaciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cotizaciones: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          ejecutivo_id: string | null
+          estado: Database["public"]["Enums"]["cotizacion_estado"]
+          fecha_emision: string
+          fecha_vencimiento: string | null
+          id: string
+          igv: number
+          moneda: string
+          notas: string | null
+          numero: string
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          ejecutivo_id?: string | null
+          estado?: Database["public"]["Enums"]["cotizacion_estado"]
+          fecha_emision?: string
+          fecha_vencimiento?: string | null
+          id?: string
+          igv?: number
+          moneda?: string
+          notas?: string | null
+          numero: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          ejecutivo_id?: string | null
+          estado?: Database["public"]["Enums"]["cotizacion_estado"]
+          fecha_emision?: string
+          fecha_vencimiento?: string | null
+          id?: string
+          igv?: number
+          moneda?: string
+          notas?: string | null
+          numero?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cotizaciones_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       datos_comerciales_cliente: {
         Row: {
           cliente_id: string
@@ -249,6 +352,71 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "direcciones_entrega_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      envios: {
+        Row: {
+          bultos: number | null
+          cliente_id: string
+          created_at: string
+          created_by: string | null
+          destino: string | null
+          ejecutivo_id: string | null
+          estado: Database["public"]["Enums"]["envio_estado"]
+          fecha: string
+          guia: string | null
+          id: string
+          importe: number | null
+          notas: string | null
+          origen: string | null
+          peso_kg: number | null
+          servicio: string | null
+          updated_at: string
+        }
+        Insert: {
+          bultos?: number | null
+          cliente_id: string
+          created_at?: string
+          created_by?: string | null
+          destino?: string | null
+          ejecutivo_id?: string | null
+          estado?: Database["public"]["Enums"]["envio_estado"]
+          fecha?: string
+          guia?: string | null
+          id?: string
+          importe?: number | null
+          notas?: string | null
+          origen?: string | null
+          peso_kg?: number | null
+          servicio?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bultos?: number | null
+          cliente_id?: string
+          created_at?: string
+          created_by?: string | null
+          destino?: string | null
+          ejecutivo_id?: string | null
+          estado?: Database["public"]["Enums"]["envio_estado"]
+          fecha?: string
+          guia?: string | null
+          id?: string
+          importe?: number | null
+          notas?: string | null
+          origen?: string | null
+          peso_kg?: number | null
+          servicio?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "envios_cliente_id_fkey"
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
@@ -497,6 +665,14 @@ export type Database = {
       app_role: "administrador" | "supervisor" | "ejecutivo"
       area_comercial: "b2b" | "b2c"
       categoria_cliente: "institucional" | "comun"
+      cotizacion_estado:
+        | "borrador"
+        | "enviada"
+        | "pendiente"
+        | "aceptada"
+        | "rechazada"
+        | "vencida"
+      envio_estado: "en_transito" | "entregado" | "devuelto" | "anulado"
       estado_cliente:
         | "prospecto"
         | "en_negociacion"
@@ -642,6 +818,15 @@ export const Constants = {
       app_role: ["administrador", "supervisor", "ejecutivo"],
       area_comercial: ["b2b", "b2c"],
       categoria_cliente: ["institucional", "comun"],
+      cotizacion_estado: [
+        "borrador",
+        "enviada",
+        "pendiente",
+        "aceptada",
+        "rechazada",
+        "vencida",
+      ],
+      envio_estado: ["en_transito", "entregado", "devuelto", "anulado"],
       estado_cliente: [
         "prospecto",
         "en_negociacion",

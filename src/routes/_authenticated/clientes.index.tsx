@@ -29,6 +29,8 @@ type Cliente = {
   created_at: string;
   sector_id: string | null;
   ejecutivo_id: string | null;
+  area_comercial: "b2b" | "b2c" | null;
+  categoria_cliente: "institucional" | "comun" | null;
 };
 
 type Sector = { id: string; nombre: string };
@@ -56,7 +58,8 @@ function ClientesList() {
   const [rows, setRows] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
-  const [tipoFilter, setTipoFilter] = useState<string>("todos");
+  const [areaFilter, setAreaFilter] = useState<string>("todos");
+  const [categoriaFilter, setCategoriaFilter] = useState<string>("todos");
   const [estadoFilter, setEstadoFilter] = useState<string>("todos");
   const [sectorFilter, setSectorFilter] = useState<string>("todos");
   const [ejecutivoFilter, setEjecutivoFilter] = useState<string>("todos");
@@ -68,7 +71,7 @@ function ClientesList() {
     const [{ data, error }, { data: secs }, { data: profs }] = await Promise.all([
       supabase
         .from("clientes")
-        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id, ejecutivo_id")
+        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id, ejecutivo_id, area_comercial, categoria_cliente")
         .order("created_at", { ascending: false }),
       supabase.from("sectores").select("id, nombre").order("nombre"),
       supabase.from("profiles").select("id, nombre").order("nombre"),
@@ -85,7 +88,8 @@ function ClientesList() {
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
     return rows.filter((r) => {
-      if (tipoFilter !== "todos" && r.tipo !== tipoFilter) return false;
+      if (areaFilter !== "todos" && r.area_comercial !== areaFilter) return false;
+      if (categoriaFilter !== "todos" && r.categoria_cliente !== categoriaFilter) return false;
       if (estadoFilter !== "todos" && r.estado !== estadoFilter) return false;
       if (sectorFilter !== "todos") {
         if (sectorFilter === "__none__") { if (r.sector_id) return false; }
@@ -100,7 +104,23 @@ function ClientesList() {
         .filter(Boolean).join(" ").toLowerCase();
       return hay.includes(term);
     });
-  }, [rows, q, tipoFilter, estadoFilter, sectorFilter, ejecutivoFilter]);
+  }, [rows, q, areaFilter, categoriaFilter, estadoFilter, sectorFilter, ejecutivoFilter]);
+
+  const activeFilters =
+    (areaFilter !== "todos" ? 1 : 0) +
+    (categoriaFilter !== "todos" ? 1 : 0) +
+    (estadoFilter !== "todos" ? 1 : 0) +
+    (sectorFilter !== "todos" ? 1 : 0) +
+    (ejecutivoFilter !== "todos" ? 1 : 0);
+
+  const clearFilters = () => {
+    setAreaFilter("todos");
+    setCategoriaFilter("todos");
+    setEstadoFilter("todos");
+    setSectorFilter("todos");
+    setEjecutivoFilter("todos");
+    setQ("");
+  };
 
   const sectoresMap = useMemo(() => new Map(sectores.map((s) => [s.id, s.nombre])), [sectores]);
   const ejecutivosMap = useMemo(() => new Map(ejecutivos.map((e) => [e.id, e.nombre])), [ejecutivos]);
@@ -148,51 +168,86 @@ function ClientesList() {
 
       <Card>
         <CardContent className="p-4 space-y-3">
-          <div className="grid md:grid-cols-[1fr_auto_auto_auto_auto] gap-2">
+          <div className="space-y-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input value={q} onChange={(e) => setQ(e.target.value)}
                 placeholder="Buscar por nombre, RUC, DNI, correo..." className="pl-9" />
             </div>
-            <Select value={tipoFilter} onValueChange={setTipoFilter}>
-              <SelectTrigger className="w-full md:w-40"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos los tipos</SelectItem>
-                <SelectItem value="empresa">Cliente Institucional</SelectItem>
-                <SelectItem value="persona">Cliente Común</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={estadoFilter} onValueChange={setEstadoFilter}>
-              <SelectTrigger className="w-full md:w-40"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos los estados</SelectItem>
-                <SelectItem value="prospecto">Prospecto</SelectItem>
-                <SelectItem value="en_negociacion">En negociación</SelectItem>
-                <SelectItem value="activo">Activo</SelectItem>
-                <SelectItem value="inactivo">Inactivo</SelectItem>
-                <SelectItem value="perdido">Perdido</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sectorFilter} onValueChange={setSectorFilter}>
-              <SelectTrigger className="w-full md:w-56"><SelectValue /></SelectTrigger>
-              <SelectContent className="max-h-72">
-                <SelectItem value="todos">Todos los sectores</SelectItem>
-                <SelectItem value="__none__">Sin sector</SelectItem>
-                {sectores.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={ejecutivoFilter} onValueChange={setEjecutivoFilter}>
-              <SelectTrigger className="w-full md:w-56"><SelectValue placeholder="Ejecutivo" /></SelectTrigger>
-              <SelectContent className="max-h-72">
-                <SelectItem value="todos">Todos los ejecutivos</SelectItem>
-                <SelectItem value="__none__">Sin asignar</SelectItem>
-                {ejecutivos.map((e) => (
-                  <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+              <div className="min-w-0">
+                <label className="text-[11px] font-medium text-muted-foreground block mb-1">Área comercial</label>
+                <Select value={areaFilter} onValueChange={setAreaFilter}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todas las áreas comerciales</SelectItem>
+                    <SelectItem value="b2b">B2B</SelectItem>
+                    <SelectItem value="b2c">B2C</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="min-w-0">
+                <label className="text-[11px] font-medium text-muted-foreground block mb-1">Categoría cliente</label>
+                <Select value={categoriaFilter} onValueChange={setCategoriaFilter}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todas las categorías</SelectItem>
+                    <SelectItem value="institucional">Institucional</SelectItem>
+                    <SelectItem value="comun">Común</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="min-w-0">
+                <label className="text-[11px] font-medium text-muted-foreground block mb-1">Estado</label>
+                <Select value={estadoFilter} onValueChange={setEstadoFilter}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos los estados</SelectItem>
+                    <SelectItem value="prospecto">Prospecto</SelectItem>
+                    <SelectItem value="en_negociacion">En negociación</SelectItem>
+                    <SelectItem value="activo">Activo</SelectItem>
+                    <SelectItem value="inactivo">Inactivo</SelectItem>
+                    <SelectItem value="perdido">Perdido</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="min-w-0">
+                <label className="text-[11px] font-medium text-muted-foreground block mb-1">Sector</label>
+                <Select value={sectorFilter} onValueChange={setSectorFilter}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem value="todos">Todos los sectores</SelectItem>
+                    <SelectItem value="__none__">Sin sector</SelectItem>
+                    {sectores.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>{s.nombre}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="min-w-0">
+                <label className="text-[11px] font-medium text-muted-foreground block mb-1">Ejecutivo</label>
+                <Select value={ejecutivoFilter} onValueChange={setEjecutivoFilter}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    <SelectItem value="todos">Todos los ejecutivos</SelectItem>
+                    <SelectItem value="__none__">Sin asignar</SelectItem>
+                    {ejecutivos.map((e) => (
+                      <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {activeFilters > 0 && (
+              <div className="flex items-center justify-between pt-1">
+                <p className="text-[11px] text-muted-foreground">
+                  {activeFilters} filtro{activeFilters > 1 ? "s" : ""} activo{activeFilters > 1 ? "s" : ""}
+                </p>
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearFilters}>
+                  Limpiar filtros
+                </Button>
+              </div>
+            )}
           </div>
 
           {loading ? (

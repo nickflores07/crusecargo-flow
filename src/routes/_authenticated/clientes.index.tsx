@@ -25,15 +25,24 @@ type Cliente = {
   ciudad: string | null;
   telefono: string | null;
   correo: string | null;
-  estado: string;
+  estado: "prospecto" | "en_negociacion" | "activo" | "inactivo" | "perdido";
   created_at: string;
 };
 
 const estadoColor: Record<string, string> = {
   prospecto: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  en_negociacion: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
   activo: "bg-green-500/10 text-green-700 dark:text-green-300",
   inactivo: "bg-gray-500/10 text-gray-700 dark:text-gray-300",
   perdido: "bg-red-500/10 text-red-700 dark:text-red-300",
+};
+
+const ESTADO_LABELS: Record<string, string> = {
+  prospecto: "Prospecto",
+  en_negociacion: "En negociación",
+  activo: "Activo",
+  inactivo: "Inactivo",
+  perdido: "Perdido",
 };
 
 function ClientesList() {
@@ -68,6 +77,18 @@ function ClientesList() {
     });
   }, [rows, q, tipoFilter, estadoFilter]);
 
+  const updateEstado = async (id: string, nuevo: Cliente["estado"]) => {
+    const prev = rows;
+    setRows((r) => r.map((x) => (x.id === id ? { ...x, estado: nuevo } : x)));
+    const { error } = await supabase.from("clientes").update({ estado: nuevo }).eq("id", id);
+    if (error) {
+      setRows(prev);
+      toast.error("No se pudo actualizar: " + error.message);
+    } else {
+      toast.success("Estado actualizado");
+    }
+  };
+
   return (
     <div className="space-y-5 max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -97,8 +118,8 @@ function ClientesList() {
               <SelectTrigger className="w-full md:w-40"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos los tipos</SelectItem>
-                <SelectItem value="empresa">Empresas</SelectItem>
-                <SelectItem value="persona">Personas</SelectItem>
+                <SelectItem value="empresa">Cliente Institucional</SelectItem>
+                <SelectItem value="persona">Cliente Común</SelectItem>
               </SelectContent>
             </Select>
             <Select value={estadoFilter} onValueChange={setEstadoFilter}>
@@ -106,6 +127,7 @@ function ClientesList() {
               <SelectContent>
                 <SelectItem value="todos">Todos los estados</SelectItem>
                 <SelectItem value="prospecto">Prospecto</SelectItem>
+                <SelectItem value="en_negociacion">En negociación</SelectItem>
                 <SelectItem value="activo">Activo</SelectItem>
                 <SelectItem value="inactivo">Inactivo</SelectItem>
                 <SelectItem value="perdido">Perdido</SelectItem>
@@ -142,25 +164,32 @@ function ClientesList() {
                 const doc = c.tipo === "empresa" ? c.ruc : c.dni;
                 const Icon = c.tipo === "empresa" ? Building2 : UserIcon;
                 return (
-                  <Link
-                    key={c.id}
-                    to="/clientes/$id"
-                    params={{ id: c.id }}
-                    className="flex items-center gap-3 py-3 hover:bg-muted/50 rounded-md px-2 -mx-2 transition-colors"
-                  >
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 grid place-items-center shrink-0">
-                      <Icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{nombre || "(sin nombre)"}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {[doc, c.ciudad, c.correo].filter(Boolean).join(" · ") || "Sin datos adicionales"}
-                      </p>
-                    </div>
-                    <Badge className={`capitalize ${estadoColor[c.estado] ?? ""}`} variant="outline">
-                      {c.estado}
-                    </Badge>
-                  </Link>
+                  <div key={c.id} className="flex items-center gap-3 py-3 hover:bg-muted/30 rounded-md px-2 -mx-2 transition-colors">
+                    <Link to="/clientes/$id" params={{ id: c.id }} className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 grid place-items-center shrink-0">
+                        <Icon className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{nombre || "(sin nombre)"}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {[doc, c.ciudad, c.correo].filter(Boolean).join(" · ") || "Sin datos adicionales"}
+                        </p>
+                      </div>
+                    </Link>
+                    <Select value={c.estado} onValueChange={(v) => void updateEstado(c.id, v as Cliente["estado"])}>
+                      <SelectTrigger
+                        className={`h-8 w-[150px] text-xs capitalize border ${estadoColor[c.estado] ?? ""}`}
+                        title="Cambiar estado sin abrir la ficha"
+                      >
+                        <SelectValue>{ESTADO_LABELS[c.estado]}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(ESTADO_LABELS).map(([k, l]) => (
+                          <SelectItem key={k} value={k}>{l}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 );
               })}
             </div>

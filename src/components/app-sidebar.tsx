@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Users, ClipboardList, Target, Truck, FileText, Calendar,
+  LayoutDashboard, Users, Target, Truck, FileText, Calendar,
   Sparkles, Settings, Truck as TruckIcon,
 } from "lucide-react";
 import {

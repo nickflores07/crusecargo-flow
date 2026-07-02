@@ -32,6 +32,9 @@ function NuevoCliente() {
       correo: v.correo || null,
       estado: v.estado,
       notas: v.notas || null,
+      categoria_cliente: v.categoria_cliente,
+      area_comercial: v.area_comercial,
+      canal: v.canal || null,
       ejecutivo_id: user?.id ?? null,
       created_by: user?.id ?? null,
     };

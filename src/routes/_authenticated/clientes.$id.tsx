@@ -34,6 +34,9 @@ type ClienteRow = {
   correo: string | null;
   estado: "prospecto" | "activo" | "inactivo" | "perdido";
   notas: string | null;
+  categoria_cliente: "institucional" | "comun";
+  area_comercial: "b2b" | "b2c";
+  canal: string | null;
 };
 
 function ClienteDetalle() {
@@ -72,6 +75,9 @@ function ClienteDetalle() {
       correo: v.correo || null,
       estado: v.estado,
       notas: v.notas || null,
+      categoria_cliente: v.categoria_cliente,
+      area_comercial: v.area_comercial,
+      canal: v.canal || null,
     }).eq("id", id);
     setSaving(false);
     if (error) {
@@ -127,6 +133,10 @@ function ClienteDetalle() {
                   <Badge variant="outline" className="capitalize">
                     {cliente.tipo === "empresa" ? "Empresa" : "Persona"}
                   </Badge>
+                  <Badge variant="outline" className="uppercase">{cliente.area_comercial}</Badge>
+                  <Badge variant="outline" className="capitalize">
+                    {cliente.categoria_cliente === "institucional" ? "Institucional" : "Común"}
+                  </Badge>
                   <Badge variant="outline" className="capitalize">{cliente.estado}</Badge>
                 </CardDescription>
               </div>
@@ -168,6 +178,9 @@ function ClienteDetalle() {
                   correo: cliente.correo ?? "",
                   estado: cliente.estado,
                   notas: cliente.notas ?? "",
+                  categoria_cliente: cliente.categoria_cliente,
+                  area_comercial: cliente.area_comercial,
+                  canal: cliente.canal ?? "",
                 }}
                 submitting={saving}
                 onSubmit={handleSave}

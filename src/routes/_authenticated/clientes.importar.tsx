@@ -109,6 +109,8 @@ type PreviewRow = {
   ejecutivo_nombre: string;
   sector_id: string | null;
   sector_nombre: string;
+  canal: string | null;
+  canal_raw: string;
 };
 
 function ImportarClientes() {
@@ -202,6 +204,9 @@ function ImportarClientes() {
         ? sectores.find((s) => NORM(s.nombre) === NORM(sectorNombre))
         : null;
 
+      const canalRaw = getVal(r, "canal");
+      const canalNorm = normalizeCanal(canalRaw);
+
       let error: string | null = null;
       if (!nombre) error = tipo === "empresa" ? "Falta razón social" : "Falta nombre";
       else if (area_comercial === "b2b" && categoria_cliente !== "institucional")
@@ -214,6 +219,8 @@ function ImportarClientes() {
         ejecutivo_nombre: ejecNombre || (ejecMatch?.nombre ?? ""),
         sector_id: sectorMatch?.id ?? null,
         sector_nombre: sectorNombre,
+        canal: canalNorm,
+        canal_raw: canalRaw,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -246,7 +253,7 @@ function ImportarClientes() {
         notas: getVal(r, "notas") || null,
         categoria_cliente: p.categoria_cliente,
         area_comercial: p.area_comercial,
-        canal: normalizeCanal(getVal(r, "canal")),
+        canal: p.canal,
         sector_id: p.sector_id,
         ejecutivo_id: p.ejecutivo_id ?? user?.id ?? null,
         created_by: user?.id ?? null,
@@ -424,6 +431,7 @@ function ImportarClientes() {
                     <th className="text-left p-2">Área</th>
                     <th className="text-left p-2">Categoría</th>
                     <th className="text-left p-2">Sector</th>
+                    <th className="text-left p-2">Canal</th>
                     <th className="text-left p-2">Ejecutivo</th>
                     <th className="text-left p-2">Estado</th>
                   </tr>
@@ -442,6 +450,13 @@ function ImportarClientes() {
                           ? (p.sector_id
                               ? p.sector_nombre
                               : <span className="text-amber-600" title="Sector no encontrado; se dejará vacío">{p.sector_nombre} ⚠</span>)
+                          : <span className="text-muted-foreground">—</span>}
+                      </td>
+                      <td className="p-2 text-xs">
+                        {p.canal
+                          ? (CANALES.includes(p.canal)
+                              ? p.canal
+                              : <span className="text-amber-600" title={`Canal "${p.canal_raw}" no coincide con la lista oficial`}>{p.canal} ⚠</span>)
                           : <span className="text-muted-foreground">—</span>}
                       </td>
                       <td className="p-2 text-xs">

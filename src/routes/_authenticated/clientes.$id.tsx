@@ -167,6 +167,9 @@ function ClienteDetalle() {
                     {cliente.categoria_cliente === "institucional" ? "Institucional" : "Común"}
                   </Badge>
                   <Badge variant="outline" className="capitalize">{cliente.estado.replace("_", " ")}</Badge>
+                  {cliente.canal && (
+                    <Badge variant="secondary">Canal: {cliente.canal}</Badge>
+                  )}
                 </CardDescription>
                 <p className="text-xs text-muted-foreground mt-2">
                   Ejecutivo asignado:{" "}

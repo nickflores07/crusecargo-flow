@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, User as UserIcon, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 export type ClienteFormValues = {
   tipo: "empresa" | "persona";
@@ -23,6 +24,7 @@ export type ClienteFormValues = {
   categoria_cliente: "institucional" | "comun";
   area_comercial: "b2b" | "b2c";
   canal: string;
+  sector_id: string | null;
 };
 
 export const emptyCliente: ClienteFormValues = {
@@ -41,6 +43,7 @@ export const emptyCliente: ClienteFormValues = {
   categoria_cliente: "institucional",
   area_comercial: "b2b",
   canal: "",
+  sector_id: null,
 };
 
 export function ClienteForm({
@@ -59,6 +62,12 @@ export function ClienteForm({
   lockTipo?: boolean;
 }) {
   const [values, setValues] = useState<ClienteFormValues>({ ...emptyCliente, ...initial });
+  const [sectores, setSectores] = useState<Array<{ id: string; nombre: string }>>([]);
+  useEffect(() => {
+    void supabase.from("sectores").select("id, nombre").order("nombre").then(({ data }) => {
+      setSectores(data ?? []);
+    });
+  }, []);
   const set = <K extends keyof ClienteFormValues>(k: K, v: ClienteFormValues[K]) =>
     setValues((s) => {
       const next = { ...s, [k]: v } as ClienteFormValues;

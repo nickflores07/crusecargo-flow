@@ -1,0 +1,1 @@
+ALTER TABLE public.oportunidades ADD COLUMN IF NOT EXISTS peso_estimado_kg numeric(12,2);

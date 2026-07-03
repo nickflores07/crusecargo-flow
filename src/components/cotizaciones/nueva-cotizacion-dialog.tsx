@@ -102,7 +102,7 @@ export function NuevaCotizacionDialog({
       const { data } = await supabase.from("oportunidades")
         .select("id, titulo, estado")
         .eq("cliente_id", clienteId)
-        .in("estado", ["prospecto", "calificada", "propuesta", "negociacion"])
+        .in("estado", ["en_proceso"])
         .order("created_at", { ascending: false });
       setOportunidades((data ?? []) as Oportunidad[]);
     })();

@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedTarifarioRouteImport } from './routes/_authenticated/tarifario'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedEnviosRouteImport } from './routes/_authenticated/envios'
 import { Route as AuthenticatedCotizacionesRouteImport } from './routes/_authenticated/cotizaciones'
@@ -47,6 +48,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedTarifarioRoute = AuthenticatedTarifarioRouteImport.update({
+  id: '/tarifario',
+  path: '/tarifario',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOportunidadesRoute =
   AuthenticatedOportunidadesRouteImport.update({
@@ -144,6 +150,7 @@ export interface FileRoutesByFullPath {
   '/cotizaciones': typeof AuthenticatedCotizacionesRoute
   '/envios': typeof AuthenticatedEnviosRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/cotizaciones': typeof AuthenticatedCotizacionesRoute
   '/envios': typeof AuthenticatedEnviosRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/_authenticated/cotizaciones': typeof AuthenticatedCotizacionesRoute
   '/_authenticated/envios': typeof AuthenticatedEnviosRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/_authenticated/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/sectores': typeof AuthenticatedAdminSectoresRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/cotizaciones'
     | '/envios'
     | '/oportunidades'
+    | '/tarifario'
     | '/api/chat'
     | '/admin/sectores'
     | '/admin/usuarios'
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/cotizaciones'
     | '/envios'
     | '/oportunidades'
+    | '/tarifario'
     | '/api/chat'
     | '/'
     | '/admin/sectores'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cotizaciones'
     | '/_authenticated/envios'
     | '/_authenticated/oportunidades'
+    | '/_authenticated/tarifario'
     | '/api/chat'
     | '/_authenticated/'
     | '/_authenticated/admin/sectores'
@@ -291,6 +303,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/tarifario': {
+      id: '/_authenticated/tarifario'
+      path: '/tarifario'
+      fullPath: '/tarifario'
+      preLoaderRoute: typeof AuthenticatedTarifarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/oportunidades': {
       id: '/_authenticated/oportunidades'
@@ -443,6 +462,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCotizacionesRoute: typeof AuthenticatedCotizacionesRoute
   AuthenticatedEnviosRoute: typeof AuthenticatedEnviosRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
+  AuthenticatedTarifarioRoute: typeof AuthenticatedTarifarioRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminSectoresRoute: typeof AuthenticatedAdminSectoresRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
@@ -456,6 +476,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCotizacionesRoute: AuthenticatedCotizacionesRoute,
   AuthenticatedEnviosRoute: AuthenticatedEnviosRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
+  AuthenticatedTarifarioRoute: AuthenticatedTarifarioRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminSectoresRoute: AuthenticatedAdminSectoresRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,

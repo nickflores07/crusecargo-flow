@@ -13,15 +13,17 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedTarifarioRouteImport } from './routes/_authenticated/tarifario'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedEnviosRouteImport } from './routes/_authenticated/envios'
-import { Route as AuthenticatedCotizacionesRouteImport } from './routes/_authenticated/cotizaciones'
 import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authenticated/configuracion'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
 import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedCotizacionesIndexRouteImport } from './routes/_authenticated/cotizaciones.index'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedAsistenteIndexRouteImport } from './routes/_authenticated/asistente.index'
+import { Route as AuthenticatedCotizacionesIdRouteImport } from './routes/_authenticated/cotizaciones.$id'
 import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authenticated/clientes.nuevo'
 import { Route as AuthenticatedClientesImportarRouteImport } from './routes/_authenticated/clientes.importar'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
@@ -48,6 +50,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTarifarioRoute = AuthenticatedTarifarioRouteImport.update({
+  id: '/tarifario',
+  path: '/tarifario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOportunidadesRoute =
   AuthenticatedOportunidadesRouteImport.update({
     id: '/oportunidades',
@@ -59,12 +66,6 @@ const AuthenticatedEnviosRoute = AuthenticatedEnviosRouteImport.update({
   path: '/envios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCotizacionesRoute =
-  AuthenticatedCotizacionesRouteImport.update({
-    id: '/cotizaciones',
-    path: '/cotizaciones',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedConfiguracionRoute =
   AuthenticatedConfiguracionRouteImport.update({
     id: '/configuracion',
@@ -86,6 +87,12 @@ const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCotizacionesIndexRoute =
+  AuthenticatedCotizacionesIndexRouteImport.update({
+    id: '/cotizaciones/',
+    path: '/cotizaciones/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedClientesIndexRoute =
   AuthenticatedClientesIndexRouteImport.update({
     id: '/',
@@ -97,6 +104,12 @@ const AuthenticatedAsistenteIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedAsistenteRoute,
+  } as any)
+const AuthenticatedCotizacionesIdRoute =
+  AuthenticatedCotizacionesIdRouteImport.update({
+    id: '/cotizaciones/$id',
+    path: '/cotizaciones/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedClientesNuevoRoute =
   AuthenticatedClientesNuevoRouteImport.update({
@@ -141,9 +154,9 @@ export interface FileRoutesByFullPath {
   '/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/configuracion': typeof AuthenticatedConfiguracionRoute
-  '/cotizaciones': typeof AuthenticatedCotizacionesRoute
   '/envios': typeof AuthenticatedEnviosRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -151,16 +164,18 @@ export interface FileRoutesByFullPath {
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/cotizaciones/$id': typeof AuthenticatedCotizacionesIdRoute
   '/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
+  '/cotizaciones/': typeof AuthenticatedCotizacionesIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
-  '/cotizaciones': typeof AuthenticatedCotizacionesRoute
   '/envios': typeof AuthenticatedEnviosRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
@@ -169,8 +184,10 @@ export interface FileRoutesByTo {
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/cotizaciones/$id': typeof AuthenticatedCotizacionesIdRoute
   '/asistente': typeof AuthenticatedAsistenteIndexRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
+  '/cotizaciones': typeof AuthenticatedCotizacionesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -180,9 +197,9 @@ export interface FileRoutesById {
   '/_authenticated/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/configuracion': typeof AuthenticatedConfiguracionRoute
-  '/_authenticated/cotizaciones': typeof AuthenticatedCotizacionesRoute
   '/_authenticated/envios': typeof AuthenticatedEnviosRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/_authenticated/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/sectores': typeof AuthenticatedAdminSectoresRoute
@@ -191,8 +208,10 @@ export interface FileRoutesById {
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/_authenticated/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/_authenticated/cotizaciones/$id': typeof AuthenticatedCotizacionesIdRoute
   '/_authenticated/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
+  '/_authenticated/cotizaciones/': typeof AuthenticatedCotizacionesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -203,9 +222,9 @@ export interface FileRouteTypes {
     | '/asistente'
     | '/clientes'
     | '/configuracion'
-    | '/cotizaciones'
     | '/envios'
     | '/oportunidades'
+    | '/tarifario'
     | '/api/chat'
     | '/admin/sectores'
     | '/admin/usuarios'
@@ -213,16 +232,18 @@ export interface FileRouteTypes {
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
+    | '/cotizaciones/$id'
     | '/asistente/'
     | '/clientes/'
+    | '/cotizaciones/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
     | '/agenda'
     | '/configuracion'
-    | '/cotizaciones'
     | '/envios'
     | '/oportunidades'
+    | '/tarifario'
     | '/api/chat'
     | '/'
     | '/admin/sectores'
@@ -231,8 +252,10 @@ export interface FileRouteTypes {
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
+    | '/cotizaciones/$id'
     | '/asistente'
     | '/clientes'
+    | '/cotizaciones'
   id:
     | '__root__'
     | '/_authenticated'
@@ -241,9 +264,9 @@ export interface FileRouteTypes {
     | '/_authenticated/asistente'
     | '/_authenticated/clientes'
     | '/_authenticated/configuracion'
-    | '/_authenticated/cotizaciones'
     | '/_authenticated/envios'
     | '/_authenticated/oportunidades'
+    | '/_authenticated/tarifario'
     | '/api/chat'
     | '/_authenticated/'
     | '/_authenticated/admin/sectores'
@@ -252,8 +275,10 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/importar'
     | '/_authenticated/clientes/nuevo'
+    | '/_authenticated/cotizaciones/$id'
     | '/_authenticated/asistente/'
     | '/_authenticated/clientes/'
+    | '/_authenticated/cotizaciones/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -292,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/tarifario': {
+      id: '/_authenticated/tarifario'
+      path: '/tarifario'
+      fullPath: '/tarifario'
+      preLoaderRoute: typeof AuthenticatedTarifarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/oportunidades': {
       id: '/_authenticated/oportunidades'
       path: '/oportunidades'
@@ -304,13 +336,6 @@ declare module '@tanstack/react-router' {
       path: '/envios'
       fullPath: '/envios'
       preLoaderRoute: typeof AuthenticatedEnviosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/cotizaciones': {
-      id: '/_authenticated/cotizaciones'
-      path: '/cotizaciones'
-      fullPath: '/cotizaciones'
-      preLoaderRoute: typeof AuthenticatedCotizacionesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/configuracion': {
@@ -341,6 +366,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/cotizaciones/': {
+      id: '/_authenticated/cotizaciones/'
+      path: '/cotizaciones'
+      fullPath: '/cotizaciones/'
+      preLoaderRoute: typeof AuthenticatedCotizacionesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/clientes/': {
       id: '/_authenticated/clientes/'
       path: '/'
@@ -354,6 +386,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/asistente/'
       preLoaderRoute: typeof AuthenticatedAsistenteIndexRouteImport
       parentRoute: typeof AuthenticatedAsistenteRoute
+    }
+    '/_authenticated/cotizaciones/$id': {
+      id: '/_authenticated/cotizaciones/$id'
+      path: '/cotizaciones/$id'
+      fullPath: '/cotizaciones/$id'
+      preLoaderRoute: typeof AuthenticatedCotizacionesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/clientes/nuevo': {
       id: '/_authenticated/clientes/nuevo'
@@ -440,12 +479,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRouteWithChildren
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRouteWithChildren
   AuthenticatedConfiguracionRoute: typeof AuthenticatedConfiguracionRoute
-  AuthenticatedCotizacionesRoute: typeof AuthenticatedCotizacionesRoute
   AuthenticatedEnviosRoute: typeof AuthenticatedEnviosRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
+  AuthenticatedTarifarioRoute: typeof AuthenticatedTarifarioRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminSectoresRoute: typeof AuthenticatedAdminSectoresRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedCotizacionesIdRoute: typeof AuthenticatedCotizacionesIdRoute
+  AuthenticatedCotizacionesIndexRoute: typeof AuthenticatedCotizacionesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -453,12 +494,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAsistenteRoute: AuthenticatedAsistenteRouteWithChildren,
   AuthenticatedClientesRoute: AuthenticatedClientesRouteWithChildren,
   AuthenticatedConfiguracionRoute: AuthenticatedConfiguracionRoute,
-  AuthenticatedCotizacionesRoute: AuthenticatedCotizacionesRoute,
   AuthenticatedEnviosRoute: AuthenticatedEnviosRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
+  AuthenticatedTarifarioRoute: AuthenticatedTarifarioRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminSectoresRoute: AuthenticatedAdminSectoresRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedCotizacionesIdRoute: AuthenticatedCotizacionesIdRoute,
+  AuthenticatedCotizacionesIndexRoute: AuthenticatedCotizacionesIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

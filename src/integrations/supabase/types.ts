@@ -208,34 +208,55 @@ export type Database = {
       }
       cotizacion_items: {
         Row: {
+          bultos: number | null
           cantidad: number
           cotizacion_id: string
           created_at: string
           descripcion: string
+          destino: string | null
           id: string
           importe: number
           orden: number
+          origen: string | null
+          peso_kg: number | null
+          precio_sugerido: number | null
           precio_unit: number
+          servicio: string | null
+          tarifa_id: string | null
         }
         Insert: {
+          bultos?: number | null
           cantidad?: number
           cotizacion_id: string
           created_at?: string
           descripcion: string
+          destino?: string | null
           id?: string
           importe?: number
           orden?: number
+          origen?: string | null
+          peso_kg?: number | null
+          precio_sugerido?: number | null
           precio_unit?: number
+          servicio?: string | null
+          tarifa_id?: string | null
         }
         Update: {
+          bultos?: number | null
           cantidad?: number
           cotizacion_id?: string
           created_at?: string
           descripcion?: string
+          destino?: string | null
           id?: string
           importe?: number
           orden?: number
+          origen?: string | null
+          peso_kg?: number | null
+          precio_sugerido?: number | null
           precio_unit?: number
+          servicio?: string | null
+          tarifa_id?: string | null
         }
         Relationships: [
           {
@@ -245,57 +266,94 @@ export type Database = {
             referencedRelation: "cotizaciones"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "cotizacion_items_tarifa_id_fkey"
+            columns: ["tarifa_id"]
+            isOneToOne: false
+            referencedRelation: "tarifas"
+            referencedColumns: ["id"]
+          },
         ]
       }
       cotizaciones: {
         Row: {
           cliente_id: string
+          condiciones: string | null
+          correo_destino: string | null
+          correos_cc: string[]
           created_at: string
           created_by: string | null
           ejecutivo_id: string | null
+          enviada_a: string | null
+          enviada_en: string | null
           estado: Database["public"]["Enums"]["cotizacion_estado"]
           fecha_emision: string
           fecha_vencimiento: string | null
           id: string
           igv: number
+          incluye_igv: boolean
           moneda: string
+          motivo_rechazo: string | null
           notas: string | null
+          notas_internas: string | null
           numero: string
+          oportunidad_id: string | null
           subtotal: number
+          token_publico: string | null
           total: number
           updated_at: string
         }
         Insert: {
           cliente_id: string
+          condiciones?: string | null
+          correo_destino?: string | null
+          correos_cc?: string[]
           created_at?: string
           created_by?: string | null
           ejecutivo_id?: string | null
+          enviada_a?: string | null
+          enviada_en?: string | null
           estado?: Database["public"]["Enums"]["cotizacion_estado"]
           fecha_emision?: string
           fecha_vencimiento?: string | null
           id?: string
           igv?: number
+          incluye_igv?: boolean
           moneda?: string
+          motivo_rechazo?: string | null
           notas?: string | null
+          notas_internas?: string | null
           numero: string
+          oportunidad_id?: string | null
           subtotal?: number
+          token_publico?: string | null
           total?: number
           updated_at?: string
         }
         Update: {
           cliente_id?: string
+          condiciones?: string | null
+          correo_destino?: string | null
+          correos_cc?: string[]
           created_at?: string
           created_by?: string | null
           ejecutivo_id?: string | null
+          enviada_a?: string | null
+          enviada_en?: string | null
           estado?: Database["public"]["Enums"]["cotizacion_estado"]
           fecha_emision?: string
           fecha_vencimiento?: string | null
           id?: string
           igv?: number
+          incluye_igv?: boolean
           moneda?: string
+          motivo_rechazo?: string | null
           notas?: string | null
+          notas_internas?: string | null
           numero?: string
+          oportunidad_id?: string | null
           subtotal?: number
+          token_publico?: string | null
           total?: number
           updated_at?: string
         }
@@ -305,6 +363,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cotizaciones_oportunidad_id_fkey"
+            columns: ["oportunidad_id"]
+            isOneToOne: false
+            referencedRelation: "oportunidades"
             referencedColumns: ["id"]
           },
         ]
@@ -422,6 +487,7 @@ export type Database = {
         Row: {
           bultos: number | null
           cliente_id: string
+          cotizacion_id: string | null
           created_at: string
           created_by: string | null
           destino: string | null
@@ -433,6 +499,7 @@ export type Database = {
           importe: number | null
           notas: string | null
           origen: string | null
+          origen_registro: string
           peso_kg: number | null
           servicio: string | null
           updated_at: string
@@ -440,6 +507,7 @@ export type Database = {
         Insert: {
           bultos?: number | null
           cliente_id: string
+          cotizacion_id?: string | null
           created_at?: string
           created_by?: string | null
           destino?: string | null
@@ -451,6 +519,7 @@ export type Database = {
           importe?: number | null
           notas?: string | null
           origen?: string | null
+          origen_registro?: string
           peso_kg?: number | null
           servicio?: string | null
           updated_at?: string
@@ -458,6 +527,7 @@ export type Database = {
         Update: {
           bultos?: number | null
           cliente_id?: string
+          cotizacion_id?: string | null
           created_at?: string
           created_by?: string | null
           destino?: string | null
@@ -469,6 +539,7 @@ export type Database = {
           importe?: number | null
           notas?: string | null
           origen?: string | null
+          origen_registro?: string
           peso_kg?: number | null
           servicio?: string | null
           updated_at?: string
@@ -479,6 +550,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "envios_cotizacion_id_fkey"
+            columns: ["cotizacion_id"]
+            isOneToOne: false
+            referencedRelation: "cotizaciones"
             referencedColumns: ["id"]
           },
         ]
@@ -685,6 +763,68 @@ export type Database = {
           },
         ]
       }
+      tarifas: {
+        Row: {
+          activo: boolean
+          cliente_id: string | null
+          created_at: string
+          created_by: string | null
+          destino: string
+          id: string
+          notas: string | null
+          origen: string
+          peso_minimo_kg: number
+          precio_minimo: number
+          precio_por_kg: number
+          servicio: string
+          updated_at: string
+          vigente_desde: string
+          vigente_hasta: string | null
+        }
+        Insert: {
+          activo?: boolean
+          cliente_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          destino: string
+          id?: string
+          notas?: string | null
+          origen: string
+          peso_minimo_kg?: number
+          precio_minimo?: number
+          precio_por_kg?: number
+          servicio?: string
+          updated_at?: string
+          vigente_desde?: string
+          vigente_hasta?: string | null
+        }
+        Update: {
+          activo?: boolean
+          cliente_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          destino?: string
+          id?: string
+          notas?: string | null
+          origen?: string
+          peso_minimo_kg?: number
+          precio_minimo?: number
+          precio_por_kg?: number
+          servicio?: string
+          updated_at?: string
+          vigente_desde?: string
+          vigente_hasta?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarifas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -722,6 +862,23 @@ export type Database = {
         }
         Returns: boolean
       }
+      siguiente_numero_cotizacion: { Args: never; Returns: string }
+      sugerir_tarifa: {
+        Args: {
+          _cliente_id: string
+          _destino: string
+          _origen: string
+          _peso_kg: number
+          _servicio: string
+        }
+        Returns: {
+          origen_tarifa: string
+          precio_minimo: number
+          precio_por_kg: number
+          precio_sugerido: number
+          tarifa_id: string
+        }[]
+      }
     }
     Enums: {
       app_role: "administrador" | "supervisor" | "ejecutivo"
@@ -734,7 +891,12 @@ export type Database = {
         | "aceptada"
         | "rechazada"
         | "vencida"
-      envio_estado: "en_transito" | "entregado" | "devuelto" | "anulado"
+      envio_estado:
+        | "estimado"
+        | "en_transito"
+        | "entregado"
+        | "devuelto"
+        | "anulado"
       estado_cliente:
         | "prospecto"
         | "en_negociacion"
@@ -888,7 +1050,13 @@ export const Constants = {
         "rechazada",
         "vencida",
       ],
-      envio_estado: ["en_transito", "entregado", "devuelto", "anulado"],
+      envio_estado: [
+        "estimado",
+        "en_transito",
+        "entregado",
+        "devuelto",
+        "anulado",
+      ],
       estado_cliente: [
         "prospecto",
         "en_negociacion",

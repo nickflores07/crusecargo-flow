@@ -20,6 +20,7 @@ import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authen
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
 import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedCotizacionesIndexRouteImport } from './routes/_authenticated/cotizaciones.index'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedAsistenteIndexRouteImport } from './routes/_authenticated/asistente.index'
 import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authenticated/clientes.nuevo'
@@ -85,6 +86,12 @@ const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCotizacionesIndexRoute =
+  AuthenticatedCotizacionesIndexRouteImport.update({
+    id: '/cotizaciones/',
+    path: '/cotizaciones/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedClientesIndexRoute =
   AuthenticatedClientesIndexRouteImport.update({
     id: '/',
@@ -152,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
   '/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
+  '/cotizaciones/': typeof AuthenticatedCotizacionesIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -170,6 +178,7 @@ export interface FileRoutesByTo {
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
   '/asistente': typeof AuthenticatedAsistenteIndexRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
+  '/cotizaciones': typeof AuthenticatedCotizacionesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -192,6 +201,7 @@ export interface FileRoutesById {
   '/_authenticated/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
   '/_authenticated/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
+  '/_authenticated/cotizaciones/': typeof AuthenticatedCotizacionesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/clientes/nuevo'
     | '/asistente/'
     | '/clientes/'
+    | '/cotizaciones/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/clientes/nuevo'
     | '/asistente'
     | '/clientes'
+    | '/cotizaciones'
   id:
     | '__root__'
     | '/_authenticated'
@@ -253,6 +265,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes/nuevo'
     | '/_authenticated/asistente/'
     | '/_authenticated/clientes/'
+    | '/_authenticated/cotizaciones/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/agenda'
       fullPath: '/agenda'
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cotizaciones/': {
+      id: '/_authenticated/cotizaciones/'
+      path: '/cotizaciones'
+      fullPath: '/cotizaciones/'
+      preLoaderRoute: typeof AuthenticatedCotizacionesIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/clientes/': {
@@ -445,6 +465,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminSectoresRoute: typeof AuthenticatedAdminSectoresRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedCotizacionesIndexRoute: typeof AuthenticatedCotizacionesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -458,6 +479,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminSectoresRoute: AuthenticatedAdminSectoresRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedCotizacionesIndexRoute: AuthenticatedCotizacionesIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

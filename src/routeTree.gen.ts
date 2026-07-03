@@ -23,6 +23,7 @@ import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedCotizacionesIndexRouteImport } from './routes/_authenticated/cotizaciones.index'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedAsistenteIndexRouteImport } from './routes/_authenticated/asistente.index'
+import { Route as AuthenticatedCotizacionesIdRouteImport } from './routes/_authenticated/cotizaciones.$id'
 import { Route as AuthenticatedClientesNuevoRouteImport } from './routes/_authenticated/clientes.nuevo'
 import { Route as AuthenticatedClientesImportarRouteImport } from './routes/_authenticated/clientes.importar'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
@@ -104,6 +105,12 @@ const AuthenticatedAsistenteIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAsistenteRoute,
   } as any)
+const AuthenticatedCotizacionesIdRoute =
+  AuthenticatedCotizacionesIdRouteImport.update({
+    id: '/cotizaciones/$id',
+    path: '/cotizaciones/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedClientesNuevoRoute =
   AuthenticatedClientesNuevoRouteImport.update({
     id: '/nuevo',
@@ -157,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/cotizaciones/$id': typeof AuthenticatedCotizacionesIdRoute
   '/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
   '/cotizaciones/': typeof AuthenticatedCotizacionesIndexRoute
@@ -176,6 +184,7 @@ export interface FileRoutesByTo {
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/cotizaciones/$id': typeof AuthenticatedCotizacionesIdRoute
   '/asistente': typeof AuthenticatedAsistenteIndexRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
   '/cotizaciones': typeof AuthenticatedCotizacionesIndexRoute
@@ -199,6 +208,7 @@ export interface FileRoutesById {
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/importar': typeof AuthenticatedClientesImportarRoute
   '/_authenticated/clientes/nuevo': typeof AuthenticatedClientesNuevoRoute
+  '/_authenticated/cotizaciones/$id': typeof AuthenticatedCotizacionesIdRoute
   '/_authenticated/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
   '/_authenticated/cotizaciones/': typeof AuthenticatedCotizacionesIndexRoute
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
+    | '/cotizaciones/$id'
     | '/asistente/'
     | '/clientes/'
     | '/cotizaciones/'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/clientes/$id'
     | '/clientes/importar'
     | '/clientes/nuevo'
+    | '/cotizaciones/$id'
     | '/asistente'
     | '/clientes'
     | '/cotizaciones'
@@ -263,6 +275,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/importar'
     | '/_authenticated/clientes/nuevo'
+    | '/_authenticated/cotizaciones/$id'
     | '/_authenticated/asistente/'
     | '/_authenticated/clientes/'
     | '/_authenticated/cotizaciones/'
@@ -374,6 +387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAsistenteIndexRouteImport
       parentRoute: typeof AuthenticatedAsistenteRoute
     }
+    '/_authenticated/cotizaciones/$id': {
+      id: '/_authenticated/cotizaciones/$id'
+      path: '/cotizaciones/$id'
+      fullPath: '/cotizaciones/$id'
+      preLoaderRoute: typeof AuthenticatedCotizacionesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/clientes/nuevo': {
       id: '/_authenticated/clientes/nuevo'
       path: '/nuevo'
@@ -465,6 +485,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminSectoresRoute: typeof AuthenticatedAdminSectoresRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedCotizacionesIdRoute: typeof AuthenticatedCotizacionesIdRoute
   AuthenticatedCotizacionesIndexRoute: typeof AuthenticatedCotizacionesIndexRoute
 }
 
@@ -479,6 +500,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminSectoresRoute: AuthenticatedAdminSectoresRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedCotizacionesIdRoute: AuthenticatedCotizacionesIdRoute,
   AuthenticatedCotizacionesIndexRoute: AuthenticatedCotizacionesIndexRoute,
 }
 

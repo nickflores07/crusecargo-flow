@@ -245,11 +245,6 @@ function PlanSemanalPage() {
                     <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{DAYS_SHORT[i]}</p>
                     <p className="text-sm font-semibold">{d.getDate()}/{d.getMonth() + 1}</p>
                   </div>
-                  <Button size="icon" variant="ghost" className="h-7 w-7"
-                    onClick={() => setDialog({ open: true, fecha: d, tipo: "visita", edit: null })}
-                    title="Agregar actividad">
-                    <Plus className="h-4 w-4" />
-                  </Button>
                 </div>
                 <div className="p-2 space-y-2 min-h-[120px]">
                   {loading ? (
@@ -262,7 +257,7 @@ function PlanSemanalPage() {
                         key={v.id} v={v}
                         onChangeEstado={cambiarEstado}
                         onDelete={eliminar}
-                        onEdit={() => setDialog({ open: true, fecha: new Date(v.fecha_planificada + "T00:00:00"), tipo: v.tipo, edit: v })}
+                        onEdit={() => setEditDialog(v)}
                       />
                     ))
                   )}
@@ -278,7 +273,7 @@ function PlanSemanalPage() {
               <div className="p-6 text-sm text-muted-foreground">Cargando…</div>
             ) : visitas.length === 0 ? (
               <div className="p-10 text-sm text-muted-foreground text-center">
-                Sin actividades esta semana. Empieza con <b>Nueva actividad</b>.
+                Sin actividades esta semana. Prográmalas desde una <Link to="/oportunidades" className="text-primary hover:underline">prospección</Link>.
               </div>
             ) : (
               <div className="divide-y">
@@ -288,7 +283,7 @@ function PlanSemanalPage() {
                     <ActividadRow key={v.id} v={v}
                       onChangeEstado={cambiarEstado}
                       onDelete={eliminar}
-                      onEdit={() => setDialog({ open: true, fecha: new Date(v.fecha_planificada + "T00:00:00"), tipo: v.tipo, edit: v })}
+                      onEdit={() => setEditDialog(v)}
                     />
                   ))}
               </div>
@@ -298,18 +293,18 @@ function PlanSemanalPage() {
       )}
 
       <ActividadDialog
-        open={dialog.open}
-        onOpenChange={(o) => setDialog((s) => ({ ...s, open: o }))}
-        fecha={dialog.fecha}
-        tipoInicial={dialog.tipo}
-        edit={dialog.edit}
+        open={!!editDialog}
+        onOpenChange={(o) => { if (!o) setEditDialog(null); }}
+        fecha={editDialog ? new Date(editDialog.fecha_planificada + "T00:00:00") : null}
+        tipoInicial={editDialog?.tipo ?? "visita"}
+        edit={editDialog}
         clientes={clientes}
         ejecutivoId={
           puedeVerTodos && ejecutivoFiltro !== "mi" && ejecutivoFiltro !== "todos"
             ? ejecutivoFiltro
             : user?.id ?? ""
         }
-        onSaved={() => { setDialog({ open: false, fecha: null, tipo: "visita", edit: null }); void load(); }}
+        onSaved={() => { setEditDialog(null); void load(); }}
       />
     </div>
   );

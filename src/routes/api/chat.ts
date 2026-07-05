@@ -93,27 +93,27 @@ export const Route = createFileRoute("/api/chat")({
               },
             }),
             resumen_cliente: tool({
-              description: "Obtiene un resumen del cliente: últimos envíos, oportunidades abiertas y cotizaciones vigentes.",
+              description: "Obtiene un resumen del cliente: últimas operaciones ERP, oportunidades abiertas y cotizaciones vigentes.",
               inputSchema: z.object({ cliente_id: z.string().uuid() }),
               execute: async ({ cliente_id }) => {
                 const [cli, ops, env, cot, seg] = await Promise.all([
                   supabase.from("clientes").select("nombre_completo, razon_social, area_comercial, categoria_cliente, canal, estado").eq("id", cliente_id).maybeSingle(),
                   supabase.from("oportunidades").select("id, titulo, estado, monto_potencial, fecha_cierre_estimada").eq("cliente_id", cliente_id).order("updated_at", { ascending: false }).limit(10),
-                  supabase.from("envios").select("fecha, servicio, origen, destino, importe, estado").eq("cliente_id", cliente_id).order("fecha", { ascending: false }).limit(10),
+                  supabase.from("erp_ventas_staging").select("fecha, servicio, origen, destino, monto, guia_numero").eq("cliente_id", cliente_id).eq("procesado", true).order("fecha", { ascending: false }).limit(10),
                   supabase.from("cotizaciones").select("numero, fecha_emision, total, estado").eq("cliente_id", cliente_id).order("fecha_emision", { ascending: false }).limit(10),
                   supabase.from("seguimientos").select("fecha, tipo, resultado").eq("cliente_id", cliente_id).order("fecha", { ascending: false }).limit(5),
                 ]);
                 return {
                   cliente: cli.data,
                   oportunidades: ops.data ?? [],
-                  envios: env.data ?? [],
+                  ventas_erp: env.data ?? [],
                   cotizaciones: cot.data ?? [],
                   seguimientos: seg.data ?? [],
                 };
               },
             }),
             estadisticas_generales: tool({
-              description: "KPIs actuales: total de clientes activos, oportunidades abiertas, envíos del mes y ventas del mes en soles.",
+              description: "KPIs actuales: total de clientes activos, oportunidades abiertas, operaciones ERP del mes y ventas del mes en soles.",
               inputSchema: z.object({}),
               execute: async () => {
                 const now = new Date();
@@ -121,13 +121,13 @@ export const Route = createFileRoute("/api/chat")({
                 const [cli, ops, env] = await Promise.all([
                   supabase.from("clientes").select("id", { count: "exact", head: true }).eq("estado", "activo"),
                   supabase.from("oportunidades").select("id, monto_potencial", { count: "exact" }).eq("estado", "en_proceso"),
-                  supabase.from("envios").select("importe").gte("fecha", mk),
+                  supabase.from("erp_ventas_staging").select("monto").eq("procesado", true).gte("fecha", mk),
                 ]);
-                const ventasMes = (env.data ?? []).reduce((a: number, r: any) => a + Number(r.importe || 0), 0);
+                const ventasMes = (env.data ?? []).reduce((a: number, r: any) => a + Number(r.monto || 0), 0);
                 return {
                   clientes_activos: cli.count ?? 0,
                   oportunidades_abiertas: ops.count ?? 0,
-                  envios_del_mes: env.data?.length ?? 0,
+                  operaciones_erp_mes: env.data?.length ?? 0,
                   ventas_mes_pen: ventasMes,
                 };
               },

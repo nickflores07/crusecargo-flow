@@ -19,7 +19,6 @@ import { Route as AuthenticatedRutasRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedReportesRouteImport } from './routes/_authenticated/reportes'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedMiDiaRouteImport } from './routes/_authenticated/mi-dia'
-import { Route as AuthenticatedEnviosRouteImport } from './routes/_authenticated/envios'
 import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authenticated/configuracion'
 import { Route as AuthenticatedComisionesRouteImport } from './routes/_authenticated/comisiones'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
@@ -86,11 +85,6 @@ const AuthenticatedOportunidadesRoute =
 const AuthenticatedMiDiaRoute = AuthenticatedMiDiaRouteImport.update({
   id: '/mi-dia',
   path: '/mi-dia',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedEnviosRoute = AuthenticatedEnviosRouteImport.update({
-  id: '/envios',
-  path: '/envios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedConfiguracionRoute =
@@ -198,7 +192,6 @@ export interface FileRoutesByFullPath {
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/comisiones': typeof AuthenticatedComisionesRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
-  '/envios': typeof AuthenticatedEnviosRoute
   '/mi-dia': typeof AuthenticatedMiDiaRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/reportes': typeof AuthenticatedReportesRoute
@@ -224,7 +217,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/comisiones': typeof AuthenticatedComisionesRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
-  '/envios': typeof AuthenticatedEnviosRoute
   '/mi-dia': typeof AuthenticatedMiDiaRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/reportes': typeof AuthenticatedReportesRoute
@@ -255,7 +247,6 @@ export interface FileRoutesById {
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/comisiones': typeof AuthenticatedComisionesRoute
   '/_authenticated/configuracion': typeof AuthenticatedConfiguracionRoute
-  '/_authenticated/envios': typeof AuthenticatedEnviosRoute
   '/_authenticated/mi-dia': typeof AuthenticatedMiDiaRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/_authenticated/reportes': typeof AuthenticatedReportesRoute
@@ -287,7 +278,6 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/comisiones'
     | '/configuracion'
-    | '/envios'
     | '/mi-dia'
     | '/oportunidades'
     | '/reportes'
@@ -313,7 +303,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/comisiones'
     | '/configuracion'
-    | '/envios'
     | '/mi-dia'
     | '/oportunidades'
     | '/reportes'
@@ -343,7 +332,6 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes'
     | '/_authenticated/comisiones'
     | '/_authenticated/configuracion'
-    | '/_authenticated/envios'
     | '/_authenticated/mi-dia'
     | '/_authenticated/oportunidades'
     | '/_authenticated/reportes'
@@ -445,13 +433,6 @@ declare module '@tanstack/react-router' {
       path: '/mi-dia'
       fullPath: '/mi-dia'
       preLoaderRoute: typeof AuthenticatedMiDiaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/envios': {
-      id: '/_authenticated/envios'
-      path: '/envios'
-      fullPath: '/envios'
-      preLoaderRoute: typeof AuthenticatedEnviosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/configuracion': {
@@ -616,7 +597,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRouteWithChildren
   AuthenticatedComisionesRoute: typeof AuthenticatedComisionesRoute
   AuthenticatedConfiguracionRoute: typeof AuthenticatedConfiguracionRoute
-  AuthenticatedEnviosRoute: typeof AuthenticatedEnviosRoute
   AuthenticatedMiDiaRoute: typeof AuthenticatedMiDiaRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedReportesRoute: typeof AuthenticatedReportesRoute
@@ -636,7 +616,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientesRoute: AuthenticatedClientesRouteWithChildren,
   AuthenticatedComisionesRoute: AuthenticatedComisionesRoute,
   AuthenticatedConfiguracionRoute: AuthenticatedConfiguracionRoute,
-  AuthenticatedEnviosRoute: AuthenticatedEnviosRoute,
   AuthenticatedMiDiaRoute: AuthenticatedMiDiaRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedReportesRoute: AuthenticatedReportesRoute,

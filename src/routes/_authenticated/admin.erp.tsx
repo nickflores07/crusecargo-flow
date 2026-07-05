@@ -16,13 +16,31 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Database, Upload, Loader2, ShieldAlert, CheckCircle2, AlertCircle, FileSpreadsheet } from "lucide-react";
+import { Database, Upload, Loader2, ShieldAlert, CheckCircle2, AlertCircle, FileSpreadsheet, CalendarRange, Building2, Users2, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/erp")({
   component: AdminERP,
 });
 
-type BatchTipo = "ventas" | "envios" | "facturacion";
+type BatchTipo = "ventas_comunes" | "ventas_institucionales" | "cotizaciones";
+
+const TIPO_LABEL: Record<BatchTipo, string> = {
+  ventas_comunes: "Ventas Comunes",
+  ventas_institucionales: "Ventas Institucionales",
+  cotizaciones: "Cotizaciones",
+};
+
+const TIPO_DESC: Record<BatchTipo, string> = {
+  ventas_comunes: "Facturación de clientes comunes (mes a mes).",
+  ventas_institucionales: "Facturación de clientes institucionales / B2B (mes a mes).",
+  cotizaciones: "Historial de cotizaciones emitidas desde el ERP (rango amplio).",
+};
+
+const TIPO_ICON: Record<BatchTipo, typeof Users2> = {
+  ventas_comunes: Users2,
+  ventas_institucionales: Building2,
+  cotizaciones: FileText,
+};
 
 type BatchRow = {
   id: string;
@@ -64,6 +82,20 @@ const ALIASES: Record<string, string[]> = {
   monto: ["monto", "importe", "total", "venta", "importe total", "monto total"],
   moneda: ["moneda", "mon", "divisa"],
   peso_kg: ["peso", "kg", "peso kg", "peso (kg)"],
+};
+
+const FIELD_LABEL: Record<string, string> = {
+  fecha: "Fecha emisión ★",
+  ruc: "RUC / Documento",
+  cliente_nombre: "Cliente",
+  ejecutivo_erp: "Ejecutivo",
+  servicio: "Servicio",
+  origen: "Origen",
+  destino: "Destino",
+  guia_numero: "N° Guía / Documento",
+  monto: "Monto",
+  moneda: "Moneda",
+  peso_kg: "Peso (kg)",
 };
 
 function autoMap(headers: string[]): Record<string, string> {
@@ -121,7 +153,7 @@ function AdminERP() {
         <div>
           <h1 className="text-2xl font-semibold font-display">ERP / Cargas</h1>
           <p className="text-sm text-muted-foreground">
-            Sube ventas, envíos o facturación del ERP y mapea los ejecutivos para que el CRM las use.
+            Sube tus Excel del ERP (Ventas Comunes, Ventas Institucionales y Cotizaciones) para armar el histórico del CRM.
           </p>
         </div>
       </div>
@@ -151,7 +183,7 @@ function AdminERP() {
 }
 
 function CargasTab({ userId }: { userId: string }) {
-  const [tipo, setTipo] = useState<BatchTipo>("ventas");
+  const [tipo, setTipo] = useState<BatchTipo>("ventas_comunes");
   const [fileName, setFileName] = useState("");
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -276,11 +308,12 @@ function CargasTab({ userId }: { userId: string }) {
 
   return (
     <>
+      <PeriodoHistoricoPanel />
       <Card>
         <CardHeader>
           <CardTitle>Nueva carga</CardTitle>
           <CardDescription>
-            Sube el archivo Excel del ERP. Los datos se guardan en un área de staging para procesar; no se mezclan con clientes u oportunidades hasta que los revises.
+            Sube el Excel del ERP. La columna <b>Fecha emisión</b> define el período. Los datos se guardan en un área de staging y luego se cruzan con clientes y ejecutivos al presionar <b>Procesar</b>.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -290,11 +323,12 @@ function CargasTab({ userId }: { userId: string }) {
               <Select value={tipo} onValueChange={(v) => setTipo(v as BatchTipo)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ventas">Ventas</SelectItem>
-                  <SelectItem value="envios">Envíos</SelectItem>
-                  <SelectItem value="facturacion">Facturación</SelectItem>
+                  <SelectItem value="ventas_comunes">Ventas Comunes (mensual)</SelectItem>
+                  <SelectItem value="ventas_institucionales">Ventas Institucionales (mensual)</SelectItem>
+                  <SelectItem value="cotizaciones">Cotizaciones (rango amplio)</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1">{TIPO_DESC[tipo]}</p>
             </div>
             <div className="md:col-span-2">
               <Label>Archivo Excel</Label>
@@ -315,7 +349,7 @@ function CargasTab({ userId }: { userId: string }) {
               <div className="grid md:grid-cols-2 gap-2">
                 {Object.entries(ALIASES).map(([k]) => (
                   <div key={k} className="grid grid-cols-2 gap-2 items-center">
-                    <Label className="text-sm capitalize">{k.replace("_", " ")}</Label>
+                    <Label className="text-sm">{FIELD_LABEL[k] ?? k}</Label>
                     <Select
                       value={mapping[k] ?? "__none__"}
                       onValueChange={(v) => setMapping((m) => {
@@ -377,7 +411,7 @@ function CargasTab({ userId }: { userId: string }) {
                 {batches.map((b) => (
                   <TableRow key={b.id}>
                     <TableCell>{new Date(b.created_at).toLocaleString()}</TableCell>
-                    <TableCell><Badge variant="outline">{b.tipo}</Badge></TableCell>
+                    <TableCell><Badge variant="outline">{TIPO_LABEL[b.tipo as BatchTipo] ?? b.tipo}</Badge></TableCell>
                     <TableCell className="max-w-xs truncate">{b.archivo_nombre}</TableCell>
                     <TableCell className="text-right">{b.total}</TableCell>
                     <TableCell className="text-right text-green-600 flex items-center justify-end gap-1">
@@ -413,6 +447,100 @@ function CargasTab({ userId }: { userId: string }) {
         </CardContent>
       </Card>
     </>
+  );
+}
+
+type PeriodoStat = {
+  tipo: BatchTipo;
+  filas: number;
+  desde: string | null;
+  hasta: string | null;
+  ultima_carga: string | null;
+};
+
+function PeriodoHistoricoPanel() {
+  const [stats, setStats] = useState<PeriodoStat[] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const tipos: BatchTipo[] = ["ventas_comunes", "ventas_institucionales", "cotizaciones"];
+      const out: PeriodoStat[] = [];
+      for (const t of tipos) {
+        // Batches de este tipo
+        const { data: bs } = await supabase
+          .from("erp_import_batches")
+          .select("id, created_at")
+          .eq("tipo", t)
+          .order("created_at", { ascending: false });
+        const ids = (bs ?? []).map((b) => b.id);
+        if (ids.length === 0) {
+          out.push({ tipo: t, filas: 0, desde: null, hasta: null, ultima_carga: null });
+          continue;
+        }
+        // Rango de fechas y conteo desde staging
+        const [{ count }, { data: minRow }, { data: maxRow }] = await Promise.all([
+          supabase.from("erp_ventas_staging").select("id", { count: "exact", head: true }).in("batch_id", ids).not("fecha", "is", null),
+          supabase.from("erp_ventas_staging").select("fecha").in("batch_id", ids).not("fecha", "is", null).order("fecha", { ascending: true }).limit(1).maybeSingle(),
+          supabase.from("erp_ventas_staging").select("fecha").in("batch_id", ids).not("fecha", "is", null).order("fecha", { ascending: false }).limit(1).maybeSingle(),
+        ]);
+        out.push({
+          tipo: t,
+          filas: count ?? 0,
+          desde: (minRow as { fecha: string } | null)?.fecha ?? null,
+          hasta: (maxRow as { fecha: string } | null)?.fecha ?? null,
+          ultima_carga: bs![0].created_at,
+        });
+      }
+      setStats(out);
+    })();
+  }, []);
+
+  const fmtFecha = (s: string | null) =>
+    s ? new Date(s + "T00:00:00").toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CalendarRange className="h-5 w-5" /> Período histórico cargado
+        </CardTitle>
+        <CardDescription>
+          Rango de <b>Fecha emisión</b> disponible en el CRM por cada tipo de archivo. Los reportes y comisiones se calculan a partir de estos datos.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {!stats ? (
+          <div className="text-sm text-muted-foreground">Calculando…</div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-3">
+            {stats.map((s) => {
+              const Icon = TIPO_ICON[s.tipo];
+              return (
+                <div key={s.tipo} className="rounded-lg border p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <p className="font-medium">{TIPO_LABEL[s.tipo]}</p>
+                  </div>
+                  {s.filas === 0 ? (
+                    <p className="text-sm text-muted-foreground">Sin datos cargados aún.</p>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold tabular-nums">{s.filas.toLocaleString("es-PE")}</div>
+                      <p className="text-xs text-muted-foreground">registros con fecha</p>
+                      <div className="text-sm pt-1 border-t">
+                        <div className="flex justify-between"><span className="text-muted-foreground">Desde</span><span className="font-medium">{fmtFecha(s.desde)}</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Hasta</span><span className="font-medium">{fmtFecha(s.hasta)}</span></div>
+                        <div className="flex justify-between mt-1"><span className="text-muted-foreground">Última carga</span><span className="text-xs">{s.ultima_carga ? new Date(s.ultima_carga).toLocaleDateString("es-PE") : "—"}</span></div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

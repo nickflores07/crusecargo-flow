@@ -78,37 +78,15 @@ function CotizacionDetalle() {
 
   const marcarAceptada = async () => {
     if (!cot) return;
-    if (!confirm("¿Marcar como aceptada? Se crearán envíos estimados por cada ítem para dar seguimiento comercial.")) return;
+    if (!confirm("¿Marcar esta cotización como aceptada? Se registrará el cierre y aparecerá en el histórico de ventas cuando llegue del ERP.")) return;
     await cambiarEstado("aceptada");
-    // Crear envíos estimados
-    const payload = items.filter((it) => it.origen && it.destino).map((it) => ({
-      cliente_id: cot.cliente_id,
-      ejecutivo_id: cot.ejecutivo_id ?? user?.id ?? null,
-      created_by: user?.id ?? null,
-      fecha: new Date().toISOString().slice(0, 10),
-      origen: it.origen,
-      destino: it.destino,
-      servicio: it.servicio,
-      peso_kg: it.peso_kg,
-      bultos: it.bultos,
-      importe: it.importe,
-      estado: "estimado" as const,
-      cotizacion_id: cot.id,
-      origen_registro: "cotizacion_aceptada",
-      notas: `Generado desde cotización ${cot.numero}`,
-    }));
-    if (payload.length > 0) {
-      const { error } = await supabase.from("envios").insert(payload);
-      if (error) toast.error("Cotización aceptada pero no se crearon envíos: " + error.message);
-      else toast.success(`Se crearon ${payload.length} envío(s) estimado(s) para seguimiento.`);
-    }
     // Registrar seguimiento si hay oportunidad
     if (cot.oportunidad_id) {
       const { error: segErr } = await supabase.from("seguimientos").insert({
         cliente_id: cot.cliente_id,
         tipo: "otro",
         usuario_id: user?.id ?? null,
-        resultado: `Cotización ${cot.numero} aceptada. Total: S/ ${Number(cot.total).toFixed(2)}. Se generaron envíos estimados.`,
+        resultado: `Cotización ${cot.numero} aceptada. Total: S/ ${Number(cot.total).toFixed(2)}. Cierre confirmado.`,
       });
       if (segErr) toast.error("No se pudo registrar el seguimiento: " + segErr.message);
     }

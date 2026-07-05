@@ -436,6 +436,100 @@ function CargasTab({ userId }: { userId: string }) {
   );
 }
 
+type PeriodoStat = {
+  tipo: BatchTipo;
+  filas: number;
+  desde: string | null;
+  hasta: string | null;
+  ultima_carga: string | null;
+};
+
+function PeriodoHistoricoPanel() {
+  const [stats, setStats] = useState<PeriodoStat[] | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const tipos: BatchTipo[] = ["ventas_comunes", "ventas_institucionales", "cotizaciones"];
+      const out: PeriodoStat[] = [];
+      for (const t of tipos) {
+        // Batches de este tipo
+        const { data: bs } = await supabase
+          .from("erp_import_batches")
+          .select("id, created_at")
+          .eq("tipo", t)
+          .order("created_at", { ascending: false });
+        const ids = (bs ?? []).map((b) => b.id);
+        if (ids.length === 0) {
+          out.push({ tipo: t, filas: 0, desde: null, hasta: null, ultima_carga: null });
+          continue;
+        }
+        // Rango de fechas y conteo desde staging
+        const [{ count }, { data: minRow }, { data: maxRow }] = await Promise.all([
+          supabase.from("erp_ventas_staging").select("id", { count: "exact", head: true }).in("batch_id", ids).not("fecha", "is", null),
+          supabase.from("erp_ventas_staging").select("fecha").in("batch_id", ids).not("fecha", "is", null).order("fecha", { ascending: true }).limit(1).maybeSingle(),
+          supabase.from("erp_ventas_staging").select("fecha").in("batch_id", ids).not("fecha", "is", null).order("fecha", { ascending: false }).limit(1).maybeSingle(),
+        ]);
+        out.push({
+          tipo: t,
+          filas: count ?? 0,
+          desde: (minRow as { fecha: string } | null)?.fecha ?? null,
+          hasta: (maxRow as { fecha: string } | null)?.fecha ?? null,
+          ultima_carga: bs![0].created_at,
+        });
+      }
+      setStats(out);
+    })();
+  }, []);
+
+  const fmtFecha = (s: string | null) =>
+    s ? new Date(s + "T00:00:00").toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CalendarRange className="h-5 w-5" /> Período histórico cargado
+        </CardTitle>
+        <CardDescription>
+          Rango de <b>Fecha emisión</b> disponible en el CRM por cada tipo de archivo. Los reportes y comisiones se calculan a partir de estos datos.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {!stats ? (
+          <div className="text-sm text-muted-foreground">Calculando…</div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-3">
+            {stats.map((s) => {
+              const Icon = TIPO_ICON[s.tipo];
+              return (
+                <div key={s.tipo} className="rounded-lg border p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <p className="font-medium">{TIPO_LABEL[s.tipo]}</p>
+                  </div>
+                  {s.filas === 0 ? (
+                    <p className="text-sm text-muted-foreground">Sin datos cargados aún.</p>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold tabular-nums">{s.filas.toLocaleString("es-PE")}</div>
+                      <p className="text-xs text-muted-foreground">registros con fecha</p>
+                      <div className="text-sm pt-1 border-t">
+                        <div className="flex justify-between"><span className="text-muted-foreground">Desde</span><span className="font-medium">{fmtFecha(s.desde)}</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Hasta</span><span className="font-medium">{fmtFecha(s.hasta)}</span></div>
+                        <div className="flex justify-between mt-1"><span className="text-muted-foreground">Última carga</span><span className="text-xs">{s.ultima_carga ? new Date(s.ultima_carga).toLocaleDateString("es-PE") : "—"}</span></div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function MapeoTab() {
   const [maps, setMaps] = useState<MapRow[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);

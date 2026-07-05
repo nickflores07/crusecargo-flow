@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedTarifarioRouteImport } from './routes/_authenticated/tarifario'
+import { Route as AuthenticatedProspeccionRouteImport } from './routes/_authenticated/prospeccion'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedEnviosRouteImport } from './routes/_authenticated/envios'
 import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authenticated/configuracion'
@@ -56,6 +57,12 @@ const AuthenticatedTarifarioRoute = AuthenticatedTarifarioRouteImport.update({
   path: '/tarifario',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProspeccionRoute =
+  AuthenticatedProspeccionRouteImport.update({
+    id: '/prospeccion',
+    path: '/prospeccion',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOportunidadesRoute =
   AuthenticatedOportunidadesRouteImport.update({
     id: '/oportunidades',
@@ -163,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/configuracion': typeof AuthenticatedConfiguracionRoute
   '/envios': typeof AuthenticatedEnviosRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/prospeccion': typeof AuthenticatedProspeccionRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
@@ -183,6 +191,7 @@ export interface FileRoutesByTo {
   '/configuracion': typeof AuthenticatedConfiguracionRoute
   '/envios': typeof AuthenticatedEnviosRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/prospeccion': typeof AuthenticatedProspeccionRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
@@ -208,6 +217,7 @@ export interface FileRoutesById {
   '/_authenticated/configuracion': typeof AuthenticatedConfiguracionRoute
   '/_authenticated/envios': typeof AuthenticatedEnviosRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
+  '/_authenticated/prospeccion': typeof AuthenticatedProspeccionRoute
   '/_authenticated/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/configuracion'
     | '/envios'
     | '/oportunidades'
+    | '/prospeccion'
     | '/tarifario'
     | '/api/chat'
     | '/admin/permisos'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/configuracion'
     | '/envios'
     | '/oportunidades'
+    | '/prospeccion'
     | '/tarifario'
     | '/api/chat'
     | '/'
@@ -278,6 +290,7 @@ export interface FileRouteTypes {
     | '/_authenticated/configuracion'
     | '/_authenticated/envios'
     | '/_authenticated/oportunidades'
+    | '/_authenticated/prospeccion'
     | '/_authenticated/tarifario'
     | '/api/chat'
     | '/_authenticated/'
@@ -335,6 +348,13 @@ declare module '@tanstack/react-router' {
       path: '/tarifario'
       fullPath: '/tarifario'
       preLoaderRoute: typeof AuthenticatedTarifarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prospeccion': {
+      id: '/_authenticated/prospeccion'
+      path: '/prospeccion'
+      fullPath: '/prospeccion'
+      preLoaderRoute: typeof AuthenticatedProspeccionRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/oportunidades': {
@@ -501,6 +521,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConfiguracionRoute: typeof AuthenticatedConfiguracionRoute
   AuthenticatedEnviosRoute: typeof AuthenticatedEnviosRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
+  AuthenticatedProspeccionRoute: typeof AuthenticatedProspeccionRoute
   AuthenticatedTarifarioRoute: typeof AuthenticatedTarifarioRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminPermisosRoute: typeof AuthenticatedAdminPermisosRoute
@@ -517,6 +538,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConfiguracionRoute: AuthenticatedConfiguracionRoute,
   AuthenticatedEnviosRoute: AuthenticatedEnviosRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
+  AuthenticatedProspeccionRoute: AuthenticatedProspeccionRoute,
   AuthenticatedTarifarioRoute: AuthenticatedTarifarioRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminPermisosRoute: AuthenticatedAdminPermisosRoute,

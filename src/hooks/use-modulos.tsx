@@ -30,7 +30,6 @@ const RUTAS_MODULOS: Array<{ id: string; ruta: string }> = [
   { id: "tarifario", ruta: "/tarifario" },
   { id: "envios", ruta: "/envios" },
   { id: "mi_dia", ruta: "/mi-dia" },
-  { id: "prospeccion", ruta: "/prospeccion" },
   { id: "rutas", ruta: "/rutas" },
   { id: "reportes", ruta: "/reportes" },
   { id: "comisiones", ruta: "/comisiones" },

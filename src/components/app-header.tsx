@@ -63,9 +63,9 @@ export function AppHeader() {
       const opAbiertas = ((op.data as any[]) ?? []).filter((r) => !["ganada", "perdida"].includes(r.estado));
       opAbiertas.forEach((r) => a.push({ label: `Cierre próximo: ${r.titulo}`, link: "/oportunidades" }));
       const cotVenc = ((cot.data as any[]) ?? []).filter((r) => !["aceptada", "rechazada"].includes(r.estado));
-      cotVenc.forEach((r) => a.push({ label: `Cotización vencida: ${r.numero}`, link: "/agenda" }));
+      cotVenc.forEach((r) => a.push({ label: `Cotización vencida: ${r.numero}`, link: "/cotizaciones" }));
       const segVenc = ((seg.data as any[]) ?? []).slice(0, 5);
-      segVenc.forEach((r) => a.push({ label: `Seguimiento vencido: ${r.tipo || "actividad"}`, link: "/agenda" }));
+      segVenc.forEach((r) => a.push({ label: `Seguimiento vencido: ${r.tipo || "actividad"}`, link: "/mi-dia" }));
       setAlerts(a);
       setAlertCount(a.length);
     })();
@@ -130,8 +130,8 @@ export function AppHeader() {
               )}
             </div>
             <div className="border-t p-2">
-              <Link to="/agenda" className="block text-center text-xs text-primary hover:underline py-1">
-                Ver toda la agenda
+              <Link to="/mi-dia" className="block text-center text-xs text-primary hover:underline py-1">
+                Ir a Mi día
               </Link>
             </div>
           </PopoverContent>

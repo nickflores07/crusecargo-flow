@@ -69,7 +69,7 @@ function Dashboard() {
         supabase.from("clientes").select("id, area_comercial, categoria_cliente, canal, estado, created_at"),
         supabase.from("oportunidades").select("id, estado, monto_estimado, probabilidad, fecha_cierre_estimada, created_at"),
         supabase.from("envios").select("id, fecha, importe, peso_kg, estado, cliente_id").gte("fecha", sinceIso),
-        supabase.from("cotizaciones").select("id, estado, total, fecha_emision, fecha_vencimiento").gte("fecha_emision", sinceIso),
+        supabase.from("cotizaciones").select("id, estado, total, fecha_emision, fecha_vencimiento, enviada_en").gte("fecha_emision", sinceIso),
         supabase.from("seguimientos").select("id, fecha, tipo, resultado"),
       ]);
       if (cancel) return;
@@ -96,6 +96,12 @@ function Dashboard() {
       0
     );
     const cotVigentes = cotizaciones.filter((c) => ["enviada", "pendiente"].includes(c.estado)).length;
+    const desde7 = new Date(); desde7.setDate(desde7.getDate() - 7);
+    const cotSemana = cotizaciones.filter((c) => c.enviada_en && new Date(c.enviada_en) >= desde7).length;
+    const cotMesTot = cotizaciones.filter((c) => monthKey(new Date(c.fecha_emision)) === mk);
+    const cotAceptMes = cotMesTot.filter((c) => c.estado === "aceptada").length;
+    const cotDecididas = cotMesTot.filter((c) => ["aceptada", "rechazada"].includes(c.estado)).length;
+    const ratio = cotDecididas === 0 ? 0 : Math.round((cotAceptMes / cotDecididas) * 100);
     return {
       clientes: clientes.filter((c) => c.estado === "activo").length,
       opAbiertas: opAbiertas.length,
@@ -103,6 +109,9 @@ function Dashboard() {
       ventasMes,
       pipeline,
       cotVigentes,
+      cotSemana,
+      cotAceptMes,
+      ratio,
     };
   }, [clientes, oportunidades, envios, cotizaciones]);
 
@@ -171,6 +180,9 @@ function Dashboard() {
     { label: "Ventas del mes", icon: TrendingUp, value: PEN(kpis.ventasMes) },
     { label: "Pipeline ponderado", icon: TrendingUp, value: PEN(kpis.pipeline) },
     { label: "Cotizaciones vigentes", icon: FileText, value: NUM(kpis.cotVigentes) },
+    { label: "Enviadas (7 días)", icon: FileText, value: NUM(kpis.cotSemana) },
+    { label: "Aceptadas del mes", icon: FileText, value: NUM(kpis.cotAceptMes) },
+    { label: "Ratio aceptación", icon: TrendingUp, value: `${kpis.ratio}%` },
   ];
 
   return (

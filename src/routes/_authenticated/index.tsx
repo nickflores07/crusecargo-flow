@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Target, Truck, TrendingUp, ArrowRight, Loader2, FileText, TriangleAlert, Sunrise, Map, BarChart3, DollarSign } from "lucide-react";
+import { Users, Target, Truck, TrendingUp, ArrowRight, Loader2, FileText, TriangleAlert, Sunrise, Map as MapIcon, BarChart3, DollarSign } from "lucide-react";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Line, LineChart, Pie, PieChart, Cell } from "recharts";
 
@@ -302,7 +302,7 @@ function Dashboard() {
 
           <div className="flex flex-wrap gap-2">
             <Button asChild><Link to="/mi-dia"><Sunrise className="h-4 w-4 mr-2" />Mi día</Link></Button>
-            <Button asChild variant="outline"><Link to="/rutas"><Map className="h-4 w-4 mr-2" />Rutas de la semana</Link></Button>
+            <Button asChild variant="outline"><Link to="/rutas"><MapIcon className="h-4 w-4 mr-2" />Rutas de la semana</Link></Button>
             <Button asChild variant="outline"><Link to="/clientes">Ver clientes</Link></Button>
             <Button asChild variant="outline"><Link to="/oportunidades">Ver oportunidades</Link></Button>
             <Button asChild variant="outline"><Link to="/comisiones"><DollarSign className="h-4 w-4 mr-2" />Comisiones</Link></Button>

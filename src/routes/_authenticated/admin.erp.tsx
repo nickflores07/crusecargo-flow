@@ -294,11 +294,12 @@ function CargasTab({ userId }: { userId: string }) {
 
   return (
     <>
+      <PeriodoHistoricoPanel />
       <Card>
         <CardHeader>
           <CardTitle>Nueva carga</CardTitle>
           <CardDescription>
-            Sube el archivo Excel del ERP. Los datos se guardan en un área de staging para procesar; no se mezclan con clientes u oportunidades hasta que los revises.
+            Sube el Excel del ERP. La columna <b>Fecha emisión</b> define el período. Los datos se guardan en un área de staging y luego se cruzan con clientes y ejecutivos al presionar <b>Procesar</b>.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

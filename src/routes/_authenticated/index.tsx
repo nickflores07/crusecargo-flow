@@ -174,8 +174,8 @@ function Dashboard() {
   const KPI = [
     { label: "Clientes activos", icon: Users, value: NUM(kpis.clientes) },
     { label: "Oportunidades abiertas", icon: Target, value: NUM(kpis.opAbiertas) },
-    { label: "Envíos del mes", icon: Truck, value: NUM(kpis.enviosMes) },
-    { label: "Ventas del mes", icon: TrendingUp, value: PEN(kpis.ventasMes) },
+    { label: "Operaciones ERP (mes)", icon: Truck, value: NUM(kpis.ventasErpMes) },
+    { label: "Ventas del mes (ERP)", icon: TrendingUp, value: PEN(kpis.ventasMes) },
     { label: "Pipeline ponderado", icon: TrendingUp, value: PEN(kpis.pipeline) },
     { label: "Cotizaciones vigentes", icon: FileText, value: NUM(kpis.cotVigentes) },
     { label: "Enviadas (7 días)", icon: FileText, value: NUM(kpis.cotSemana) },
@@ -229,8 +229,8 @@ function Dashboard() {
           <div className="grid gap-4 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Ventas por mes</CardTitle>
-                <CardDescription>Facturación de envíos, últimos 6 meses</CardDescription>
+                <CardTitle className="text-base">Ventas por mes (ERP)</CardTitle>
+                <CardDescription>Facturación cargada desde el ERP, últimos 6 meses</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer
@@ -271,12 +271,12 @@ function Dashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Envíos por mes</CardTitle>
-                <CardDescription>Volumen de envíos, últimos 6 meses</CardDescription>
+                <CardTitle className="text-base">Operaciones por mes (ERP)</CardTitle>
+                <CardDescription>Volumen de operaciones del ERP, últimos 6 meses</CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer
-                  config={{ envios: { label: "Envíos", color: "hsl(var(--accent))" } }}
+                  config={{ operaciones: { label: "Operaciones", color: "hsl(var(--accent))" } }}
                   className="h-[260px] w-full"
                 >
                   <BarChart data={ventasChart}>
@@ -284,7 +284,7 @@ function Dashboard() {
                     <XAxis dataKey="mes" />
                     <YAxis allowDecimals={false} />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="envios" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="operaciones" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ChartContainer>
               </CardContent>

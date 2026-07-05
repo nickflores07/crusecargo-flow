@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Sunrise, AlertCircle, CalendarClock, Phone, FileText, Building2,
-  User as UserIcon, Loader2, TrendingUp, Target, MessageSquare,
+  User as UserIcon, Loader2, TrendingUp, Target, MessageSquare, Calendar as CalendarIcon,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { RegistrarContactoDialog } from "@/components/mi-dia/registrar-contacto-dialog";
@@ -38,6 +38,26 @@ type CotSinRespuesta = {
   total: number;
   enviada_en: string;
   enviada_a: string | null;
+  cliente_id: string;
+  cliente_nombre: string;
+};
+
+type VisitaSemana = {
+  id: string;
+  fecha_planificada: string;
+  hora: string | null;
+  tipo: string;
+  motivo: string | null;
+  estado: string;
+  cliente_id: string;
+  cliente_nombre: string;
+};
+
+type OpCierre = {
+  id: string;
+  titulo: string;
+  fecha_cierre_estimada: string;
+  probabilidad: number;
   cliente_id: string;
   cliente_nombre: string;
 };
@@ -73,6 +93,8 @@ function MiDia() {
   const [clientes, setClientes] = useState<ClienteBrief[]>([]);
   const [cotSinResp, setCotSinResp] = useState<CotSinRespuesta[]>([]);
   const [dialogCliente, setDialogCliente] = useState<ClienteBrief | null>(null);
+  const [visitasSemana, setVisitasSemana] = useState<VisitaSemana[]>([]);
+  const [opsCierre, setOpsCierre] = useState<OpCierre[]>([]);
 
   const load = async () => {
     if (!user?.id) return;
@@ -93,13 +115,56 @@ function MiDia() {
       .not("enviada_en", "is", null)
       .order("enviada_en", { ascending: true });
 
-    const [cliRes, cotRes] = await Promise.all([
+    // Semana Lun→Dom para agenda
+    const hoy0 = new Date(); hoy0.setHours(0, 0, 0, 0);
+    const lunes = new Date(hoy0); lunes.setDate(hoy0.getDate() - ((hoy0.getDay() + 6) % 7));
+    const domingo = new Date(lunes); domingo.setDate(lunes.getDate() + 6);
+    const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+    const visQ = supabase.from("visitas_planificadas")
+      .select("id, fecha_planificada, hora, tipo, motivo, estado, cliente_id, ejecutivo_id, clientes:cliente_id(tipo, razon_social, nombre_completo)")
+      .gte("fecha_planificada", ymd(lunes))
+      .lte("fecha_planificada", ymd(domingo))
+      .order("fecha_planificada").order("hora");
+
+    const opCierreQ = supabase.from("oportunidades")
+      .select("id, titulo, fecha_cierre_estimada, probabilidad, cliente_id, ejecutivo_id, clientes:cliente_id(tipo, razon_social, nombre_completo)")
+      .eq("estado", "en_proceso")
+      .not("fecha_cierre_estimada", "is", null)
+      .gte("fecha_cierre_estimada", ymd(lunes))
+      .lte("fecha_cierre_estimada", ymd(domingo))
+      .order("fecha_cierre_estimada");
+
+    const [cliRes, cotRes, visRes, opRes] = await Promise.all([
       seeAll ? clientesQ : clientesQ.eq("ejecutivo_id", user.id),
       seeAll ? cotQ : cotQ.eq("ejecutivo_id", user.id),
+      seeAll ? visQ : visQ.eq("ejecutivo_id", user.id),
+      seeAll ? opCierreQ : opCierreQ.eq("ejecutivo_id", user.id),
     ]);
 
     if (cliRes.error) toast.error("No pudimos cargar tus clientes");
     setClientes((cliRes.data as ClienteBrief[]) ?? []);
+
+    const visMapped: VisitaSemana[] = ((visRes.data as Array<{
+      id: string; fecha_planificada: string; hora: string | null; tipo: string;
+      motivo: string | null; estado: string; cliente_id: string;
+      clientes: { tipo: "empresa" | "persona"; razon_social: string | null; nombre_completo: string | null } | null;
+    }>) ?? []).map((v) => ({
+      id: v.id, fecha_planificada: v.fecha_planificada, hora: v.hora, tipo: v.tipo,
+      motivo: v.motivo, estado: v.estado, cliente_id: v.cliente_id,
+      cliente_nombre: v.clientes ? nombre(v.clientes) : "Cliente",
+    }));
+    setVisitasSemana(visMapped);
+
+    const opMapped: OpCierre[] = ((opRes.data as Array<{
+      id: string; titulo: string; fecha_cierre_estimada: string; probabilidad: number; cliente_id: string;
+      clientes: { tipo: "empresa" | "persona"; razon_social: string | null; nombre_completo: string | null } | null;
+    }>) ?? []).map((o) => ({
+      id: o.id, titulo: o.titulo, fecha_cierre_estimada: o.fecha_cierre_estimada,
+      probabilidad: o.probabilidad, cliente_id: o.cliente_id,
+      cliente_nombre: o.clientes ? nombre(o.clientes) : "Cliente",
+    }));
+    setOpsCierre(opMapped);
 
     const cutoff = Date.now() - 5 * 86400000;
     const cots: CotSinRespuesta[] = ((cotRes.data as Array<{
@@ -173,6 +238,12 @@ function MiDia() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <AgendaSemanal
+            visitas={visitasSemana}
+            opsCierre={opsCierre}
+            cotizaciones={cotSinResp}
+            clientesConProximo={clientes}
+          />
           <Bucket
             title="Vencidos"
             description="Prometiste contactar antes de hoy. Priorízalos."

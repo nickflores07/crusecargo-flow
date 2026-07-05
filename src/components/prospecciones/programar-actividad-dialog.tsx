@@ -67,10 +67,6 @@ export function ProgramarActividadDialog({
       detalles: detalles || null,
     });
     if (!error) {
-      await supabase.from("oportunidades")
-        .update({ fecha_cierre_estimada: undefined as never })
-        .eq("id", oportunidadId)
-        .then(() => undefined);
       // Actualiza el "próximo contacto" del cliente para que Mi Día lo vea
       await supabase.from("clientes")
         .update({ proximo_contacto_en: fecha })

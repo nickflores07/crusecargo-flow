@@ -27,17 +27,14 @@ const RUTAS_MODULOS: Array<{ id: string; ruta: string }> = [
   { id: "clientes", ruta: "/clientes" },
   { id: "oportunidades", ruta: "/oportunidades" },
   { id: "cotizaciones", ruta: "/cotizaciones" },
-  { id: "tarifario", ruta: "/tarifario" },
   { id: "mi_dia", ruta: "/mi-dia" },
   { id: "rutas", ruta: "/rutas" },
   { id: "reportes", ruta: "/reportes" },
-  { id: "comisiones", ruta: "/comisiones" },
   { id: "asistente", ruta: "/asistente" },
   { id: "configuracion", ruta: "/configuracion" },
   { id: "admin_usuarios", ruta: "/admin/usuarios" },
   { id: "admin_sectores", ruta: "/admin/sectores" },
   { id: "admin_permisos", ruta: "/admin/permisos" },
-  { id: "erp", ruta: "/admin/erp" },
 ];
 
 function matchRuta(ruta: string, pathname: string): boolean {

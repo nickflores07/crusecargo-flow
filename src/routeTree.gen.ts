@@ -33,6 +33,7 @@ import { Route as AuthenticatedAsistenteThreadIdRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdminSectoresRouteImport } from './routes/_authenticated/admin.sectores'
 import { Route as AuthenticatedAdminPermisosRouteImport } from './routes/_authenticated/admin.permisos'
+import { Route as AuthenticatedAdminErpRouteImport } from './routes/_authenticated/admin.erp'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -166,6 +167,11 @@ const AuthenticatedAdminPermisosRoute =
     path: '/admin/permisos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminErpRoute = AuthenticatedAdminErpRouteImport.update({
+  id: '/admin/erp',
+  path: '/admin/erp',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -180,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/prospeccion': typeof AuthenticatedProspeccionRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
+  '/admin/erp': typeof AuthenticatedAdminErpRoute
   '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -203,6 +210,7 @@ export interface FileRoutesByTo {
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/erp': typeof AuthenticatedAdminErpRoute
   '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/_authenticated/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/admin/erp': typeof AuthenticatedAdminErpRoute
   '/_authenticated/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/_authenticated/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
     | '/prospeccion'
     | '/tarifario'
     | '/api/chat'
+    | '/admin/erp'
     | '/admin/permisos'
     | '/admin/sectores'
     | '/admin/usuarios'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/tarifario'
     | '/api/chat'
     | '/'
+    | '/admin/erp'
     | '/admin/permisos'
     | '/admin/sectores'
     | '/admin/usuarios'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tarifario'
     | '/api/chat'
     | '/_authenticated/'
+    | '/_authenticated/admin/erp'
     | '/_authenticated/admin/permisos'
     | '/_authenticated/admin/sectores'
     | '/_authenticated/admin/usuarios'
@@ -495,6 +507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPermisosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/erp': {
+      id: '/_authenticated/admin/erp'
+      path: '/admin/erp'
+      fullPath: '/admin/erp'
+      preLoaderRoute: typeof AuthenticatedAdminErpRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -544,6 +563,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProspeccionRoute: typeof AuthenticatedProspeccionRoute
   AuthenticatedTarifarioRoute: typeof AuthenticatedTarifarioRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAdminErpRoute: typeof AuthenticatedAdminErpRoute
   AuthenticatedAdminPermisosRoute: typeof AuthenticatedAdminPermisosRoute
   AuthenticatedAdminSectoresRoute: typeof AuthenticatedAdminSectoresRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
@@ -562,6 +582,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProspeccionRoute: AuthenticatedProspeccionRoute,
   AuthenticatedTarifarioRoute: AuthenticatedTarifarioRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAdminErpRoute: AuthenticatedAdminErpRoute,
   AuthenticatedAdminPermisosRoute: AuthenticatedAdminPermisosRoute,
   AuthenticatedAdminSectoresRoute: AuthenticatedAdminSectoresRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,

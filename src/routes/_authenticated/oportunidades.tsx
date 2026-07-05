@@ -12,9 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Loader2, Plus, Target, GripVertical, Trophy, XCircle, Clock, Pencil, Check, ChevronsUpDown, Weight, AlertCircle } from "lucide-react";
+import { Loader2, Plus, Target, GripVertical, Trophy, XCircle, Clock, Pencil, Check, ChevronsUpDown, Weight, AlertCircle, MessageSquare, Sparkles, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { RegistrarContactoDialog } from "@/components/mi-dia/registrar-contacto-dialog";
 
 export const Route = createFileRoute("/_authenticated/oportunidades")({
   component: OportunidadesPage,
@@ -35,7 +36,17 @@ type Oport = {
   motivo_perdida: string | null;
   notas: string | null;
   cliente_nombre: string;
+  cliente_estado: string | null;
   updated_at: string;
+};
+
+type UltimoSeguimiento = {
+  cliente_id: string;
+  tipo: string;
+  fecha: string;
+  resultado: string | null;
+  proxima_accion_fecha: string | null;
+  proxima_accion_nota: string | null;
 };
 
 type ClienteOpt = { id: string; label: string };
@@ -130,13 +141,15 @@ function OportunidadesPage() {
   const [motivoDialog, setMotivoDialog] = useState<{ open: boolean; oport: Oport | null; motivo: string }>({
     open: false, oport: null, motivo: "",
   });
+  const [segByCliente, setSegByCliente] = useState<Record<string, UltimoSeguimiento>>({});
+  const [contactoDialog, setContactoDialog] = useState<Oport | null>(null);
 
   const load = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("oportunidades")
       .select(`id, cliente_id, titulo, servicio, monto_potencial, peso_estimado_kg, probabilidad, fecha_cierre_estimada, estado, motivo_perdida, notas, updated_at,
-               clientes ( razon_social, nombre_completo )`)
+               clientes ( razon_social, nombre_completo, estado )`)
       .order("created_at", { ascending: false });
     if (error) {
       toast.error("No pudimos cargar las oportunidades");
@@ -144,7 +157,7 @@ function OportunidadesPage() {
       return;
     }
     const mapped: Oport[] = (data ?? []).map((r) => {
-      const c = (r as unknown as { clientes: { razon_social: string | null; nombre_completo: string | null } | null }).clientes;
+      const c = (r as unknown as { clientes: { razon_social: string | null; nombre_completo: string | null; estado: string | null } | null }).clientes;
       return {
         id: r.id, cliente_id: r.cliente_id, titulo: r.titulo, servicio: r.servicio,
         monto_potencial: r.monto_potencial as number | null,
@@ -153,10 +166,28 @@ function OportunidadesPage() {
         estado: r.estado as EstadoOp, motivo_perdida: r.motivo_perdida,
         notas: r.notas ?? null,
         cliente_nombre: c?.razon_social || c?.nombre_completo || "Cliente",
+        cliente_estado: c?.estado ?? null,
         updated_at: (r as { updated_at: string }).updated_at,
       };
     });
     setItems(mapped);
+
+    // Cargar el último seguimiento por cliente (para mostrar "Última acción" y "Próxima acción" en cada tarjeta)
+    const clienteIds = Array.from(new Set(mapped.map((m) => m.cliente_id)));
+    if (clienteIds.length > 0) {
+      const { data: segs } = await supabase
+        .from("seguimientos")
+        .select("cliente_id, tipo, fecha, resultado, proxima_accion_fecha, proxima_accion_nota")
+        .in("cliente_id", clienteIds)
+        .order("fecha", { ascending: false });
+      const map: Record<string, UltimoSeguimiento> = {};
+      (segs ?? []).forEach((s) => {
+        if (!map[s.cliente_id]) map[s.cliente_id] = s as UltimoSeguimiento;
+      });
+      setSegByCliente(map);
+    } else {
+      setSegByCliente({});
+    }
     setLoading(false);
   };
 
@@ -370,6 +401,14 @@ function OportunidadesPage() {
                               </p>
                             );
                           })()}
+                          {o.estado === "en_proceso" && (
+                            <SeguimientoBlock
+                              ultimo={segByCliente[o.cliente_id]}
+                              probabilidad={o.probabilidad}
+                              fechaCierre={o.fecha_cierre_estimada}
+                              onRegistrar={() => setContactoDialog(o)}
+                            />
+                          )}
                         </div>
                       </div>
                     </div>
@@ -379,6 +418,17 @@ function OportunidadesPage() {
             );
           })}
         </div>
+      )}
+
+      {contactoDialog && (
+        <RegistrarContactoDialog
+          clienteId={contactoDialog.cliente_id}
+          clienteNombre={contactoDialog.cliente_nombre}
+          estadoCliente={contactoDialog.cliente_estado}
+          open={!!contactoDialog}
+          onOpenChange={(v) => !v && setContactoDialog(null)}
+          onSaved={() => void load()}
+        />
       )}
 
       {/* Dialog: crear / editar oportunidad */}
@@ -471,6 +521,76 @@ function OportunidadesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function SeguimientoBlock({
+  ultimo, probabilidad, fechaCierre, onRegistrar,
+}: {
+  ultimo: UltimoSeguimiento | undefined;
+  probabilidad: number;
+  fechaCierre: string | null;
+  onRegistrar: () => void;
+}) {
+  const fmtFecha = (s: string) => new Date(s).toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
+  const diasSinContacto = ultimo ? Math.round((Date.now() - new Date(ultimo.fecha).getTime()) / 86400000) : null;
+
+  // Recomendación heurística ("IA sugiere") basada en actividad, probabilidad y fecha de cierre.
+  const sugerencia = (() => {
+    if (!ultimo) return "Primer contacto: agenda una llamada de descubrimiento y valida presupuesto.";
+    const d = diasSinContacto ?? 0;
+    const cierreDias = fechaCierre
+      ? Math.round((new Date(fechaCierre + "T00:00:00").getTime() - Date.now()) / 86400000)
+      : null;
+    if (cierreDias !== null && cierreDias <= 3 && probabilidad >= 60) {
+      return "Cierre inminente: envía propuesta final y agenda cita de firma esta semana.";
+    }
+    if (d > 14) return "Reactiva contacto: han pasado más de 2 semanas. Envía novedades o pregunta por decisión.";
+    if (d > 7) return "Da seguimiento: agenda una llamada esta semana para conocer el estatus.";
+    if (probabilidad < 30) return "Califica mejor: valida presupuesto, decisor y timing antes de invertir más tiempo.";
+    if (probabilidad >= 70) return "Empuja al cierre: envía cotización o propuesta formal y pide confirmación.";
+    return "Mantén cadencia: reunión de seguimiento o envío de propuesta.";
+  })();
+
+  return (
+    <div className="mt-2 pt-2 border-t space-y-1.5">
+      {ultimo ? (
+        <>
+          <div className="flex items-start gap-1.5 text-[11px]">
+            <MessageSquare className="h-3 w-3 mt-0.5 text-muted-foreground shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-muted-foreground">
+                <b>Última ({ultimo.tipo}, {fmtFecha(ultimo.fecha)}):</b>
+              </p>
+              <p className="line-clamp-2">{ultimo.resultado || "—"}</p>
+            </div>
+          </div>
+          {ultimo.proxima_accion_nota && (
+            <div className="flex items-start gap-1.5 text-[11px] text-primary">
+              <ArrowRight className="h-3 w-3 mt-0.5 shrink-0" />
+              <p className="line-clamp-2">
+                <b>Próx{ultimo.proxima_accion_fecha ? ` ${fmtFecha(ultimo.proxima_accion_fecha)}` : ""}:</b> {ultimo.proxima_accion_nota}
+              </p>
+            </div>
+          )}
+        </>
+      ) : (
+        <p className="text-[11px] text-muted-foreground italic">Sin contactos registrados aún.</p>
+      )}
+      <div className="flex items-start gap-1.5 text-[11px] text-violet-700 dark:text-violet-400 bg-violet-500/5 rounded p-1.5">
+        <Sparkles className="h-3 w-3 mt-0.5 shrink-0" />
+        <p className="line-clamp-2"><b>IA sugiere:</b> {sugerencia}</p>
+      </div>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onRegistrar(); }}
+        onMouseDown={(e) => e.stopPropagation()}
+        draggable={false}
+        className="text-[11px] text-primary hover:underline w-full text-left flex items-center gap-1 mt-0.5"
+      >
+        <Plus className="h-3 w-3" /> Registrar contacto
+      </button>
     </div>
   );
 }

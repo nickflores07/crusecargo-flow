@@ -597,6 +597,42 @@ export type Database = {
         }
         Relationships: []
       }
+      modulos_app: {
+        Row: {
+          created_at: string
+          descripcion: string | null
+          grupo: string
+          icono: string | null
+          id: string
+          nombre: string
+          orden: number
+          ruta: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descripcion?: string | null
+          grupo?: string
+          icono?: string | null
+          id: string
+          nombre: string
+          orden?: number
+          ruta: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descripcion?: string | null
+          grupo?: string
+          icono?: string | null
+          id?: string
+          nombre?: string
+          orden?: number
+          ruta?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       oportunidades: {
         Row: {
           cliente_id: string
@@ -658,6 +694,70 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permisos_modulos_rol: {
+        Row: {
+          created_at: string
+          modulo_id: string
+          rol: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          modulo_id: string
+          rol: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          modulo_id?: string
+          rol?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permisos_modulos_rol_modulo_id_fkey"
+            columns: ["modulo_id"]
+            isOneToOne: false
+            referencedRelation: "modulos_app"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permisos_modulos_usuario: {
+        Row: {
+          created_at: string
+          modulo_id: string
+          updated_at: string
+          user_id: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          modulo_id: string
+          updated_at?: string
+          user_id: string
+          visible: boolean
+        }
+        Update: {
+          created_at?: string
+          modulo_id?: string
+          updated_at?: string
+          user_id?: string
+          visible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permisos_modulos_usuario_modulo_id_fkey"
+            columns: ["modulo_id"]
+            isOneToOne: false
+            referencedRelation: "modulos_app"
             referencedColumns: ["id"]
           },
         ]
@@ -861,6 +961,17 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      mis_modulos_visibles: {
+        Args: never
+        Returns: {
+          grupo: string
+          icono: string
+          modulo_id: string
+          nombre: string
+          orden: number
+          ruta: string
+        }[]
       }
       siguiente_numero_cotizacion: { Args: never; Returns: string }
       sugerir_tarifa: {

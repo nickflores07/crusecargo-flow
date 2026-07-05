@@ -55,6 +55,30 @@ const ESTADO_LABELS: Record<string, string> = {
 };
 
 function ClientesList() {
+
+  return <ClientesListInner />;
+}
+
+function ContactoBadge({ fecha }: { fecha: string | null }) {
+  if (!fecha) return null;
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const t = new Date(fecha + "T00:00:00");
+  const d = Math.round((t.getTime() - hoy.getTime()) / 86400000);
+  if (d > 3) return null;
+  const cls = d < 0
+    ? "bg-red-500/15 text-red-700 dark:text-red-300"
+    : d === 0
+    ? "bg-primary/15 text-primary"
+    : "bg-amber-500/15 text-amber-700 dark:text-amber-300";
+  const txt = d < 0 ? `Vencido ${Math.abs(d)}d` : d === 0 ? "Hoy" : `En ${d}d`;
+  return (
+    <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium ${cls}`}>
+      <CalendarClock className="h-2.5 w-2.5" /> {txt}
+    </span>
+  );
+}
+
+function ClientesListInner() {
   const { isAdmin, isSupervisor } = useAuth();
   const canReassign = isAdmin || isSupervisor;
   const [rows, setRows] = useState<Cliente[]>([]);

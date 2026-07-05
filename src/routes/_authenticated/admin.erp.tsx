@@ -36,6 +36,8 @@ type BatchRow = {
   uploaded_by: string;
 };
 
+type BatchWithProc = BatchRow & { procesadas: number };
+
 type MapRow = {
   id: string;
   nombre_erp: string;
@@ -155,8 +157,9 @@ function CargasTab({ userId }: { userId: string }) {
   const [headers, setHeaders] = useState<string[]>([]);
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
-  const [batches, setBatches] = useState<BatchRow[]>([]);
+  const [batches, setBatches] = useState<BatchWithProc[]>([]);
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   const loadBatches = async () => {
     setLoading(true);
@@ -166,8 +169,31 @@ function CargasTab({ userId }: { userId: string }) {
       .order("created_at", { ascending: false })
       .limit(30);
     if (error) toast.error(error.message);
-    setBatches((data as BatchRow[]) ?? []);
+    const list = (data as BatchRow[]) ?? [];
+    // fetch procesadas count per batch (client-side aggregate)
+    const withProc: BatchWithProc[] = [];
+    for (const b of list) {
+      const { count } = await supabase
+        .from("erp_ventas_staging")
+        .select("id", { count: "exact", head: true })
+        .eq("batch_id", b.id)
+        .eq("procesado", true);
+      withProc.push({ ...b, procesadas: count ?? 0 });
+    }
+    setBatches(withProc);
     setLoading(false);
+  };
+
+  const procesarBatch = async (id: string) => {
+    setProcessingId(id);
+    const { data, error } = await supabase.rpc("procesar_batch_erp", { _batch_id: id });
+    if (error) toast.error(error.message);
+    else {
+      const r = Array.isArray(data) ? data[0] : data;
+      toast.success(`Procesadas ${r?.procesadas ?? 0} · ${r?.con_cliente ?? 0} con cliente · ${r?.clientes_creados ?? 0} nuevos`);
+      await loadBatches();
+    }
+    setProcessingId(null);
   };
 
   useEffect(() => { void loadBatches(); }, []);
@@ -343,6 +369,8 @@ function CargasTab({ userId }: { userId: string }) {
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead className="text-right">OK</TableHead>
                   <TableHead className="text-right">Errores</TableHead>
+                  <TableHead className="text-right">Procesadas</TableHead>
+                  <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -359,6 +387,23 @@ function CargasTab({ userId }: { userId: string }) {
                       {b.errores > 0 ? (
                         <span className="inline-flex items-center gap-1"><AlertCircle className="h-3 w-3" />{b.errores}</span>
                       ) : b.errores}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant={b.procesadas === b.ok && b.ok > 0 ? "default" : "secondary"}>
+                        {b.procesadas}/{b.ok}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={processingId === b.id || b.ok === 0}
+                        onClick={() => procesarBatch(b.id)}
+                      >
+                        {processingId === b.id
+                          ? <Loader2 className="h-3 w-3 animate-spin" />
+                          : b.procesadas === b.ok && b.ok > 0 ? "Reprocesar" : "Procesar"}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -217,6 +217,12 @@ function ClienteDetalle() {
         </CardHeader>
       </Card>
 
+      <ContactoAlerta
+        proximo={cliente.proximo_contacto_en}
+        ultimo={cliente.ultimo_contacto_en}
+        onRegistrar={() => setOpenRegistrar(true)}
+      />
+
       <Tabs defaultValue="general">
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="general">Datos generales</TabsTrigger>

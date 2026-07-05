@@ -17,10 +17,7 @@ const PEN = (n: number) =>
 const NUM = (n: number) => new Intl.NumberFormat("es-PE").format(n || 0);
 
 const ESTADO_OP_LABEL: Record<string, string> = {
-  prospeccion: "Prospección",
-  calificada: "Calificada",
-  propuesta: "Propuesta",
-  negociacion: "Negociación",
+  en_proceso: "En proceso",
   ganada: "Ganada",
   perdida: "Perdida",
 };
@@ -67,7 +64,7 @@ function Dashboard() {
 
       const [c, o, e, q, s] = await Promise.all([
         supabase.from("clientes").select("id, area_comercial, categoria_cliente, canal, estado, created_at"),
-        supabase.from("oportunidades").select("id, estado, monto_estimado, probabilidad, fecha_cierre_estimada, created_at"),
+        supabase.from("oportunidades").select("id, estado, monto_potencial, probabilidad, fecha_cierre_estimada, created_at"),
         supabase.from("envios").select("id, fecha, importe, peso_kg, estado, cliente_id").gte("fecha", sinceIso),
         supabase.from("cotizaciones").select("id, estado, total, fecha_emision, fecha_vencimiento, enviada_en").gte("fecha_emision", sinceIso),
         supabase.from("seguimientos").select("id, fecha, tipo, resultado"),
@@ -92,7 +89,7 @@ function Dashboard() {
     const ventasMes = enviosMes.reduce((a, x) => a + Number(x.importe || 0), 0);
     const opAbiertas = oportunidades.filter((o) => !["ganada", "perdida"].includes(o.estado));
     const pipeline = opAbiertas.reduce(
-      (a, o) => a + Number(o.monto_estimado || 0) * (Number(o.probabilidad || 0) / 100),
+      (a, o) => a + Number(o.monto_potencial || 0) * (Number(o.probabilidad || 0) / 100),
       0
     );
     const cotVigentes = cotizaciones.filter((c) => ["enviada", "pendiente"].includes(c.estado)).length;
@@ -130,13 +127,13 @@ function Dashboard() {
   }, [envios]);
 
   const pipelineChart = useMemo(() => {
-    const orden = ["prospeccion", "calificada", "propuesta", "negociacion", "ganada", "perdida"];
+    const orden = ["en_proceso", "ganada", "perdida"];
     return orden.map((estado) => {
       const items = oportunidades.filter((o) => o.estado === estado);
       return {
         etapa: ESTADO_OP_LABEL[estado],
         cantidad: items.length,
-        monto: items.reduce((a, o) => a + Number(o.monto_estimado || 0), 0),
+        monto: items.reduce((a, o) => a + Number(o.monto_potencial || 0), 0),
       };
     });
   }, [oportunidades]);

@@ -364,6 +364,124 @@ function Bucket({ title, description, icon: Icon, tone, items, onRegistrar }: {
   );
 }
 
+function AgendaSemanal({
+  visitas, opsCierre, cotizaciones, clientesConProximo,
+}: {
+  visitas: VisitaSemana[];
+  opsCierre: OpCierre[];
+  cotizaciones: CotSinRespuesta[];
+  clientesConProximo: ClienteBrief[];
+}) {
+  const DAYS_SHORT = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+  const hoy0 = new Date(); hoy0.setHours(0, 0, 0, 0);
+  const lunes = new Date(hoy0); lunes.setDate(hoy0.getDate() - ((hoy0.getDay() + 6) % 7));
+  const dias = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(lunes); d.setDate(lunes.getDate() + i);
+    return d;
+  });
+  const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const hoyKey = ymd(hoy0);
+
+  type Evento = { hora: string | null; label: string; sub: string; tone: string; href?: { to: string; params?: Record<string, string> } };
+  const byDay: Record<string, Evento[]> = {};
+  dias.forEach((d) => { byDay[ymd(d)] = []; });
+
+  visitas.forEach((v) => {
+    if (byDay[v.fecha_planificada]) {
+      byDay[v.fecha_planificada].push({
+        hora: v.hora,
+        label: v.cliente_nombre,
+        sub: `${v.tipo}${v.motivo ? " · " + v.motivo : ""}`,
+        tone: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30",
+      });
+    }
+  });
+  opsCierre.forEach((o) => {
+    if (byDay[o.fecha_cierre_estimada]) {
+      byDay[o.fecha_cierre_estimada].push({
+        hora: null,
+        label: `🎯 ${o.titulo}`,
+        sub: `${o.cliente_nombre} · ${o.probabilidad}%`,
+        tone: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30",
+      });
+    }
+  });
+  clientesConProximo.forEach((c) => {
+    if (c.proximo_contacto_en && byDay[c.proximo_contacto_en]) {
+      const nom = (c.tipo === "empresa" ? c.razon_social : c.nombre_completo) ?? "Cliente";
+      byDay[c.proximo_contacto_en].push({
+        hora: null,
+        label: `📞 ${nom}`,
+        sub: "Próximo contacto",
+        tone: "bg-violet-500/10 text-violet-700 dark:text-violet-300 border-violet-500/30",
+      });
+    }
+  });
+  cotizaciones.forEach((c) => {
+    const key = c.enviada_en.slice(0, 10);
+    if (byDay[key]) {
+      byDay[key].push({
+        hora: null,
+        label: `📄 ${c.numero}`,
+        sub: `${c.cliente_nombre} · esperando respuesta`,
+        tone: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+      });
+    }
+  });
+
+  Object.values(byDay).forEach((list) => list.sort((a, b) => (a.hora ?? "z").localeCompare(b.hora ?? "z")));
+
+  return (
+    <Card className="lg:col-span-2">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <CalendarIcon className="h-4 w-4 text-primary" /> Agenda de la semana
+        </CardTitle>
+        <CardDescription>
+          Visitas del Plan Semanal, cierres de oportunidades, próximos contactos y cotizaciones en espera.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+          {dias.map((d, i) => {
+            const key = ymd(d);
+            const items = byDay[key];
+            const esHoy = key === hoyKey;
+            return (
+              <div key={key} className={`rounded-md border p-1.5 min-h-[110px] ${esHoy ? "border-primary bg-primary/5" : ""}`}>
+                <div className="flex items-baseline justify-between mb-1 px-0.5">
+                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{DAYS_SHORT[i]}</span>
+                  <span className={`text-xs font-semibold ${esHoy ? "text-primary" : ""}`}>{d.getDate()}</span>
+                </div>
+                <div className="space-y-1">
+                  {items.length === 0 ? (
+                    <p className="text-[10px] text-muted-foreground italic px-0.5">—</p>
+                  ) : items.slice(0, 4).map((ev, idx) => (
+                    <div key={idx} className={`rounded px-1.5 py-1 text-[10px] border ${ev.tone}`}>
+                      <p className="font-medium truncate leading-tight">{ev.hora ? ev.hora.slice(0, 5) + " " : ""}{ev.label}</p>
+                      <p className="opacity-75 truncate leading-tight">{ev.sub}</p>
+                    </div>
+                  ))}
+                  {items.length > 4 && (
+                    <p className="text-[10px] text-muted-foreground text-center">+{items.length - 4} más</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-3 text-[10px] text-muted-foreground">
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-blue-500/60" /> Visita/Actividad</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-amber-500/60" /> Cierre oportunidad</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-violet-500/60" /> Próximo contacto</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded bg-emerald-500/60" /> Cotización en espera</span>
+          <Link to="/rutas" className="ml-auto text-primary hover:underline">Ir al Plan Semanal →</Link>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function ClienteRow({ c, onRegistrar }: { c: ClienteBrief; onRegistrar: (c: ClienteBrief) => void }) {
   const Icon = c.tipo === "empresa" ? Building2 : UserIcon;
   const dias = diasHasta(c.proximo_contacto_en);

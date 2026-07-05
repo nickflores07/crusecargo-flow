@@ -576,6 +576,158 @@ export type Database = {
           },
         ]
       }
+      erp_ejecutivos_map: {
+        Row: {
+          activo: boolean
+          codigo_erp: string | null
+          created_at: string
+          id: string
+          nombre_erp: string
+          profile_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          codigo_erp?: string | null
+          created_at?: string
+          id?: string
+          nombre_erp: string
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          codigo_erp?: string | null
+          created_at?: string
+          id?: string
+          nombre_erp?: string
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_ejecutivos_map_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_import_batches: {
+        Row: {
+          archivo_nombre: string
+          created_at: string
+          errores: number
+          id: string
+          notas: string | null
+          ok: number
+          tipo: string
+          total: number
+          uploaded_by: string
+        }
+        Insert: {
+          archivo_nombre: string
+          created_at?: string
+          errores?: number
+          id?: string
+          notas?: string | null
+          ok?: number
+          tipo: string
+          total?: number
+          uploaded_by: string
+        }
+        Update: {
+          archivo_nombre?: string
+          created_at?: string
+          errores?: number
+          id?: string
+          notas?: string | null
+          ok?: number
+          tipo?: string
+          total?: number
+          uploaded_by?: string
+        }
+        Relationships: []
+      }
+      erp_ventas_staging: {
+        Row: {
+          batch_id: string
+          cliente_id: string | null
+          cliente_nombre: string | null
+          created_at: string
+          datos_raw: Json | null
+          destino: string | null
+          ejecutivo_erp: string | null
+          ejecutivo_id: string | null
+          fecha: string | null
+          guia_numero: string | null
+          id: string
+          moneda: string | null
+          monto: number | null
+          origen: string | null
+          peso_kg: number | null
+          procesado: boolean
+          ruc: string | null
+          servicio: string | null
+        }
+        Insert: {
+          batch_id: string
+          cliente_id?: string | null
+          cliente_nombre?: string | null
+          created_at?: string
+          datos_raw?: Json | null
+          destino?: string | null
+          ejecutivo_erp?: string | null
+          ejecutivo_id?: string | null
+          fecha?: string | null
+          guia_numero?: string | null
+          id?: string
+          moneda?: string | null
+          monto?: number | null
+          origen?: string | null
+          peso_kg?: number | null
+          procesado?: boolean
+          ruc?: string | null
+          servicio?: string | null
+        }
+        Update: {
+          batch_id?: string
+          cliente_id?: string | null
+          cliente_nombre?: string | null
+          created_at?: string
+          datos_raw?: Json | null
+          destino?: string | null
+          ejecutivo_erp?: string | null
+          ejecutivo_id?: string | null
+          fecha?: string | null
+          guia_numero?: string | null
+          id?: string
+          moneda?: string | null
+          monto?: number | null
+          origen?: string | null
+          peso_kg?: number | null
+          procesado?: boolean
+          ruc?: string | null
+          servicio?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_ventas_staging_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "erp_import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "erp_ventas_staging_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       importaciones_clientes: {
         Row: {
           actualizados: number

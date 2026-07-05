@@ -959,6 +959,53 @@ export type Database = {
         }
         Relationships: []
       }
+      reglas_comision: {
+        Row: {
+          activo: boolean
+          created_at: string
+          ejecutivo_id: string | null
+          id: string
+          notas: string | null
+          porcentaje: number
+          tipo: string
+          updated_at: string
+          vigente_desde: string
+          vigente_hasta: string | null
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          ejecutivo_id?: string | null
+          id?: string
+          notas?: string | null
+          porcentaje: number
+          tipo: string
+          updated_at?: string
+          vigente_desde?: string
+          vigente_hasta?: string | null
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          ejecutivo_id?: string | null
+          id?: string
+          notas?: string | null
+          porcentaje?: number
+          tipo?: string
+          updated_at?: string
+          vigente_desde?: string
+          vigente_hasta?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reglas_comision_ejecutivo_id_fkey"
+            columns: ["ejecutivo_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sectores: {
         Row: {
           created_at: string
@@ -1191,6 +1238,20 @@ export type Database = {
       }
     }
     Functions: {
+      calcular_comisiones: {
+        Args: { _mes: string }
+        Returns: {
+          comision_crm: number
+          comision_erp: number
+          ejecutivo_id: string
+          ejecutivo_nombre: string
+          monto_ganado_crm: number
+          pct_crm: number
+          pct_erp: number
+          total_comision: number
+          ventas_erp: number
+        }[]
+      }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]

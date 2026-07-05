@@ -458,6 +458,11 @@ function ActividadRow({ a, onRegistrar }: { a: ActividadPlan; onRegistrar: (a: A
       </Link>
       <div className="flex items-center gap-2">
         <span className={`text-[11px] whitespace-nowrap ${tone}`}>{cuando}</span>
+        {a.oportunidad_id && (
+          <Link to="/oportunidades" className="text-[11px] text-primary hover:underline whitespace-nowrap flex items-center gap-1">
+            <Target className="h-3 w-3" /> Prospección
+          </Link>
+        )}
         <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => onRegistrar(a)}>
           <Phone className="h-3 w-3" /> Registrar
         </Button>

@@ -469,6 +469,18 @@ function OportunidadesPage() {
         />
       )}
 
+      {programarDialog && (
+        <ProgramarActividadDialog
+          oportunidadId={programarDialog.id}
+          clienteId={programarDialog.cliente_id}
+          clienteNombre={programarDialog.cliente_nombre}
+          ejecutivoId={user?.id ?? ""}
+          open={!!programarDialog}
+          onOpenChange={(v) => !v && setProgramarDialog(null)}
+          onSaved={() => void load()}
+        />
+      )}
+
       {/* Dialog: crear / editar oportunidad */}
       <Dialog open={editing.open} onOpenChange={(o) => setEditing((s) => ({ ...s, open: o }))}>
         <DialogContent className="max-w-lg">

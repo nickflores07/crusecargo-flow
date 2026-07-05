@@ -397,7 +397,7 @@ function CargasTab({ userId }: { userId: string }) {
                 {batches.map((b) => (
                   <TableRow key={b.id}>
                     <TableCell>{new Date(b.created_at).toLocaleString()}</TableCell>
-                    <TableCell><Badge variant="outline">{b.tipo}</Badge></TableCell>
+                    <TableCell><Badge variant="outline">{TIPO_LABEL[b.tipo as BatchTipo] ?? b.tipo}</Badge></TableCell>
                     <TableCell className="max-w-xs truncate">{b.archivo_nombre}</TableCell>
                     <TableCell className="text-right">{b.total}</TableCell>
                     <TableCell className="text-right text-green-600 flex items-center justify-end gap-1">

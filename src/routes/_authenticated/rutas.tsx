@@ -215,8 +215,10 @@ function PlanSemanalPage() {
           <Button variant="outline" size="icon" onClick={() => setSemanaBase(addDays(semanaBase, 7))}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button onClick={() => setDialog({ open: true, fecha: new Date(), tipo: "visita", edit: null })} className="gap-1.5">
-            <Plus className="h-4 w-4" /> Nueva actividad
+          <Button asChild variant="outline" className="gap-1.5">
+            <Link to="/oportunidades">
+              <Target className="h-4 w-4" /> Programar desde una prospección
+            </Link>
           </Button>
         </div>
       </div>

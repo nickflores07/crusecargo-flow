@@ -361,6 +361,15 @@ function OportunidadesPage() {
                           {o.estado === "perdida" && o.motivo_perdida && (
                             <p className="text-[11px] text-red-600 mt-1">Motivo: {o.motivo_perdida}</p>
                           )}
+                          {o.estado === "en_proceso" && (() => {
+                            const dias = Math.round((Date.now() - new Date(o.updated_at).getTime()) / 86400000);
+                            if (dias < 7) return null;
+                            return (
+                              <p className="text-[11px] text-amber-600 mt-1 flex items-center gap-1">
+                                <AlertCircle className="h-3 w-3" /> Sin actividad {dias}d
+                              </p>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>

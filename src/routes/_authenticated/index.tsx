@@ -49,7 +49,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [clientes, setClientes] = useState<any[]>([]);
   const [oportunidades, setOportunidades] = useState<any[]>([]);
-  const [envios, setEnvios] = useState<any[]>([]);
+  const [ventasErp, setVentasErp] = useState<any[]>([]);
   const [cotizaciones, setCotizaciones] = useState<any[]>([]);
   const [seguimientos, setSeguimientos] = useState<any[]>([]);
 
@@ -65,14 +65,14 @@ function Dashboard() {
       const [c, o, e, q, s] = await Promise.all([
         supabase.from("clientes").select("id, area_comercial, categoria_cliente, canal, estado, created_at"),
         supabase.from("oportunidades").select("id, estado, monto_potencial, probabilidad, fecha_cierre_estimada, created_at"),
-        supabase.from("envios").select("id, fecha, importe, peso_kg, estado, cliente_id").gte("fecha", sinceIso),
+        supabase.from("erp_ventas_staging").select("id, fecha, monto, cliente_id").eq("procesado", true).gte("fecha", sinceIso),
         supabase.from("cotizaciones").select("id, estado, total, fecha_emision, fecha_vencimiento, enviada_en").gte("fecha_emision", sinceIso),
         supabase.from("seguimientos").select("id, fecha, tipo, resultado"),
       ]);
       if (cancel) return;
       setClientes(c.data ?? []);
       setOportunidades(o.data ?? []);
-      setEnvios(e.data ?? []);
+      setVentasErp(e.data ?? []);
       setCotizaciones(q.data ?? []);
       setSeguimientos(s.data ?? []);
       setLoading(false);
@@ -85,8 +85,8 @@ function Dashboard() {
   const kpis = useMemo(() => {
     const now = new Date();
     const mk = monthKey(now);
-    const enviosMes = envios.filter((x) => monthKey(new Date(x.fecha)) === mk);
-    const ventasMes = enviosMes.reduce((a, x) => a + Number(x.importe || 0), 0);
+    const ventasErpMes = ventasErp.filter((x) => x.fecha && monthKey(new Date(x.fecha)) === mk);
+    const ventasMes = ventasErpMes.reduce((a, x) => a + Number(x.monto || 0), 0);
     const opAbiertas = oportunidades.filter((o) => !["ganada", "perdida"].includes(o.estado));
     const pipeline = opAbiertas.reduce(
       (a, o) => a + Number(o.monto_potencial || 0) * (Number(o.probabilidad || 0) / 100),
@@ -102,7 +102,7 @@ function Dashboard() {
     return {
       clientes: clientes.filter((c) => c.estado === "activo").length,
       opAbiertas: opAbiertas.length,
-      enviosMes: enviosMes.length,
+      ventasErpMes: ventasErpMes.length,
       ventasMes,
       pipeline,
       cotVigentes,
@@ -110,21 +110,22 @@ function Dashboard() {
       cotAceptMes,
       ratio,
     };
-  }, [clientes, oportunidades, envios, cotizaciones]);
+  }, [clientes, oportunidades, ventasErp, cotizaciones]);
 
   const ventasChart = useMemo(() => {
     const months = last6Months();
-    const map = new Map(months.map((m) => [m, { mes: monthLabel(m), ventas: 0, envios: 0 }]));
-    envios.forEach((x) => {
+    const map = new Map(months.map((m) => [m, { mes: monthLabel(m), ventas: 0, operaciones: 0 }]));
+    ventasErp.forEach((x) => {
+      if (!x.fecha) return;
       const k = monthKey(new Date(x.fecha));
       const row = map.get(k);
       if (row) {
-        row.ventas += Number(x.importe || 0);
-        row.envios += 1;
+        row.ventas += Number(x.monto || 0);
+        row.operaciones += 1;
       }
     });
     return Array.from(map.values());
-  }, [envios]);
+  }, [ventasErp]);
 
   const pipelineChart = useMemo(() => {
     const orden = ["en_proceso", "ganada", "perdida"];

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare, Package, FileText,
+  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare, Package, FileText, Target,
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Seguimientos } from "@/components/clientes/seguimientos";
 import { Envios } from "@/components/clientes/envios";
 import { Cotizaciones } from "@/components/clientes/cotizaciones";
+import { ProspeccionPanel } from "@/components/clientes/prospeccion-panel";
 
 export const Route = createFileRoute("/_authenticated/clientes/$id")({
   component: ClienteDetalle,
@@ -216,6 +217,7 @@ function ClienteDetalle() {
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="general">Datos generales</TabsTrigger>
           <TabsTrigger value="comercial">Datos comerciales</TabsTrigger>
+          <TabsTrigger value="prospeccion"><Target className="h-3.5 w-3.5 mr-1" />Prospección</TabsTrigger>
           <TabsTrigger value="contactos">Contactos</TabsTrigger>
           <TabsTrigger value="direcciones">Direcciones</TabsTrigger>
           <TabsTrigger value="seguimiento"><MessageSquare className="h-3.5 w-3.5 mr-1" />Seguimiento</TabsTrigger>
@@ -256,6 +258,10 @@ function ClienteDetalle() {
 
         <TabsContent value="comercial" className="mt-4">
           <DatosComerciales clienteId={id} />
+        </TabsContent>
+
+        <TabsContent value="prospeccion" className="mt-4">
+          <ProspeccionPanel clienteId={id} />
         </TabsContent>
 
         <TabsContent value="contactos" className="mt-4">

@@ -169,7 +169,7 @@ function AdminERP() {
 }
 
 function CargasTab({ userId }: { userId: string }) {
-  const [tipo, setTipo] = useState<BatchTipo>("ventas");
+  const [tipo, setTipo] = useState<BatchTipo>("ventas_comunes");
   const [fileName, setFileName] = useState("");
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -308,11 +308,12 @@ function CargasTab({ userId }: { userId: string }) {
               <Select value={tipo} onValueChange={(v) => setTipo(v as BatchTipo)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ventas">Ventas</SelectItem>
-                  <SelectItem value="envios">Envíos</SelectItem>
-                  <SelectItem value="facturacion">Facturación</SelectItem>
+                  <SelectItem value="ventas_comunes">Ventas Comunes (mensual)</SelectItem>
+                  <SelectItem value="ventas_institucionales">Ventas Institucionales (mensual)</SelectItem>
+                  <SelectItem value="cotizaciones">Cotizaciones (rango amplio)</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1">{TIPO_DESC[tipo]}</p>
             </div>
             <div className="md:col-span-2">
               <Label>Archivo Excel</Label>

@@ -16,13 +16,31 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Database, Upload, Loader2, ShieldAlert, CheckCircle2, AlertCircle, FileSpreadsheet } from "lucide-react";
+import { Database, Upload, Loader2, ShieldAlert, CheckCircle2, AlertCircle, FileSpreadsheet, CalendarRange, Building2, Users2, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/erp")({
   component: AdminERP,
 });
 
-type BatchTipo = "ventas" | "envios" | "facturacion";
+type BatchTipo = "ventas_comunes" | "ventas_institucionales" | "cotizaciones";
+
+const TIPO_LABEL: Record<BatchTipo, string> = {
+  ventas_comunes: "Ventas Comunes",
+  ventas_institucionales: "Ventas Institucionales",
+  cotizaciones: "Cotizaciones",
+};
+
+const TIPO_DESC: Record<BatchTipo, string> = {
+  ventas_comunes: "Facturación de clientes comunes (mes a mes).",
+  ventas_institucionales: "Facturación de clientes institucionales / B2B (mes a mes).",
+  cotizaciones: "Historial de cotizaciones emitidas desde el ERP (rango amplio).",
+};
+
+const TIPO_ICON: Record<BatchTipo, typeof Users2> = {
+  ventas_comunes: Users2,
+  ventas_institucionales: Building2,
+  cotizaciones: FileText,
+};
 
 type BatchRow = {
   id: string;
@@ -121,7 +139,7 @@ function AdminERP() {
         <div>
           <h1 className="text-2xl font-semibold font-display">ERP / Cargas</h1>
           <p className="text-sm text-muted-foreground">
-            Sube ventas, envíos o facturación del ERP y mapea los ejecutivos para que el CRM las use.
+            Sube tus Excel del ERP (Ventas Comunes, Ventas Institucionales y Cotizaciones) para armar el histórico del CRM.
           </p>
         </div>
       </div>

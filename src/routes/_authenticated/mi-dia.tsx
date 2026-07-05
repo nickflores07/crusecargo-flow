@@ -61,6 +61,7 @@ type ActividadPlan = {
   motivo: string | null;
   estado: string;
   cliente_id: string;
+  oportunidad_id: string | null;
   cliente_nombre: string;
   cliente_ciudad: string | null;
   cliente_telefono: string | null;

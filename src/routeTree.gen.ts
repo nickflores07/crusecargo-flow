@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedTarifarioRouteImport } from './routes/_authenticated/tarifario'
+import { Route as AuthenticatedRutasRouteImport } from './routes/_authenticated/rutas'
+import { Route as AuthenticatedReportesRouteImport } from './routes/_authenticated/reportes'
 import { Route as AuthenticatedProspeccionRouteImport } from './routes/_authenticated/prospeccion'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedMiDiaRouteImport } from './routes/_authenticated/mi-dia'
@@ -57,6 +59,16 @@ const ApiChatRoute = ApiChatRouteImport.update({
 const AuthenticatedTarifarioRoute = AuthenticatedTarifarioRouteImport.update({
   id: '/tarifario',
   path: '/tarifario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRutasRoute = AuthenticatedRutasRouteImport.update({
+  id: '/rutas',
+  path: '/rutas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReportesRoute = AuthenticatedReportesRouteImport.update({
+  id: '/reportes',
+  path: '/reportes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProspeccionRoute =
@@ -184,6 +196,8 @@ export interface FileRoutesByFullPath {
   '/mi-dia': typeof AuthenticatedMiDiaRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/prospeccion': typeof AuthenticatedProspeccionRoute
+  '/reportes': typeof AuthenticatedReportesRoute
+  '/rutas': typeof AuthenticatedRutasRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/admin/erp': typeof AuthenticatedAdminErpRoute
@@ -207,6 +221,8 @@ export interface FileRoutesByTo {
   '/mi-dia': typeof AuthenticatedMiDiaRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/prospeccion': typeof AuthenticatedProspeccionRoute
+  '/reportes': typeof AuthenticatedReportesRoute
+  '/rutas': typeof AuthenticatedRutasRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
@@ -235,6 +251,8 @@ export interface FileRoutesById {
   '/_authenticated/mi-dia': typeof AuthenticatedMiDiaRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/_authenticated/prospeccion': typeof AuthenticatedProspeccionRoute
+  '/_authenticated/reportes': typeof AuthenticatedReportesRoute
+  '/_authenticated/rutas': typeof AuthenticatedRutasRoute
   '/_authenticated/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -264,6 +282,8 @@ export interface FileRouteTypes {
     | '/mi-dia'
     | '/oportunidades'
     | '/prospeccion'
+    | '/reportes'
+    | '/rutas'
     | '/tarifario'
     | '/api/chat'
     | '/admin/erp'
@@ -287,6 +307,8 @@ export interface FileRouteTypes {
     | '/mi-dia'
     | '/oportunidades'
     | '/prospeccion'
+    | '/reportes'
+    | '/rutas'
     | '/tarifario'
     | '/api/chat'
     | '/'
@@ -314,6 +336,8 @@ export interface FileRouteTypes {
     | '/_authenticated/mi-dia'
     | '/_authenticated/oportunidades'
     | '/_authenticated/prospeccion'
+    | '/_authenticated/reportes'
+    | '/_authenticated/rutas'
     | '/_authenticated/tarifario'
     | '/api/chat'
     | '/_authenticated/'
@@ -372,6 +396,20 @@ declare module '@tanstack/react-router' {
       path: '/tarifario'
       fullPath: '/tarifario'
       preLoaderRoute: typeof AuthenticatedTarifarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/rutas': {
+      id: '/_authenticated/rutas'
+      path: '/rutas'
+      fullPath: '/rutas'
+      preLoaderRoute: typeof AuthenticatedRutasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reportes': {
+      id: '/_authenticated/reportes'
+      path: '/reportes'
+      fullPath: '/reportes'
+      preLoaderRoute: typeof AuthenticatedReportesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/prospeccion': {
@@ -561,6 +599,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMiDiaRoute: typeof AuthenticatedMiDiaRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedProspeccionRoute: typeof AuthenticatedProspeccionRoute
+  AuthenticatedReportesRoute: typeof AuthenticatedReportesRoute
+  AuthenticatedRutasRoute: typeof AuthenticatedRutasRoute
   AuthenticatedTarifarioRoute: typeof AuthenticatedTarifarioRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminErpRoute: typeof AuthenticatedAdminErpRoute
@@ -580,6 +620,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMiDiaRoute: AuthenticatedMiDiaRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedProspeccionRoute: AuthenticatedProspeccionRoute,
+  AuthenticatedReportesRoute: AuthenticatedReportesRoute,
+  AuthenticatedRutasRoute: AuthenticatedRutasRoute,
   AuthenticatedTarifarioRoute: AuthenticatedTarifarioRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminErpRoute: AuthenticatedAdminErpRoute,

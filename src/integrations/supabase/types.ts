@@ -1113,6 +1113,53 @@ export type Database = {
         }
         Relationships: []
       }
+      visitas_planificadas: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          ejecutivo_id: string
+          estado: string
+          fecha_planificada: string
+          id: string
+          motivo: string | null
+          notas: string | null
+          resultado: string | null
+          updated_at: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          ejecutivo_id: string
+          estado?: string
+          fecha_planificada: string
+          id?: string
+          motivo?: string | null
+          notas?: string | null
+          resultado?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          ejecutivo_id?: string
+          estado?: string
+          fecha_planificada?: string
+          id?: string
+          motivo?: string | null
+          notas?: string | null
+          resultado?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visitas_planificadas_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       erp_ventas_cliente_12m: {

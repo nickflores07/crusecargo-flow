@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/reportes")({
 
 type Profile = { id: string; nombre: string };
 type VentasEjec = { ejecutivo_id: string | null; clientes_atendidos: number | null; num_operaciones: number | null; total: number | null };
-type OportRow = { ejecutivo_id: string | null; estado: string | null; valor_estimado: number | null; probabilidad: number | null };
+type OportRow = { ejecutivo_id: string | null; estado: string | null; monto_potencial: number | null; probabilidad: number | null };
 type VisitaRow = { ejecutivo_id: string; estado: string };
 type ClienteRow = { ejecutivo_id: string | null };
 
@@ -56,7 +56,7 @@ function ReportesPage() {
       ] = await Promise.all([
         supabase.from("profiles").select("id, nombre").eq("activo", true).order("nombre"),
         supabase.from("erp_ventas_ejecutivo_12m").select("*"),
-        supabase.from("oportunidades").select("ejecutivo_id, estado, valor_estimado, probabilidad"),
+        supabase.from("oportunidades").select("ejecutivo_id, estado, monto_potencial, probabilidad"),
         supabase.from("visitas_planificadas").select("ejecutivo_id, estado").gte("fecha_planificada", desde),
         supabase.from("clientes").select("ejecutivo_id"),
       ]);
@@ -76,11 +76,11 @@ function ReportesPage() {
       const oportEjec = oport.filter((o) => o.ejecutivo_id === p.id);
       const abiertas = oportEjec.filter((o) => o.estado && !["ganada", "perdida"].includes(o.estado));
       const pipelinePond = abiertas.reduce(
-        (s, o) => s + (Number(o.valor_estimado ?? 0) * (Number(o.probabilidad ?? 0) / 100)),
+        (s, o) => s + (Number(o.monto_potencial ?? 0) * (Number(o.probabilidad ?? 0) / 100)),
         0,
       );
       const ganadas = oportEjec.filter((o) => o.estado === "ganada");
-      const ganadasValor = ganadas.reduce((s, o) => s + Number(o.valor_estimado ?? 0), 0);
+      const ganadasValor = ganadas.reduce((s, o) => s + Number(o.monto_potencial ?? 0), 0);
       const cerradas = oportEjec.filter((o) => o.estado === "ganada" || o.estado === "perdida");
       const conversion = cerradas.length ? (ganadas.length / cerradas.length) * 100 : 0;
       const visitasEjec = visitas.filter((x) => x.ejecutivo_id === p.id);

@@ -104,13 +104,13 @@ function CotizacionDetalle() {
     }
     // Registrar seguimiento si hay oportunidad
     if (cot.oportunidad_id) {
-      await supabase.from("seguimientos").insert({
+      const { error: segErr } = await supabase.from("seguimientos").insert({
         cliente_id: cot.cliente_id,
-        tipo: "nota",
-        titulo: `Cotización ${cot.numero} aceptada`,
-        descripcion: `Total: S/ ${Number(cot.total).toFixed(2)}. Se generaron envíos estimados.`,
-        created_by: user?.id ?? null,
-      } as any);
+        tipo: "otro",
+        usuario_id: user?.id ?? null,
+        resultado: `Cotización ${cot.numero} aceptada. Total: S/ ${Number(cot.total).toFixed(2)}. Se generaron envíos estimados.`,
+      });
+      if (segErr) toast.error("No se pudo registrar el seguimiento: " + segErr.message);
     }
   };
 
@@ -127,7 +127,7 @@ function CotizacionDetalle() {
   };
 
   const enviarPorCorreo = () => {
-    toast.info("Envío por correo: pendiente configurar dominio de correo en Configuración → Correo. Por ahora usa 'Marcar como enviada' tras enviar manualmente.");
+    toast.info("Envío por correo (próximamente). Por ahora usa 'Marcar como enviada' tras enviar manualmente.");
   };
 
   const eliminar = async () => {
@@ -159,7 +159,7 @@ function CotizacionDetalle() {
             </SelectContent>
           </Select>
           <Button variant="outline" size="sm" onClick={() => window.print()}><Printer className="h-4 w-4" /> Imprimir / PDF</Button>
-          <Button variant="outline" size="sm" onClick={enviarPorCorreo}><Send className="h-4 w-4" /> Enviar por correo</Button>
+          <Button variant="outline" size="sm" onClick={enviarPorCorreo} title="Próximamente"><Send className="h-4 w-4" /> Enviar por correo (próximamente)</Button>
           {cot.estado === "borrador" && (
             <Button size="sm" onClick={() => void marcarEnviada()}>Marcar enviada</Button>
           )}

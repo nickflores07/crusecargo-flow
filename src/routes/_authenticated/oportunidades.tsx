@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Loader2, Plus, Target, GripVertical, Trophy, XCircle, Clock, Pencil, Check, ChevronsUpDown, Weight } from "lucide-react";
+import { Loader2, Plus, Target, GripVertical, Trophy, XCircle, Clock, Pencil, Check, ChevronsUpDown, Weight, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -35,6 +35,7 @@ type Oport = {
   motivo_perdida: string | null;
   notas: string | null;
   cliente_nombre: string;
+  updated_at: string;
 };
 
 type ClienteOpt = { id: string; label: string };
@@ -125,6 +126,7 @@ function OportunidadesPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [dragged, setDragged] = useState<Oport | null>(null);
+  const [soloStale, setSoloStale] = useState(false);
   const [motivoDialog, setMotivoDialog] = useState<{ open: boolean; oport: Oport | null; motivo: string }>({
     open: false, oport: null, motivo: "",
   });
@@ -133,7 +135,7 @@ function OportunidadesPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("oportunidades")
-      .select(`id, cliente_id, titulo, servicio, monto_potencial, peso_estimado_kg, probabilidad, fecha_cierre_estimada, estado, motivo_perdida, notas,
+      .select(`id, cliente_id, titulo, servicio, monto_potencial, peso_estimado_kg, probabilidad, fecha_cierre_estimada, estado, motivo_perdida, notas, updated_at,
                clientes ( razon_social, nombre_completo )`)
       .order("created_at", { ascending: false });
     if (error) {
@@ -151,6 +153,7 @@ function OportunidadesPage() {
         estado: r.estado as EstadoOp, motivo_perdida: r.motivo_perdida,
         notas: r.notas ?? null,
         cliente_nombre: c?.razon_social || c?.nombre_completo || "Cliente",
+        updated_at: (r as { updated_at: string }).updated_at,
       };
     });
     setItems(mapped);
@@ -170,8 +173,17 @@ function OportunidadesPage() {
 
   const grouped = useMemo(() => {
     const g: Record<EstadoOp, Oport[]> = { en_proceso: [], ganada: [], perdida: [] };
-    items.forEach((o) => g[o.estado].push(o));
+    const cutoff = Date.now() - 7 * 86400000;
+    const list = soloStale
+      ? items.filter((o) => o.estado === "en_proceso" && new Date(o.updated_at).getTime() < cutoff)
+      : items;
+    list.forEach((o) => g[o.estado].push(o));
     return g;
+  }, [items, soloStale]);
+
+  const staleCount = useMemo(() => {
+    const cutoff = Date.now() - 7 * 86400000;
+    return items.filter((o) => o.estado === "en_proceso" && new Date(o.updated_at).getTime() < cutoff).length;
   }, [items]);
 
   const openCreate = () => {
@@ -262,7 +274,20 @@ function OportunidadesPage() {
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2"><Target className="h-6 w-6" /> Oportunidades</h1>
           <p className="text-sm text-muted-foreground">Arrastra las tarjetas entre columnas o toca el lápiz para editar cada oportunidad.</p>
         </div>
-        <Button onClick={openCreate}><Plus className="h-4 w-4" /> Nueva oportunidad</Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant={soloStale ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSoloStale((v) => !v)}
+            className="gap-1.5"
+          >
+            <AlertCircle className="h-3.5 w-3.5" />
+            Sin actividad {">"}7d
+            <Badge variant="secondary" className="text-[10px] ml-1">{staleCount}</Badge>
+          </Button>
+          <Button onClick={openCreate}><Plus className="h-4 w-4" /> Nueva oportunidad</Button>
+        </div>
       </div>
 
       {loading ? (

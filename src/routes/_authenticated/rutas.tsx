@@ -124,7 +124,7 @@ function PlanSemanalPage() {
     const hasta = ymd(addDays(semanaBase, 6));
     let q = supabase
       .from("visitas_planificadas")
-      .select("*, cliente:cliente_id(razon_social, nombre_completo, ciudad)")
+      .select("*, cliente:cliente_id(razon_social, nombre_completo, ciudad), oportunidad:oportunidad_id(id, titulo)")
       .gte("fecha_planificada", desde)
       .lte("fecha_planificada", hasta)
       .order("fecha_planificada");

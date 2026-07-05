@@ -564,12 +564,14 @@ function OportunidadesPage() {
 }
 
 function SeguimientoBlock({
-  ultimo, probabilidad, fechaCierre, onRegistrar,
+  ultimo, probabilidad, fechaCierre, proxima, onRegistrar, onProgramar,
 }: {
   ultimo: UltimoSeguimiento | undefined;
   probabilidad: number;
   fechaCierre: string | null;
+  proxima?: ProximaActividad;
   onRegistrar: () => void;
+  onProgramar: () => void;
 }) {
   const fmtFecha = (s: string) => new Date(s).toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
   const diasSinContacto = ultimo ? Math.round((Date.now() - new Date(ultimo.fecha).getTime()) / 86400000) : null;
@@ -593,6 +595,16 @@ function SeguimientoBlock({
 
   return (
     <div className="mt-2 pt-2 border-t space-y-1.5">
+      {proxima && (
+        <div className="flex items-start gap-1.5 text-[11px] bg-primary/5 border border-primary/20 rounded px-1.5 py-1">
+          <CalendarPlus className="h-3 w-3 mt-0.5 text-primary shrink-0" />
+          <p className="line-clamp-2">
+            <b className="text-primary capitalize">{proxima.tipo.replace("_", " ")}</b>{" "}
+            {fmtFecha(proxima.fecha_planificada)}{proxima.hora ? ` · ${proxima.hora.slice(0, 5)}` : ""}
+            {proxima.motivo ? ` — ${proxima.motivo}` : ""}
+          </p>
+        </div>
+      )}
       {ultimo ? (
         <>
           <div className="flex items-start gap-1.5 text-[11px]">
@@ -620,15 +632,27 @@ function SeguimientoBlock({
         <Sparkles className="h-3 w-3 mt-0.5 shrink-0" />
         <p className="line-clamp-2"><b>IA sugiere:</b> {sugerencia}</p>
       </div>
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onRegistrar(); }}
-        onMouseDown={(e) => e.stopPropagation()}
-        draggable={false}
-        className="text-[11px] text-primary hover:underline w-full text-left flex items-center gap-1 mt-0.5"
-      >
-        <Plus className="h-3 w-3" /> Registrar contacto
-      </button>
+      <div className="flex items-center gap-2 pt-0.5">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onProgramar(); }}
+          onMouseDown={(e) => e.stopPropagation()}
+          draggable={false}
+          className="text-[11px] text-primary hover:underline flex items-center gap-1"
+        >
+          <CalendarPlus className="h-3 w-3" /> Programar actividad
+        </button>
+        <span className="text-muted-foreground text-[11px]">·</span>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onRegistrar(); }}
+          onMouseDown={(e) => e.stopPropagation()}
+          draggable={false}
+          className="text-[11px] text-muted-foreground hover:text-primary hover:underline flex items-center gap-1"
+        >
+          <Plus className="h-3 w-3" /> Registrar contacto
+        </button>
+      </div>
     </div>
   );
 }

@@ -16,6 +16,8 @@ import { Loader2, Plus, Target, GripVertical, Trophy, XCircle, Clock, Pencil, Ch
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { RegistrarContactoDialog } from "@/components/mi-dia/registrar-contacto-dialog";
+import { ProgramarActividadDialog } from "@/components/prospecciones/programar-actividad-dialog";
+import { CalendarPlus } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/oportunidades")({
   component: OportunidadesPage,
@@ -47,6 +49,15 @@ type UltimoSeguimiento = {
   resultado: string | null;
   proxima_accion_fecha: string | null;
   proxima_accion_nota: string | null;
+};
+
+type ProximaActividad = {
+  oportunidad_id: string;
+  id: string;
+  fecha_planificada: string;
+  hora: string | null;
+  tipo: string;
+  motivo: string | null;
 };
 
 type ClienteOpt = { id: string; label: string };
@@ -143,6 +154,8 @@ function OportunidadesPage() {
   });
   const [segByCliente, setSegByCliente] = useState<Record<string, UltimoSeguimiento>>({});
   const [contactoDialog, setContactoDialog] = useState<Oport | null>(null);
+  const [actByOp, setActByOp] = useState<Record<string, ProximaActividad>>({});
+  const [programarDialog, setProgramarDialog] = useState<Oport | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -187,6 +200,29 @@ function OportunidadesPage() {
       setSegByCliente(map);
     } else {
       setSegByCliente({});
+    }
+
+    // Próximas actividades programadas por oportunidad
+    const opIds = mapped.filter((m) => m.estado === "en_proceso").map((m) => m.id);
+    if (opIds.length > 0) {
+      const hoyIso = new Date().toISOString().slice(0, 10);
+      const { data: acts } = await supabase
+        .from("visitas_planificadas")
+        .select("id, oportunidad_id, fecha_planificada, hora, tipo, motivo")
+        .in("oportunidad_id", opIds)
+        .eq("estado", "planificada")
+        .gte("fecha_planificada", hoyIso)
+        .order("fecha_planificada", { ascending: true })
+        .order("hora", { ascending: true });
+      const amap: Record<string, ProximaActividad> = {};
+      (acts ?? []).forEach((a) => {
+        if (a.oportunidad_id && !amap[a.oportunidad_id]) {
+          amap[a.oportunidad_id] = a as ProximaActividad;
+        }
+      });
+      setActByOp(amap);
+    } else {
+      setActByOp({});
     }
     setLoading(false);
   };

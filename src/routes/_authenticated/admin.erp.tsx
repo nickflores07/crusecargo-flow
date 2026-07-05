@@ -84,6 +84,20 @@ const ALIASES: Record<string, string[]> = {
   peso_kg: ["peso", "kg", "peso kg", "peso (kg)"],
 };
 
+const FIELD_LABEL: Record<string, string> = {
+  fecha: "Fecha emisión ★",
+  ruc: "RUC / Documento",
+  cliente_nombre: "Cliente",
+  ejecutivo_erp: "Ejecutivo",
+  servicio: "Servicio",
+  origen: "Origen",
+  destino: "Destino",
+  guia_numero: "N° Guía / Documento",
+  monto: "Monto",
+  moneda: "Moneda",
+  peso_kg: "Peso (kg)",
+};
+
 function autoMap(headers: string[]): Record<string, string> {
   const map: Record<string, string> = {};
   for (const [key, aliases] of Object.entries(ALIASES)) {
@@ -335,7 +349,7 @@ function CargasTab({ userId }: { userId: string }) {
               <div className="grid md:grid-cols-2 gap-2">
                 {Object.entries(ALIASES).map(([k]) => (
                   <div key={k} className="grid grid-cols-2 gap-2 items-center">
-                    <Label className="text-sm capitalize">{k.replace("_", " ")}</Label>
+                    <Label className="text-sm">{FIELD_LABEL[k] ?? k}</Label>
                     <Select
                       value={mapping[k] ?? "__none__"}
                       onValueChange={(v) => setMapping((m) => {

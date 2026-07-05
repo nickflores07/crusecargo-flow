@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare, Package, FileText, Target, AlertCircle, CalendarClock, Phone,
+  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare, FileText, Target, AlertCircle, CalendarClock, Phone, Database,
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -19,7 +19,6 @@ import {
 import { ClienteForm, type ClienteFormValues } from "@/components/clientes/cliente-form";
 import { useAuth } from "@/hooks/use-auth";
 import { Seguimientos } from "@/components/clientes/seguimientos";
-import { Envios } from "@/components/clientes/envios";
 import { Cotizaciones } from "@/components/clientes/cotizaciones";
 import { ProspeccionPanel } from "@/components/clientes/prospeccion-panel";
 import { ErpPanel } from "@/components/clientes/erp-panel";
@@ -232,9 +231,8 @@ function ClienteDetalle() {
           <TabsTrigger value="contactos">Contactos</TabsTrigger>
           <TabsTrigger value="direcciones">Direcciones</TabsTrigger>
           <TabsTrigger value="seguimiento"><MessageSquare className="h-3.5 w-3.5 mr-1" />Seguimiento</TabsTrigger>
-          <TabsTrigger value="envios"><Package className="h-3.5 w-3.5 mr-1" />Envíos</TabsTrigger>
           <TabsTrigger value="cotizaciones"><FileText className="h-3.5 w-3.5 mr-1" />Cotizaciones</TabsTrigger>
-          <TabsTrigger value="erp">ERP</TabsTrigger>
+          <TabsTrigger value="erp"><Database className="h-3.5 w-3.5 mr-1" />Histórico ERP</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-4">
@@ -284,9 +282,6 @@ function ClienteDetalle() {
         </TabsContent>
         <TabsContent value="seguimiento" className="mt-4">
           <Seguimientos clienteId={id} />
-        </TabsContent>
-        <TabsContent value="envios" className="mt-4">
-          <Envios clienteId={id} />
         </TabsContent>
         <TabsContent value="cotizaciones" className="mt-4">
           <Cotizaciones clienteId={id} />

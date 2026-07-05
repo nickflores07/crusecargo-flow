@@ -54,8 +54,7 @@ export function ModulosProvider({ children }: { children: ReactNode }) {
       return;
     }
     setLoading(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).rpc("mis_modulos_visibles");
+    const { data, error } = await supabase.rpc("mis_modulos_visibles");
     if (!error && data) setModulos(data as ModuloVisible[]);
     setLoading(false);
   }, [user]);

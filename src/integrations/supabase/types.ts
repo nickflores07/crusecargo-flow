@@ -1173,6 +1173,7 @@ export type Database = {
           logro: string | null
           motivo: string | null
           notas: string | null
+          oportunidad_id: string | null
           proxima_accion: string | null
           proxima_accion_fecha: string | null
           resultado: string | null
@@ -1191,6 +1192,7 @@ export type Database = {
           logro?: string | null
           motivo?: string | null
           notas?: string | null
+          oportunidad_id?: string | null
           proxima_accion?: string | null
           proxima_accion_fecha?: string | null
           resultado?: string | null
@@ -1209,6 +1211,7 @@ export type Database = {
           logro?: string | null
           motivo?: string | null
           notas?: string | null
+          oportunidad_id?: string | null
           proxima_accion?: string | null
           proxima_accion_fecha?: string | null
           resultado?: string | null
@@ -1221,6 +1224,13 @@ export type Database = {
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitas_planificadas_oportunidad_id_fkey"
+            columns: ["oportunidad_id"]
+            isOneToOne: false
+            referencedRelation: "oportunidades"
             referencedColumns: ["id"]
           },
         ]

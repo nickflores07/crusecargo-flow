@@ -16,6 +16,8 @@ import { Loader2, Plus, Target, GripVertical, Trophy, XCircle, Clock, Pencil, Ch
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { RegistrarContactoDialog } from "@/components/mi-dia/registrar-contacto-dialog";
+import { ProgramarActividadDialog } from "@/components/prospecciones/programar-actividad-dialog";
+import { CalendarPlus } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/oportunidades")({
   component: OportunidadesPage,
@@ -47,6 +49,15 @@ type UltimoSeguimiento = {
   resultado: string | null;
   proxima_accion_fecha: string | null;
   proxima_accion_nota: string | null;
+};
+
+type ProximaActividad = {
+  oportunidad_id: string;
+  id: string;
+  fecha_planificada: string;
+  hora: string | null;
+  tipo: string;
+  motivo: string | null;
 };
 
 type ClienteOpt = { id: string; label: string };
@@ -143,6 +154,8 @@ function OportunidadesPage() {
   });
   const [segByCliente, setSegByCliente] = useState<Record<string, UltimoSeguimiento>>({});
   const [contactoDialog, setContactoDialog] = useState<Oport | null>(null);
+  const [actByOp, setActByOp] = useState<Record<string, ProximaActividad>>({});
+  const [programarDialog, setProgramarDialog] = useState<Oport | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -187,6 +200,29 @@ function OportunidadesPage() {
       setSegByCliente(map);
     } else {
       setSegByCliente({});
+    }
+
+    // Próximas actividades programadas por oportunidad
+    const opIds = mapped.filter((m) => m.estado === "en_proceso").map((m) => m.id);
+    if (opIds.length > 0) {
+      const hoyIso = new Date().toISOString().slice(0, 10);
+      const { data: acts } = await supabase
+        .from("visitas_planificadas")
+        .select("id, oportunidad_id, fecha_planificada, hora, tipo, motivo")
+        .in("oportunidad_id", opIds)
+        .eq("estado", "planificada")
+        .gte("fecha_planificada", hoyIso)
+        .order("fecha_planificada", { ascending: true })
+        .order("hora", { ascending: true });
+      const amap: Record<string, ProximaActividad> = {};
+      (acts ?? []).forEach((a) => {
+        if (a.oportunidad_id && !amap[a.oportunidad_id]) {
+          amap[a.oportunidad_id] = a as ProximaActividad;
+        }
+      });
+      setActByOp(amap);
+    } else {
+      setActByOp({});
     }
     setLoading(false);
   };
@@ -406,7 +442,9 @@ function OportunidadesPage() {
                               ultimo={segByCliente[o.cliente_id]}
                               probabilidad={o.probabilidad}
                               fechaCierre={o.fecha_cierre_estimada}
+                              proxima={actByOp[o.id]}
                               onRegistrar={() => setContactoDialog(o)}
+                              onProgramar={() => setProgramarDialog(o)}
                             />
                           )}
                         </div>
@@ -427,6 +465,18 @@ function OportunidadesPage() {
           estadoCliente={contactoDialog.cliente_estado}
           open={!!contactoDialog}
           onOpenChange={(v) => !v && setContactoDialog(null)}
+          onSaved={() => void load()}
+        />
+      )}
+
+      {programarDialog && (
+        <ProgramarActividadDialog
+          oportunidadId={programarDialog.id}
+          clienteId={programarDialog.cliente_id}
+          clienteNombre={programarDialog.cliente_nombre}
+          ejecutivoId={user?.id ?? ""}
+          open={!!programarDialog}
+          onOpenChange={(v) => !v && setProgramarDialog(null)}
           onSaved={() => void load()}
         />
       )}
@@ -526,12 +576,14 @@ function OportunidadesPage() {
 }
 
 function SeguimientoBlock({
-  ultimo, probabilidad, fechaCierre, onRegistrar,
+  ultimo, probabilidad, fechaCierre, proxima, onRegistrar, onProgramar,
 }: {
   ultimo: UltimoSeguimiento | undefined;
   probabilidad: number;
   fechaCierre: string | null;
+  proxima?: ProximaActividad;
   onRegistrar: () => void;
+  onProgramar: () => void;
 }) {
   const fmtFecha = (s: string) => new Date(s).toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
   const diasSinContacto = ultimo ? Math.round((Date.now() - new Date(ultimo.fecha).getTime()) / 86400000) : null;
@@ -555,6 +607,16 @@ function SeguimientoBlock({
 
   return (
     <div className="mt-2 pt-2 border-t space-y-1.5">
+      {proxima && (
+        <div className="flex items-start gap-1.5 text-[11px] bg-primary/5 border border-primary/20 rounded px-1.5 py-1">
+          <CalendarPlus className="h-3 w-3 mt-0.5 text-primary shrink-0" />
+          <p className="line-clamp-2">
+            <b className="text-primary capitalize">{proxima.tipo.replace("_", " ")}</b>{" "}
+            {fmtFecha(proxima.fecha_planificada)}{proxima.hora ? ` · ${proxima.hora.slice(0, 5)}` : ""}
+            {proxima.motivo ? ` — ${proxima.motivo}` : ""}
+          </p>
+        </div>
+      )}
       {ultimo ? (
         <>
           <div className="flex items-start gap-1.5 text-[11px]">
@@ -582,15 +644,27 @@ function SeguimientoBlock({
         <Sparkles className="h-3 w-3 mt-0.5 shrink-0" />
         <p className="line-clamp-2"><b>IA sugiere:</b> {sugerencia}</p>
       </div>
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onRegistrar(); }}
-        onMouseDown={(e) => e.stopPropagation()}
-        draggable={false}
-        className="text-[11px] text-primary hover:underline w-full text-left flex items-center gap-1 mt-0.5"
-      >
-        <Plus className="h-3 w-3" /> Registrar contacto
-      </button>
+      <div className="flex items-center gap-2 pt-0.5">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onProgramar(); }}
+          onMouseDown={(e) => e.stopPropagation()}
+          draggable={false}
+          className="text-[11px] text-primary hover:underline flex items-center gap-1"
+        >
+          <CalendarPlus className="h-3 w-3" /> Programar actividad
+        </button>
+        <span className="text-muted-foreground text-[11px]">·</span>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onRegistrar(); }}
+          onMouseDown={(e) => e.stopPropagation()}
+          draggable={false}
+          className="text-[11px] text-muted-foreground hover:text-primary hover:underline flex items-center gap-1"
+        >
+          <Plus className="h-3 w-3" /> Registrar contacto
+        </button>
+      </div>
     </div>
   );
 }

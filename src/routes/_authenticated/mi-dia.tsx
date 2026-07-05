@@ -61,6 +61,7 @@ type ActividadPlan = {
   motivo: string | null;
   estado: string;
   cliente_id: string;
+  oportunidad_id: string | null;
   cliente_nombre: string;
   cliente_ciudad: string | null;
   cliente_telefono: string | null;
@@ -148,7 +149,7 @@ function MiDia() {
     const desdeBucket = new Date(hoy0); desdeBucket.setDate(hoy0.getDate() - 60);
     const hastaBucket = new Date(hoy0); hastaBucket.setDate(hoy0.getDate() + 3);
     const actQ = supabase.from("visitas_planificadas")
-      .select("id, fecha_planificada, hora, tipo, motivo, estado, cliente_id, ejecutivo_id, clientes:cliente_id(tipo, razon_social, nombre_completo, ciudad, telefono, correo, estado)")
+      .select("id, fecha_planificada, hora, tipo, motivo, estado, cliente_id, oportunidad_id, ejecutivo_id, clientes:cliente_id(tipo, razon_social, nombre_completo, ciudad, telefono, correo, estado)")
       .eq("estado", "planificada")
       .gte("fecha_planificada", ymd(desdeBucket))
       .lte("fecha_planificada", ymd(hastaBucket))
@@ -205,7 +206,7 @@ function MiDia() {
 
     const actMapped: ActividadPlan[] = ((actRes.data as Array<{
       id: string; fecha_planificada: string; hora: string | null; tipo: string;
-      motivo: string | null; estado: string; cliente_id: string;
+      motivo: string | null; estado: string; cliente_id: string; oportunidad_id: string | null;
       clientes: {
         tipo: "empresa" | "persona"; razon_social: string | null; nombre_completo: string | null;
         ciudad: string | null; telefono: string | null; correo: string | null; estado: string;
@@ -213,6 +214,7 @@ function MiDia() {
     }>) ?? []).map((v) => ({
       id: v.id, fecha_planificada: v.fecha_planificada, hora: v.hora, tipo: v.tipo,
       motivo: v.motivo, estado: v.estado, cliente_id: v.cliente_id,
+      oportunidad_id: v.oportunidad_id,
       cliente_nombre: v.clientes ? nombre(v.clientes) : "Cliente",
       cliente_ciudad: v.clientes?.ciudad ?? null,
       cliente_telefono: v.clientes?.telefono ?? null,
@@ -237,6 +239,7 @@ function MiDia() {
       motivo: s.proxima_accion_nota,
       estado: "planificada",
       cliente_id: s.cliente_id,
+      oportunidad_id: null,
       cliente_nombre: s.clientes ? nombre(s.clientes) : "Cliente",
       cliente_ciudad: s.clientes?.ciudad ?? null,
       cliente_telefono: s.clientes?.telefono ?? null,
@@ -455,6 +458,11 @@ function ActividadRow({ a, onRegistrar }: { a: ActividadPlan; onRegistrar: (a: A
       </Link>
       <div className="flex items-center gap-2">
         <span className={`text-[11px] whitespace-nowrap ${tone}`}>{cuando}</span>
+        {a.oportunidad_id && (
+          <Link to="/oportunidades" className="text-[11px] text-primary hover:underline whitespace-nowrap flex items-center gap-1">
+            <Target className="h-3 w-3" /> Prospección
+          </Link>
+        )}
         <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => onRegistrar(a)}>
           <Phone className="h-3 w-3" /> Registrar
         </Button>

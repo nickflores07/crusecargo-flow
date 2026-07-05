@@ -23,7 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import {
   Calendar as CalendarIcon, Plus, CheckCircle2, X, ChevronLeft, ChevronRight,
   RotateCcw, Check as CheckIcon, Building2, Phone, Handshake, MoreHorizontal,
-  LayoutGrid, List, Clock, Trash2,
+  LayoutGrid, List, Clock, Trash2, Target,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/rutas")({
@@ -34,6 +34,7 @@ type Visita = {
   id: string;
   ejecutivo_id: string;
   cliente_id: string;
+  oportunidad_id: string | null;
   fecha_planificada: string;
   hora: string | null;
   tipo: string;
@@ -46,6 +47,7 @@ type Visita = {
   resultado: string | null;
   notas: string | null;
   cliente?: { razon_social: string | null; nombre_completo: string | null; ciudad: string | null } | null;
+  oportunidad?: { id: string; titulo: string } | null;
 };
 
 type ClienteLite = { id: string; label: string };
@@ -56,6 +58,8 @@ const DAYS_SHORT = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 const TIPOS: Array<{ value: string; label: string; icon: typeof Building2; color: string }> = [
   { value: "visita", label: "Visita", icon: Building2, color: "text-blue-600 bg-blue-500/10" },
+  { value: "reunion_teams", label: "Reunión Teams", icon: Handshake, color: "text-indigo-600 bg-indigo-500/10" },
+  { value: "whatsapp", label: "WhatsApp", icon: Phone, color: "text-green-600 bg-green-500/10" },
   { value: "llamada", label: "Llamada", icon: Phone, color: "text-emerald-600 bg-emerald-500/10" },
   { value: "reunion", label: "Reunión", icon: Handshake, color: "text-amber-600 bg-amber-500/10" },
   { value: "otro", label: "Otro", icon: MoreHorizontal, color: "text-slate-600 bg-slate-500/10" },
@@ -92,9 +96,7 @@ function PlanSemanalPage() {
   const [visitas, setVisitas] = useState<Visita[]>([]);
   const [loading, setLoading] = useState(true);
   const [clientes, setClientes] = useState<ClienteLite[]>([]);
-  const [dialog, setDialog] = useState<{ open: boolean; fecha: Date | null; tipo: string; edit: Visita | null }>({
-    open: false, fecha: null, tipo: "visita", edit: null,
-  });
+  const [editDialog, setEditDialog] = useState<Visita | null>(null);
   const [vista, setVista] = useState<"semana" | "lista">("semana");
 
   useEffect(() => {
@@ -120,7 +122,7 @@ function PlanSemanalPage() {
     const hasta = ymd(addDays(semanaBase, 6));
     let q = supabase
       .from("visitas_planificadas")
-      .select("*, cliente:cliente_id(razon_social, nombre_completo, ciudad)")
+      .select("*, cliente:cliente_id(razon_social, nombre_completo, ciudad), oportunidad:oportunidad_id(id, titulo)")
       .gte("fecha_planificada", desde)
       .lte("fecha_planificada", hasta)
       .order("fecha_planificada");
@@ -213,8 +215,10 @@ function PlanSemanalPage() {
           <Button variant="outline" size="icon" onClick={() => setSemanaBase(addDays(semanaBase, 7))}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button onClick={() => setDialog({ open: true, fecha: new Date(), tipo: "visita", edit: null })} className="gap-1.5">
-            <Plus className="h-4 w-4" /> Nueva actividad
+          <Button asChild variant="outline" className="gap-1.5">
+            <Link to="/oportunidades">
+              <Target className="h-4 w-4" /> Programar desde una prospección
+            </Link>
           </Button>
         </div>
       </div>
@@ -241,11 +245,6 @@ function PlanSemanalPage() {
                     <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{DAYS_SHORT[i]}</p>
                     <p className="text-sm font-semibold">{d.getDate()}/{d.getMonth() + 1}</p>
                   </div>
-                  <Button size="icon" variant="ghost" className="h-7 w-7"
-                    onClick={() => setDialog({ open: true, fecha: d, tipo: "visita", edit: null })}
-                    title="Agregar actividad">
-                    <Plus className="h-4 w-4" />
-                  </Button>
                 </div>
                 <div className="p-2 space-y-2 min-h-[120px]">
                   {loading ? (
@@ -258,7 +257,7 @@ function PlanSemanalPage() {
                         key={v.id} v={v}
                         onChangeEstado={cambiarEstado}
                         onDelete={eliminar}
-                        onEdit={() => setDialog({ open: true, fecha: new Date(v.fecha_planificada + "T00:00:00"), tipo: v.tipo, edit: v })}
+                        onEdit={() => setEditDialog(v)}
                       />
                     ))
                   )}
@@ -274,7 +273,7 @@ function PlanSemanalPage() {
               <div className="p-6 text-sm text-muted-foreground">Cargando…</div>
             ) : visitas.length === 0 ? (
               <div className="p-10 text-sm text-muted-foreground text-center">
-                Sin actividades esta semana. Empieza con <b>Nueva actividad</b>.
+                Sin actividades esta semana. Prográmalas desde una <Link to="/oportunidades" className="text-primary hover:underline">prospección</Link>.
               </div>
             ) : (
               <div className="divide-y">
@@ -284,7 +283,7 @@ function PlanSemanalPage() {
                     <ActividadRow key={v.id} v={v}
                       onChangeEstado={cambiarEstado}
                       onDelete={eliminar}
-                      onEdit={() => setDialog({ open: true, fecha: new Date(v.fecha_planificada + "T00:00:00"), tipo: v.tipo, edit: v })}
+                      onEdit={() => setEditDialog(v)}
                     />
                   ))}
               </div>
@@ -294,18 +293,18 @@ function PlanSemanalPage() {
       )}
 
       <ActividadDialog
-        open={dialog.open}
-        onOpenChange={(o) => setDialog((s) => ({ ...s, open: o }))}
-        fecha={dialog.fecha}
-        tipoInicial={dialog.tipo}
-        edit={dialog.edit}
+        open={!!editDialog}
+        onOpenChange={(o) => { if (!o) setEditDialog(null); }}
+        fecha={editDialog ? new Date(editDialog.fecha_planificada + "T00:00:00") : null}
+        tipoInicial={editDialog?.tipo ?? "visita"}
+        edit={editDialog}
         clientes={clientes}
         ejecutivoId={
           puedeVerTodos && ejecutivoFiltro !== "mi" && ejecutivoFiltro !== "todos"
             ? ejecutivoFiltro
             : user?.id ?? ""
         }
-        onSaved={() => { setDialog({ open: false, fecha: null, tipo: "visita", edit: null }); void load(); }}
+        onSaved={() => { setEditDialog(null); void load(); }}
       />
     </div>
   );
@@ -359,6 +358,11 @@ function ActividadCard({
         <Badge variant={badgeVariant} className="text-[9px] shrink-0 h-4">{v.estado}</Badge>
       </div>
       {v.motivo && <p className="text-muted-foreground line-clamp-2">{v.motivo}</p>}
+      {v.oportunidad && (
+        <Link to="/oportunidades" className="text-[10px] text-primary hover:underline flex items-center gap-1">
+          <Target className="h-3 w-3" /> {v.oportunidad.titulo}
+        </Link>
+      )}
       {v.logro && (
         <p className="text-emerald-700 dark:text-emerald-400 line-clamp-2">
           <b>Logré:</b> {v.logro}

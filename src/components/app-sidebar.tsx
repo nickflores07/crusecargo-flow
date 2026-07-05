@@ -36,7 +36,8 @@ export function AppSidebar() {
     return (
       <SidebarMenuItem key={m.modulo_id}>
         <SidebarMenuButton asChild isActive={isActive(m.ruta)} tooltip={m.nombre}>
-          <Link to={m.ruta}>
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <Link to={m.ruta as any}>
             <Icon className="h-4 w-4" />
             {!collapsed && <span>{m.nombre}</span>}
           </Link>

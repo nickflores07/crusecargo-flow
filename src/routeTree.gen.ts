@@ -16,6 +16,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedTarifarioRouteImport } from './routes/_authenticated/tarifario'
 import { Route as AuthenticatedProspeccionRouteImport } from './routes/_authenticated/prospeccion'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
+import { Route as AuthenticatedMiDiaRouteImport } from './routes/_authenticated/mi-dia'
 import { Route as AuthenticatedEnviosRouteImport } from './routes/_authenticated/envios'
 import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authenticated/configuracion'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
@@ -69,6 +70,11 @@ const AuthenticatedOportunidadesRoute =
     path: '/oportunidades',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMiDiaRoute = AuthenticatedMiDiaRouteImport.update({
+  id: '/mi-dia',
+  path: '/mi-dia',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEnviosRoute = AuthenticatedEnviosRouteImport.update({
   id: '/envios',
   path: '/envios',
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/configuracion': typeof AuthenticatedConfiguracionRoute
   '/envios': typeof AuthenticatedEnviosRoute
+  '/mi-dia': typeof AuthenticatedMiDiaRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/prospeccion': typeof AuthenticatedProspeccionRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/agenda': typeof AuthenticatedAgendaRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
   '/envios': typeof AuthenticatedEnviosRoute
+  '/mi-dia': typeof AuthenticatedMiDiaRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/prospeccion': typeof AuthenticatedProspeccionRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
   '/_authenticated/configuracion': typeof AuthenticatedConfiguracionRoute
   '/_authenticated/envios': typeof AuthenticatedEnviosRoute
+  '/_authenticated/mi-dia': typeof AuthenticatedMiDiaRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/_authenticated/prospeccion': typeof AuthenticatedProspeccionRoute
   '/_authenticated/tarifario': typeof AuthenticatedTarifarioRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/configuracion'
     | '/envios'
+    | '/mi-dia'
     | '/oportunidades'
     | '/prospeccion'
     | '/tarifario'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/agenda'
     | '/configuracion'
     | '/envios'
+    | '/mi-dia'
     | '/oportunidades'
     | '/prospeccion'
     | '/tarifario'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes'
     | '/_authenticated/configuracion'
     | '/_authenticated/envios'
+    | '/_authenticated/mi-dia'
     | '/_authenticated/oportunidades'
     | '/_authenticated/prospeccion'
     | '/_authenticated/tarifario'
@@ -362,6 +374,13 @@ declare module '@tanstack/react-router' {
       path: '/oportunidades'
       fullPath: '/oportunidades'
       preLoaderRoute: typeof AuthenticatedOportunidadesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mi-dia': {
+      id: '/_authenticated/mi-dia'
+      path: '/mi-dia'
+      fullPath: '/mi-dia'
+      preLoaderRoute: typeof AuthenticatedMiDiaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/envios': {
@@ -520,6 +539,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRouteWithChildren
   AuthenticatedConfiguracionRoute: typeof AuthenticatedConfiguracionRoute
   AuthenticatedEnviosRoute: typeof AuthenticatedEnviosRoute
+  AuthenticatedMiDiaRoute: typeof AuthenticatedMiDiaRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedProspeccionRoute: typeof AuthenticatedProspeccionRoute
   AuthenticatedTarifarioRoute: typeof AuthenticatedTarifarioRoute
@@ -537,6 +557,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientesRoute: AuthenticatedClientesRouteWithChildren,
   AuthenticatedConfiguracionRoute: AuthenticatedConfiguracionRoute,
   AuthenticatedEnviosRoute: AuthenticatedEnviosRoute,
+  AuthenticatedMiDiaRoute: AuthenticatedMiDiaRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedProspeccionRoute: AuthenticatedProspeccionRoute,
   AuthenticatedTarifarioRoute: AuthenticatedTarifarioRoute,

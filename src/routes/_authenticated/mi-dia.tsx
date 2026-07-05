@@ -547,39 +547,3 @@ function AgendaSemanal({
     </Card>
   );
 }
-
-function ClienteRow({ c, onRegistrar }: { c: ClienteBrief; onRegistrar: (c: ClienteBrief) => void }) {
-  const Icon = c.tipo === "empresa" ? Building2 : UserIcon;
-  const dias = diasHasta(c.proximo_contacto_en);
-  const diasTxt =
-    dias === null ? "Sin fecha"
-    : dias < 0 ? `Vencido ${Math.abs(dias)}d`
-    : dias === 0 ? "Hoy"
-    : `En ${dias}d`;
-  const diasTone =
-    dias === null ? "text-muted-foreground"
-    : dias < 0 ? "text-red-600"
-    : dias === 0 ? "text-primary"
-    : "text-muted-foreground";
-  return (
-    <div className="flex items-center gap-2 border rounded-md p-2 hover:bg-muted/30">
-      <Link to="/clientes/$id" params={{ id: c.id }} className="flex items-center gap-2 flex-1 min-w-0">
-        <div className="h-8 w-8 rounded bg-primary/10 grid place-items-center shrink-0">
-          <Icon className="h-4 w-4 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm truncate">{nombre(c)}</div>
-          <div className="text-[11px] text-muted-foreground truncate">
-            {[c.ciudad, c.telefono, c.correo].filter(Boolean).join(" · ") || "Sin contacto"}
-          </div>
-        </div>
-      </Link>
-      <div className="flex items-center gap-2">
-        <span className={`text-[11px] ${diasTone}`}>{diasTxt}</span>
-        <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => onRegistrar(c)}>
-          <Phone className="h-3 w-3" /> Registrar
-        </Button>
-      </div>
-    </div>
-  );
-}

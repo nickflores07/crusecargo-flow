@@ -1115,7 +1115,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      erp_ventas_cliente_12m: {
+        Row: {
+          cliente_id: string | null
+          num_operaciones: number | null
+          ticket_promedio: number | null
+          total: number | null
+          ultima_venta: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_ventas_staging_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_ventas_ejecutivo_12m: {
+        Row: {
+          clientes_atendidos: number | null
+          ejecutivo_id: string | null
+          num_operaciones: number | null
+          total: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_roles: {
@@ -1138,6 +1164,15 @@ export type Database = {
           nombre: string
           orden: number
           ruta: string
+        }[]
+      }
+      procesar_batch_erp: {
+        Args: { _batch_id: string }
+        Returns: {
+          clientes_creados: number
+          con_cliente: number
+          con_ejecutivo: number
+          procesadas: number
         }[]
       }
       siguiente_numero_cotizacion: { Args: never; Returns: string }

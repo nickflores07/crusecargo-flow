@@ -22,6 +22,7 @@ import { Seguimientos } from "@/components/clientes/seguimientos";
 import { Envios } from "@/components/clientes/envios";
 import { Cotizaciones } from "@/components/clientes/cotizaciones";
 import { ProspeccionPanel } from "@/components/clientes/prospeccion-panel";
+import { ErpPanel } from "@/components/clientes/erp-panel";
 import { RegistrarContactoDialog } from "@/components/mi-dia/registrar-contacto-dialog";
 
 export const Route = createFileRoute("/_authenticated/clientes/$id")({
@@ -233,6 +234,7 @@ function ClienteDetalle() {
           <TabsTrigger value="seguimiento"><MessageSquare className="h-3.5 w-3.5 mr-1" />Seguimiento</TabsTrigger>
           <TabsTrigger value="envios"><Package className="h-3.5 w-3.5 mr-1" />Envíos</TabsTrigger>
           <TabsTrigger value="cotizaciones"><FileText className="h-3.5 w-3.5 mr-1" />Cotizaciones</TabsTrigger>
+          <TabsTrigger value="erp">ERP</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-4">
@@ -288,6 +290,9 @@ function ClienteDetalle() {
         </TabsContent>
         <TabsContent value="cotizaciones" className="mt-4">
           <Cotizaciones clienteId={id} />
+        </TabsContent>
+        <TabsContent value="erp" className="mt-4">
+          <ErpPanel clienteId={id} />
         </TabsContent>
       </Tabs>
 

@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Target, Truck, FileText, Calendar,
-  Sparkles, Settings, Truck as TruckIcon, Tags, UserCog, ShieldCheck, Sunrise, Database,
+  Sparkles, Settings, Truck as TruckIcon, Tags, UserCog, ShieldCheck, Sunrise, Database, Map, BarChart3,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -12,7 +12,7 @@ import { useModulos, type ModuloVisible } from "@/hooks/use-modulos";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   LayoutDashboard, Users, Target, Truck, FileText, Calendar, Sunrise,
-  Sparkles, Settings, Tags, UserCog, ShieldCheck, Database,
+  Sparkles, Settings, Tags, UserCog, ShieldCheck, Database, Map, BarChart3,
 };
 
 function iconFor(name: string | null | undefined): LucideIcon {

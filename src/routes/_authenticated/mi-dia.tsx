@@ -149,7 +149,7 @@ function MiDia() {
     const hastaBucket = new Date(hoy0); hastaBucket.setDate(hoy0.getDate() + 3);
     const actQ = supabase.from("visitas_planificadas")
       .select("id, fecha_planificada, hora, tipo, motivo, estado, cliente_id, ejecutivo_id, clientes:cliente_id(tipo, razon_social, nombre_completo, ciudad, telefono, correo, estado)")
-      .eq("estado", "pendiente")
+      .eq("estado", "planificada")
       .gte("fecha_planificada", ymd(desdeBucket))
       .lte("fecha_planificada", ymd(hastaBucket))
       .order("fecha_planificada").order("hora");
@@ -162,12 +162,21 @@ function MiDia() {
       .lte("fecha_cierre_estimada", ymd(domingo))
       .order("fecha_cierre_estimada");
 
-    const [cliRes, cotRes, visRes, opRes, actRes] = await Promise.all([
+    // Próximas acciones registradas desde Prospecciones (seguimientos con proxima_accion_fecha)
+    const segQ = supabase.from("seguimientos")
+      .select("id, proxima_accion_fecha, proxima_accion_nota, cliente_id, usuario_id, clientes:cliente_id(tipo, razon_social, nombre_completo, ciudad, telefono, correo, estado)")
+      .not("proxima_accion_fecha", "is", null)
+      .gte("proxima_accion_fecha", ymd(desdeBucket))
+      .lte("proxima_accion_fecha", ymd(hastaBucket))
+      .order("proxima_accion_fecha");
+
+    const [cliRes, cotRes, visRes, opRes, actRes, segRes] = await Promise.all([
       seeAll ? clientesQ : clientesQ.eq("ejecutivo_id", user.id),
       seeAll ? cotQ : cotQ.eq("ejecutivo_id", user.id),
       seeAll ? visQ : visQ.eq("ejecutivo_id", user.id),
       seeAll ? opCierreQ : opCierreQ.eq("ejecutivo_id", user.id),
       seeAll ? actQ : actQ.eq("ejecutivo_id", user.id),
+      seeAll ? segQ : segQ.eq("usuario_id", user.id),
     ]);
 
     if (cliRes.error) toast.error("No pudimos cargar tus clientes");
@@ -212,6 +221,30 @@ function MiDia() {
       cliente_estado: v.clientes?.estado ?? "prospecto",
     }));
     setActividades(actMapped);
+
+    // Mezclar seguimientos con próxima acción como "actividades virtuales" en los buckets
+    const segMapped: ActividadPlan[] = ((segRes.data as Array<{
+      id: string; proxima_accion_fecha: string; proxima_accion_nota: string | null; cliente_id: string;
+      clientes: {
+        tipo: "empresa" | "persona"; razon_social: string | null; nombre_completo: string | null;
+        ciudad: string | null; telefono: string | null; correo: string | null; estado: string;
+      } | null;
+    }>) ?? []).map((s) => ({
+      id: "seg-" + s.id,
+      fecha_planificada: s.proxima_accion_fecha,
+      hora: null,
+      tipo: "seguimiento",
+      motivo: s.proxima_accion_nota,
+      estado: "planificada",
+      cliente_id: s.cliente_id,
+      cliente_nombre: s.clientes ? nombre(s.clientes) : "Cliente",
+      cliente_ciudad: s.clientes?.ciudad ?? null,
+      cliente_telefono: s.clientes?.telefono ?? null,
+      cliente_correo: s.clientes?.correo ?? null,
+      cliente_tipo: s.clientes?.tipo ?? "empresa",
+      cliente_estado: s.clientes?.estado ?? "prospecto",
+    }));
+    setActividades([...actMapped, ...segMapped]);
 
     const cutoff = Date.now() - 5 * 86400000;
     const cots: CotSinRespuesta[] = ((cotRes.data as Array<{

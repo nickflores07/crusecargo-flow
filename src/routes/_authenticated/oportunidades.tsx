@@ -259,7 +259,7 @@ function OportunidadesPage() {
         });
     setSaving(false);
     if (error) return toast.error("No se pudo guardar: " + error.message);
-    toast.success(editing.id ? "Oportunidad actualizada" : "Oportunidad creada");
+    toast.success(editing.id ? "Prospecto actualizado" : "Prospecto creado");
     setEditing({ open: false, id: null });
     setForm(emptyForm);
     void load();
@@ -278,7 +278,7 @@ function OportunidadesPage() {
       void load();
       return;
     }
-    toast.success(nuevo === "ganada" ? "¡Oportunidad ganada! 🎉" : nuevo === "perdida" ? "Marcada como perdida" : "Actualizada");
+    toast.success(nuevo === "ganada" ? "¡Prospecto ganado! 🎉" : nuevo === "perdida" ? "Marcada como perdida" : "Actualizada");
   };
 
   const handleDrop = (col: EstadoOp) => {

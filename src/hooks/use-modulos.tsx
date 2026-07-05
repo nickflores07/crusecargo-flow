@@ -28,7 +28,6 @@ const RUTAS_MODULOS: Array<{ id: string; ruta: string }> = [
   { id: "oportunidades", ruta: "/oportunidades" },
   { id: "cotizaciones", ruta: "/cotizaciones" },
   { id: "tarifario", ruta: "/tarifario" },
-  { id: "envios", ruta: "/envios" },
   { id: "mi_dia", ruta: "/mi-dia" },
   { id: "rutas", ruta: "/rutas" },
   { id: "reportes", ruta: "/reportes" },

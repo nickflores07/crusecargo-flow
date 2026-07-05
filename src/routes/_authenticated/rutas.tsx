@@ -96,9 +96,7 @@ function PlanSemanalPage() {
   const [visitas, setVisitas] = useState<Visita[]>([]);
   const [loading, setLoading] = useState(true);
   const [clientes, setClientes] = useState<ClienteLite[]>([]);
-  const [dialog, setDialog] = useState<{ open: boolean; fecha: Date | null; tipo: string; edit: Visita | null }>({
-    open: false, fecha: null, tipo: "visita", edit: null,
-  });
+  const [editDialog, setEditDialog] = useState<Visita | null>(null);
   const [vista, setVista] = useState<"semana" | "lista">("semana");
 
   useEffect(() => {

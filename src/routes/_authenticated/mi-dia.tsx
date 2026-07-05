@@ -66,8 +66,9 @@ function saludo() {
 }
 
 function MiDia() {
-  const { user, profile, isAdmin, isSupervisor } = useAuth();
+  const { user, isAdmin, isSupervisor } = useAuth();
   const seeAll = isAdmin || isSupervisor;
+  const [nombreEjec, setNombreEjec] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [clientes, setClientes] = useState<ClienteBrief[]>([]);
   const [cotSinResp, setCotSinResp] = useState<CotSinRespuesta[]>([]);
@@ -76,6 +77,11 @@ function MiDia() {
   const load = async () => {
     if (!user?.id) return;
     setLoading(true);
+
+    if (!nombreEjec) {
+      const { data: prof } = await supabase.from("profiles").select("nombre").eq("id", user.id).maybeSingle();
+      if (prof?.nombre) setNombreEjec(prof.nombre);
+    }
 
     const clientesQ = supabase.from("clientes")
       .select("id, tipo, razon_social, nombre_completo, ciudad, telefono, correo, estado, proximo_contacto_en, ultimo_contacto_en, valor_estimado_mensual, probabilidad_cierre, ejecutivo_id")
@@ -149,7 +155,7 @@ function MiDia() {
     <div className="space-y-5 max-w-6xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Sunrise className="h-6 w-6 text-primary" /> {saludo()}{profile?.nombre ? `, ${profile.nombre.split(" ")[0]}` : ""}
+          <Sunrise className="h-6 w-6 text-primary" /> {saludo()}{nombreEjec ? `, ${nombreEjec.split(" ")[0]}` : ""}
         </h1>
         <p className="text-sm text-muted-foreground">Estos son tus clientes por contactar hoy y el estado de tus cotizaciones pendientes.</p>
       </div>

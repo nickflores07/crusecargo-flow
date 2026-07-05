@@ -442,7 +442,9 @@ function OportunidadesPage() {
                               ultimo={segByCliente[o.cliente_id]}
                               probabilidad={o.probabilidad}
                               fechaCierre={o.fecha_cierre_estimada}
+                              proxima={actByOp[o.id]}
                               onRegistrar={() => setContactoDialog(o)}
+                              onProgramar={() => setProgramarDialog(o)}
                             />
                           )}
                         </div>

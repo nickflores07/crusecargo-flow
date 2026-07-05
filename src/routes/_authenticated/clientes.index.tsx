@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Building2, User as UserIcon, Plus, Upload, Search, Loader2, Users } from "lucide-react";
+import { Building2, User as UserIcon, Plus, Upload, Search, Loader2, Users, AlertCircle, CalendarClock } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -32,6 +32,7 @@ type Cliente = {
   area_comercial: "b2b" | "b2c" | null;
   categoria_cliente: "institucional" | "comun" | null;
   canal: string | null;
+  proximo_contacto_en: string | null;
 };
 
 type Sector = { id: string; nombre: string };
@@ -54,6 +55,30 @@ const ESTADO_LABELS: Record<string, string> = {
 };
 
 function ClientesList() {
+
+  return <ClientesListInner />;
+}
+
+function ContactoBadge({ fecha }: { fecha: string | null }) {
+  if (!fecha) return null;
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const t = new Date(fecha + "T00:00:00");
+  const d = Math.round((t.getTime() - hoy.getTime()) / 86400000);
+  if (d > 3) return null;
+  const cls = d < 0
+    ? "bg-red-500/15 text-red-700 dark:text-red-300"
+    : d === 0
+    ? "bg-primary/15 text-primary"
+    : "bg-amber-500/15 text-amber-700 dark:text-amber-300";
+  const txt = d < 0 ? `Vencido ${Math.abs(d)}d` : d === 0 ? "Hoy" : `En ${d}d`;
+  return (
+    <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium ${cls}`}>
+      <CalendarClock className="h-2.5 w-2.5" /> {txt}
+    </span>
+  );
+}
+
+function ClientesListInner() {
   const { isAdmin, isSupervisor } = useAuth();
   const canReassign = isAdmin || isSupervisor;
   const [rows, setRows] = useState<Cliente[]>([]);
@@ -65,6 +90,7 @@ function ClientesList() {
   const [sectorFilter, setSectorFilter] = useState<string>("todos");
   const [ejecutivoFilter, setEjecutivoFilter] = useState<string>("todos");
   const [canalFilter, setCanalFilter] = useState<string>("todos");
+  const [contactoFilter, setContactoFilter] = useState<string>("todos");
   const [sectores, setSectores] = useState<Sector[]>([]);
   const [ejecutivos, setEjecutivos] = useState<Ejecutivo[]>([]);
 
@@ -73,7 +99,7 @@ function ClientesList() {
     const [{ data, error }, { data: secs }, { data: profs }] = await Promise.all([
       supabase
         .from("clientes")
-        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id, ejecutivo_id, area_comercial, categoria_cliente, canal")
+        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id, ejecutivo_id, area_comercial, categoria_cliente, canal, proximo_contacto_en")
         .order("created_at", { ascending: false }),
       supabase.from("sectores").select("id, nombre").order("nombre"),
       supabase.from("profiles").select("id, nombre").order("nombre"),
@@ -89,6 +115,12 @@ function ClientesList() {
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
+    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    const dias = (fecha: string | null) => {
+      if (!fecha) return null;
+      const t = new Date(fecha + "T00:00:00");
+      return Math.round((t.getTime() - hoy.getTime()) / 86400000);
+    };
     return rows.filter((r) => {
       if (areaFilter !== "todos" && r.area_comercial !== areaFilter) return false;
       if (categoriaFilter !== "todos" && r.categoria_cliente !== categoriaFilter) return false;
@@ -105,12 +137,19 @@ function ClientesList() {
         if (canalFilter === "__none__") { if (r.canal) return false; }
         else if (r.canal !== canalFilter) return false;
       }
+      if (contactoFilter !== "todos") {
+        const d = dias(r.proximo_contacto_en);
+        if (contactoFilter === "vencidos") { if (d === null || d >= 0) return false; }
+        else if (contactoFilter === "hoy") { if (d !== 0) return false; }
+        else if (contactoFilter === "requieren") { if (d === null ? false : d > 0) return false; }
+        else if (contactoFilter === "sin_fecha") { if (r.proximo_contacto_en) return false; }
+      }
       if (!term) return true;
       const hay = [r.razon_social, r.nombre_completo, r.ruc, r.dni, r.correo, r.telefono, r.ciudad]
         .filter(Boolean).join(" ").toLowerCase();
       return hay.includes(term);
     });
-  }, [rows, q, areaFilter, categoriaFilter, estadoFilter, sectorFilter, ejecutivoFilter, canalFilter]);
+  }, [rows, q, areaFilter, categoriaFilter, estadoFilter, sectorFilter, ejecutivoFilter, canalFilter, contactoFilter]);
 
   const canales = useMemo(() => {
     const set = new Set<string>();
@@ -124,7 +163,8 @@ function ClientesList() {
     (estadoFilter !== "todos" ? 1 : 0) +
     (sectorFilter !== "todos" ? 1 : 0) +
     (ejecutivoFilter !== "todos" ? 1 : 0) +
-    (canalFilter !== "todos" ? 1 : 0);
+    (canalFilter !== "todos" ? 1 : 0) +
+    (contactoFilter !== "todos" ? 1 : 0);
 
   const clearFilters = () => {
     setAreaFilter("todos");
@@ -133,6 +173,7 @@ function ClientesList() {
     setSectorFilter("todos");
     setEjecutivoFilter("todos");
     setCanalFilter("todos");
+    setContactoFilter("todos");
     setQ("");
   };
 
@@ -264,6 +305,19 @@ function ClientesList() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="min-w-0">
+                <label className="text-[11px] font-medium text-muted-foreground block mb-1">Contacto</label>
+                <Select value={contactoFilter} onValueChange={setContactoFilter}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Cualquier fecha</SelectItem>
+                    <SelectItem value="requieren">Requieren contacto (hoy o vencidos)</SelectItem>
+                    <SelectItem value="vencidos">Vencidos</SelectItem>
+                    <SelectItem value="hoy">Hoy</SelectItem>
+                    <SelectItem value="sin_fecha">Sin fecha programada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             {activeFilters > 0 && (
               <div className="flex items-center justify-between pt-1">
@@ -316,9 +370,12 @@ function ClientesList() {
                         <p className="text-xs text-muted-foreground truncate">
                           {[doc, c.ciudad, c.correo, c.sector_id ? sectoresMap.get(c.sector_id) : null].filter(Boolean).join(" · ") || "Sin datos adicionales"}
                         </p>
-                        <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                          Ejecutivo: {c.ejecutivo_id ? (ejecutivosMap.get(c.ejecutivo_id) ?? "—") : <span className="text-amber-600">sin asignar</span>}
-                        </p>
+                        <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                          <p className="text-[11px] text-muted-foreground truncate">
+                            Ejecutivo: {c.ejecutivo_id ? (ejecutivosMap.get(c.ejecutivo_id) ?? "—") : <span className="text-amber-600">sin asignar</span>}
+                          </p>
+                          <ContactoBadge fecha={c.proximo_contacto_en} />
+                        </div>
                       </div>
                     </Link>
                     {canReassign && (

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare, Package, FileText, Target,
+  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare, Package, FileText, Target, AlertCircle, CalendarClock, Phone,
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -22,6 +22,7 @@ import { Seguimientos } from "@/components/clientes/seguimientos";
 import { Envios } from "@/components/clientes/envios";
 import { Cotizaciones } from "@/components/clientes/cotizaciones";
 import { ProspeccionPanel } from "@/components/clientes/prospeccion-panel";
+import { RegistrarContactoDialog } from "@/components/mi-dia/registrar-contacto-dialog";
 
 export const Route = createFileRoute("/_authenticated/clientes/$id")({
   component: ClienteDetalle,
@@ -46,6 +47,8 @@ type ClienteRow = {
   canal: string | null;
   sector_id: string | null;
   ejecutivo_id: string | null;
+  proximo_contacto_en: string | null;
+  ultimo_contacto_en: string | null;
 };
 
 function ClienteDetalle() {
@@ -57,6 +60,7 @@ function ClienteDetalle() {
   const [ejecutivos, setEjecutivos] = useState<Array<{ id: string; nombre: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [openRegistrar, setOpenRegistrar] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -213,6 +217,12 @@ function ClienteDetalle() {
         </CardHeader>
       </Card>
 
+      <ContactoAlerta
+        proximo={cliente.proximo_contacto_en}
+        ultimo={cliente.ultimo_contacto_en}
+        onRegistrar={() => setOpenRegistrar(true)}
+      />
+
       <Tabs defaultValue="general">
         <TabsList className="w-full justify-start overflow-x-auto">
           <TabsTrigger value="general">Datos generales</TabsTrigger>
@@ -280,6 +290,64 @@ function ClienteDetalle() {
           <Cotizaciones clienteId={id} />
         </TabsContent>
       </Tabs>
+
+      {cliente && (
+        <RegistrarContactoDialog
+          clienteId={cliente.id}
+          clienteNombre={nombre || "(sin nombre)"}
+          estadoCliente={cliente.estado}
+          open={openRegistrar}
+          onOpenChange={setOpenRegistrar}
+          onSaved={() => void load()}
+        />
+      )}
+    </div>
+  );
+}
+
+function ContactoAlerta({ proximo, ultimo, onRegistrar }: {
+  proximo: string | null; ultimo: string | null; onRegistrar: () => void;
+}) {
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const dias = (fecha: string | null) => {
+    if (!fecha) return null;
+    const t = new Date(fecha + "T00:00:00");
+    return Math.round((t.getTime() - hoy.getTime()) / 86400000);
+  };
+  const dProx = dias(proximo);
+  const dUlt = dias(ultimo);
+  const sinContacto = dUlt !== null && dUlt < -30;
+  const showAlert = (dProx !== null && dProx <= 0) || (proximo === null) || sinContacto;
+  if (!showAlert) {
+    return (
+      <div className="rounded-md border bg-emerald-500/5 border-emerald-500/30 p-3 flex items-center gap-2 text-sm">
+        <CalendarClock className="h-4 w-4 text-emerald-600" />
+        <span className="text-emerald-700 dark:text-emerald-300">
+          Próximo contacto {dProx === 1 ? "mañana" : `en ${dProx}d`}
+          {ultimo ? ` · Último contacto ${Math.abs(dUlt ?? 0)}d atrás` : ""}
+        </span>
+      </div>
+    );
+  }
+  const tone = dProx !== null && dProx < 0
+    ? { bg: "bg-red-500/5 border-red-500/30", text: "text-red-700 dark:text-red-300", icon: "text-red-600" }
+    : dProx === 0
+    ? { bg: "bg-primary/5 border-primary/40", text: "text-primary", icon: "text-primary" }
+    : { bg: "bg-amber-500/5 border-amber-500/30", text: "text-amber-700 dark:text-amber-300", icon: "text-amber-600" };
+  const msg = dProx !== null && dProx < 0
+    ? `Contacto vencido hace ${Math.abs(dProx)}d — prometiste responder antes.`
+    : dProx === 0
+    ? "Contactar hoy — está en tu agenda del día."
+    : sinContacto
+    ? `Sin contacto hace más de ${Math.abs(dUlt!)}d — el cliente se está enfriando.`
+    : "Sin fecha de próximo contacto — programa uno para no perderlo.";
+  return (
+    <div className={`rounded-md border ${tone.bg} p-3 flex items-center gap-3`}>
+      <AlertCircle className={`h-4 w-4 shrink-0 ${tone.icon}`} />
+      <div className={`text-sm flex-1 ${tone.text}`}>{msg}</div>
+      <Button size="sm" variant="outline" onClick={onRegistrar} className="gap-1">
+        <Phone className="h-3.5 w-3.5" /> Registrar contacto
+      </Button>
     </div>
   );
 }

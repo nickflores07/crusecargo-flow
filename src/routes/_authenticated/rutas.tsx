@@ -596,11 +596,6 @@ function ActividadDialog({
                 </Command>
               </PopoverContent>
             </Popover>
-            {tipo === "prospeccion" && (
-              <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-                <Users className="h-3 w-3" /> Si es un prospecto nuevo, créalo primero en Clientes con estado <b>Prospecto</b>.
-              </p>
-            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">

@@ -528,7 +528,7 @@ function ActividadDialog({
     // Si se registró un logro, replicar como seguimiento del cliente para que se vea en la ficha
     if (!edit && logro.trim()) {
       const tipoMap: Record<string, string> = {
-        visita: "visita", prospeccion: "otro", llamada: "llamada", reunion: "reunion", otro: "otro",
+        visita: "visita", llamada: "llamada", reunion: "reunion", otro: "otro",
       };
       await supabase.from("seguimientos").insert({
         cliente_id: clienteId,

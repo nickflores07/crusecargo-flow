@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Loader2, Printer, CheckCircle2, XCircle, Send, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Printer, CheckCircle2, XCircle, Send, Trash2, Link as LinkIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -20,7 +20,7 @@ type Cot = {
   subtotal: number; igv: number; total: number; moneda: string;
   incluye_igv: boolean; correo_destino: string | null; correos_cc: string[];
   condiciones: string | null; notas: string | null; notas_internas: string | null;
-  oportunidad_id: string | null; motivo_rechazo: string | null;
+  oportunidad_id: string | null; motivo_rechazo: string | null; token_publico: string | null;
 };
 type Item = {
   id: string; descripcion: string; origen: string | null; destino: string | null;
@@ -130,6 +130,17 @@ function CotizacionDetalle() {
     toast.info("Envío por correo (próximamente). Por ahora usa 'Marcar como enviada' tras enviar manualmente.");
   };
 
+  const copiarEnlace = async () => {
+    if (!cot?.token_publico) return toast.error("Esta cotización no tiene enlace público.");
+    const url = `${window.location.origin}/c/${cot.token_publico}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Enlace copiado. Compártelo con tu cliente.");
+    } catch {
+      toast.info(url);
+    }
+  };
+
   const eliminar = async () => {
     if (!cot || !confirm("¿Eliminar esta cotización?")) return;
     const { error } = await supabase.from("cotizaciones").delete().eq("id", cot.id);
@@ -159,6 +170,9 @@ function CotizacionDetalle() {
             </SelectContent>
           </Select>
           <Button variant="outline" size="sm" onClick={() => window.print()}><Printer className="h-4 w-4" /> Imprimir / PDF</Button>
+          <Button variant="outline" size="sm" onClick={() => void copiarEnlace()}>
+            <LinkIcon className="h-4 w-4" /> Copiar enlace público
+          </Button>
           <Button variant="outline" size="sm" onClick={enviarPorCorreo} title="Próximamente"><Send className="h-4 w-4" /> Enviar por correo (próximamente)</Button>
           {cot.estado === "borrador" && (
             <Button size="sm" onClick={() => void marcarEnviada()}>Marcar enviada</Button>

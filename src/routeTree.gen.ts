@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as CTokenRouteImport } from './routes/c.$token'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedTarifarioRouteImport } from './routes/_authenticated/tarifario'
 import { Route as AuthenticatedRutasRouteImport } from './routes/_authenticated/rutas'
@@ -35,6 +36,7 @@ import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminSectoresRouteImport } from './routes/_authenticated/admin.sectores'
 import { Route as AuthenticatedAdminPermisosRouteImport } from './routes/_authenticated/admin.permisos'
 import { Route as AuthenticatedAdminErpRouteImport } from './routes/_authenticated/admin.erp'
+import { Route as ApiPublicCotizacionTokenRouteImport } from './routes/api/public/cotizacion.$token'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -49,6 +51,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const CTokenRoute = CTokenRouteImport.update({
+  id: '/c/$token',
+  path: '/c/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
@@ -177,6 +184,12 @@ const AuthenticatedAdminErpRoute = AuthenticatedAdminErpRouteImport.update({
   path: '/admin/erp',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicCotizacionTokenRoute =
+  ApiPublicCotizacionTokenRouteImport.update({
+    id: '/api/public/cotizacion/$token',
+    path: '/api/public/cotizacion/$token',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -192,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/rutas': typeof AuthenticatedRutasRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
+  '/c/$token': typeof CTokenRoute
   '/admin/erp': typeof AuthenticatedAdminErpRoute
   '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
@@ -204,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
   '/cotizaciones/': typeof AuthenticatedCotizacionesIndexRoute
+  '/api/public/cotizacion/$token': typeof ApiPublicCotizacionTokenRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -216,6 +231,7 @@ export interface FileRoutesByTo {
   '/rutas': typeof AuthenticatedRutasRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
+  '/c/$token': typeof CTokenRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/erp': typeof AuthenticatedAdminErpRoute
   '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
@@ -229,6 +245,7 @@ export interface FileRoutesByTo {
   '/asistente': typeof AuthenticatedAsistenteIndexRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
   '/cotizaciones': typeof AuthenticatedCotizacionesIndexRoute
+  '/api/public/cotizacion/$token': typeof ApiPublicCotizacionTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -245,6 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/rutas': typeof AuthenticatedRutasRoute
   '/_authenticated/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
+  '/c/$token': typeof CTokenRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/erp': typeof AuthenticatedAdminErpRoute
   '/_authenticated/admin/permisos': typeof AuthenticatedAdminPermisosRoute
@@ -258,6 +276,7 @@ export interface FileRoutesById {
   '/_authenticated/asistente/': typeof AuthenticatedAsistenteIndexRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
   '/_authenticated/cotizaciones/': typeof AuthenticatedCotizacionesIndexRoute
+  '/api/public/cotizacion/$token': typeof ApiPublicCotizacionTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -275,6 +294,7 @@ export interface FileRouteTypes {
     | '/rutas'
     | '/tarifario'
     | '/api/chat'
+    | '/c/$token'
     | '/admin/erp'
     | '/admin/permisos'
     | '/admin/sectores'
@@ -287,6 +307,7 @@ export interface FileRouteTypes {
     | '/asistente/'
     | '/clientes/'
     | '/cotizaciones/'
+    | '/api/public/cotizacion/$token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -299,6 +320,7 @@ export interface FileRouteTypes {
     | '/rutas'
     | '/tarifario'
     | '/api/chat'
+    | '/c/$token'
     | '/'
     | '/admin/erp'
     | '/admin/permisos'
@@ -312,6 +334,7 @@ export interface FileRouteTypes {
     | '/asistente'
     | '/clientes'
     | '/cotizaciones'
+    | '/api/public/cotizacion/$token'
   id:
     | '__root__'
     | '/_authenticated'
@@ -327,6 +350,7 @@ export interface FileRouteTypes {
     | '/_authenticated/rutas'
     | '/_authenticated/tarifario'
     | '/api/chat'
+    | '/c/$token'
     | '/_authenticated/'
     | '/_authenticated/admin/erp'
     | '/_authenticated/admin/permisos'
@@ -340,12 +364,15 @@ export interface FileRouteTypes {
     | '/_authenticated/asistente/'
     | '/_authenticated/clientes/'
     | '/_authenticated/cotizaciones/'
+    | '/api/public/cotizacion/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiChatRoute: typeof ApiChatRoute
+  CTokenRoute: typeof CTokenRoute
+  ApiPublicCotizacionTokenRoute: typeof ApiPublicCotizacionTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -370,6 +397,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/c/$token': {
+      id: '/c/$token'
+      path: '/c/$token'
+      fullPath: '/c/$token'
+      preLoaderRoute: typeof CTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
       id: '/api/chat'
@@ -532,6 +566,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminErpRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/cotizacion/$token': {
+      id: '/api/public/cotizacion/$token'
+      path: '/api/public/cotizacion/$token'
+      fullPath: '/api/public/cotizacion/$token'
+      preLoaderRoute: typeof ApiPublicCotizacionTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -617,6 +658,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiChatRoute: ApiChatRoute,
+  CTokenRoute: CTokenRoute,
+  ApiPublicCotizacionTokenRoute: ApiPublicCotizacionTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

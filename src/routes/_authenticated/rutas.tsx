@@ -34,6 +34,7 @@ type Visita = {
   id: string;
   ejecutivo_id: string;
   cliente_id: string;
+  oportunidad_id: string | null;
   fecha_planificada: string;
   hora: string | null;
   tipo: string;
@@ -46,6 +47,7 @@ type Visita = {
   resultado: string | null;
   notas: string | null;
   cliente?: { razon_social: string | null; nombre_completo: string | null; ciudad: string | null } | null;
+  oportunidad?: { id: string; titulo: string } | null;
 };
 
 type ClienteLite = { id: string; label: string };
@@ -56,6 +58,8 @@ const DAYS_SHORT = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 const TIPOS: Array<{ value: string; label: string; icon: typeof Building2; color: string }> = [
   { value: "visita", label: "Visita", icon: Building2, color: "text-blue-600 bg-blue-500/10" },
+  { value: "reunion_teams", label: "Reunión Teams", icon: Handshake, color: "text-indigo-600 bg-indigo-500/10" },
+  { value: "whatsapp", label: "WhatsApp", icon: Phone, color: "text-green-600 bg-green-500/10" },
   { value: "llamada", label: "Llamada", icon: Phone, color: "text-emerald-600 bg-emerald-500/10" },
   { value: "reunion", label: "Reunión", icon: Handshake, color: "text-amber-600 bg-amber-500/10" },
   { value: "otro", label: "Otro", icon: MoreHorizontal, color: "text-slate-600 bg-slate-500/10" },

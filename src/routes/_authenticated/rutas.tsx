@@ -358,6 +358,11 @@ function ActividadCard({
         <Badge variant={badgeVariant} className="text-[9px] shrink-0 h-4">{v.estado}</Badge>
       </div>
       {v.motivo && <p className="text-muted-foreground line-clamp-2">{v.motivo}</p>}
+      {v.oportunidad && (
+        <Link to="/oportunidades" className="text-[10px] text-primary hover:underline flex items-center gap-1">
+          <Target className="h-3 w-3" /> {v.oportunidad.titulo}
+        </Link>
+      )}
       {v.logro && (
         <p className="text-emerald-700 dark:text-emerald-400 line-clamp-2">
           <b>Logré:</b> {v.logro}

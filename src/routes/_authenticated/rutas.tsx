@@ -23,7 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import {
   Calendar as CalendarIcon, Plus, CheckCircle2, X, ChevronLeft, ChevronRight,
   RotateCcw, Check as CheckIcon, Building2, Phone, Handshake, MoreHorizontal,
-  LayoutGrid, List, Clock, Trash2,
+  LayoutGrid, List, Clock, Trash2, Target,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/rutas")({

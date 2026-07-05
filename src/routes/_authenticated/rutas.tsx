@@ -22,7 +22,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Calendar as CalendarIcon, Plus, CheckCircle2, X, ChevronLeft, ChevronRight,
-  RotateCcw, Check as CheckIcon, Building2, Phone, Users, Target, Handshake, MoreHorizontal,
+  RotateCcw, Check as CheckIcon, Building2, Phone, Handshake, MoreHorizontal,
   LayoutGrid, List, Clock, Trash2,
 } from "lucide-react";
 
@@ -56,7 +56,6 @@ const DAYS_SHORT = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 const TIPOS: Array<{ value: string; label: string; icon: typeof Building2; color: string }> = [
   { value: "visita", label: "Visita", icon: Building2, color: "text-blue-600 bg-blue-500/10" },
-  { value: "prospeccion", label: "Prospección", icon: Target, color: "text-violet-600 bg-violet-500/10" },
   { value: "llamada", label: "Llamada", icon: Phone, color: "text-emerald-600 bg-emerald-500/10" },
   { value: "reunion", label: "Reunión", icon: Handshake, color: "text-amber-600 bg-amber-500/10" },
   { value: "otro", label: "Otro", icon: MoreHorizontal, color: "text-slate-600 bg-slate-500/10" },
@@ -183,7 +182,7 @@ function PlanSemanalPage() {
           <div>
             <h1 className="text-2xl font-semibold font-display">Plan Semanal</h1>
             <p className="text-sm text-muted-foreground">
-              Agenda visitas, prospecciones, llamadas y reuniones. Cada actividad se registra con detalles y próxima acción.
+              Agenda visitas, llamadas y reuniones. Las prospecciones se manejan en el módulo Prospecciones.
             </p>
           </div>
         </div>
@@ -223,9 +222,9 @@ function PlanSemanalPage() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <Kpi label="Semana" value={`${semanaBase.toLocaleDateString("es-PE", { day: "2-digit", month: "short" })} → ${addDays(semanaBase, 6).toLocaleDateString("es-PE", { day: "2-digit", month: "short" })}`} />
         <Kpi label="Actividades" value={totales.total} />
-        <Kpi label="Prospecciones" value={totales.prospecciones} tone="violet" />
+        <Kpi label="Visitas" value={visitas.filter((v) => v.tipo === "visita").length} tone="blue" />
         <Kpi label="Realizadas" value={totales.realizadas} tone="green" />
-        <Kpi label="Pendientes" value={totales.planificadas} tone="blue" />
+        <Kpi label="Pendientes" value={totales.planificadas} tone="violet" />
       </div>
 
       {vista === "semana" ? (
@@ -550,11 +549,11 @@ function ActividadDialog({
         <DialogHeader>
           <DialogTitle>{edit ? "Editar actividad" : "Nueva actividad"}</DialogTitle>
           <DialogDescription>
-            Registra visitas, prospecciones o llamadas con el detalle completo del contacto.
+            Registra visitas, llamadas o reuniones con el detalle completo del contacto.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          <div className="grid grid-cols-5 gap-1">
+          <div className="grid grid-cols-4 gap-1">
             {TIPOS.map((t) => {
               const I = t.icon;
               const active = tipo === t.value;

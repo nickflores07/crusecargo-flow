@@ -14,13 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as CTokenRouteImport } from './routes/c.$token'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as AuthenticatedTarifarioRouteImport } from './routes/_authenticated/tarifario'
 import { Route as AuthenticatedRutasRouteImport } from './routes/_authenticated/rutas'
 import { Route as AuthenticatedReportesRouteImport } from './routes/_authenticated/reportes'
 import { Route as AuthenticatedOportunidadesRouteImport } from './routes/_authenticated/oportunidades'
 import { Route as AuthenticatedMiDiaRouteImport } from './routes/_authenticated/mi-dia'
 import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authenticated/configuracion'
-import { Route as AuthenticatedComisionesRouteImport } from './routes/_authenticated/comisiones'
 import { Route as AuthenticatedClientesRouteImport } from './routes/_authenticated/clientes'
 import { Route as AuthenticatedAsistenteRouteImport } from './routes/_authenticated/asistente'
 import { Route as AuthenticatedCotizacionesIndexRouteImport } from './routes/_authenticated/cotizaciones.index'
@@ -34,7 +32,6 @@ import { Route as AuthenticatedAsistenteThreadIdRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdminSectoresRouteImport } from './routes/_authenticated/admin.sectores'
 import { Route as AuthenticatedAdminPermisosRouteImport } from './routes/_authenticated/admin.permisos'
-import { Route as AuthenticatedAdminErpRouteImport } from './routes/_authenticated/admin.erp'
 import { Route as ApiPublicCotizacionTokenRouteImport } from './routes/api/public/cotizacion.$token'
 
 const AuthRoute = AuthRouteImport.update({
@@ -60,11 +57,6 @@ const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedTarifarioRoute = AuthenticatedTarifarioRouteImport.update({
-  id: '/tarifario',
-  path: '/tarifario',
-  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRutasRoute = AuthenticatedRutasRouteImport.update({
   id: '/rutas',
@@ -93,11 +85,6 @@ const AuthenticatedConfiguracionRoute =
     path: '/configuracion',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedComisionesRoute = AuthenticatedComisionesRouteImport.update({
-  id: '/comisiones',
-  path: '/comisiones',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedClientesRoute = AuthenticatedClientesRouteImport.update({
   id: '/clientes',
   path: '/clientes',
@@ -173,11 +160,6 @@ const AuthenticatedAdminPermisosRoute =
     path: '/admin/permisos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAdminErpRoute = AuthenticatedAdminErpRouteImport.update({
-  id: '/admin/erp',
-  path: '/admin/erp',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const ApiPublicCotizacionTokenRoute =
   ApiPublicCotizacionTokenRouteImport.update({
     id: '/api/public/cotizacion/$token',
@@ -190,16 +172,13 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/clientes': typeof AuthenticatedClientesRouteWithChildren
-  '/comisiones': typeof AuthenticatedComisionesRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
   '/mi-dia': typeof AuthenticatedMiDiaRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/reportes': typeof AuthenticatedReportesRoute
   '/rutas': typeof AuthenticatedRutasRoute
-  '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/c/$token': typeof CTokenRoute
-  '/admin/erp': typeof AuthenticatedAdminErpRoute
   '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -215,17 +194,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
-  '/comisiones': typeof AuthenticatedComisionesRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
   '/mi-dia': typeof AuthenticatedMiDiaRoute
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/reportes': typeof AuthenticatedReportesRoute
   '/rutas': typeof AuthenticatedRutasRoute
-  '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/c/$token': typeof CTokenRoute
   '/': typeof AuthenticatedIndexRoute
-  '/admin/erp': typeof AuthenticatedAdminErpRoute
   '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -245,17 +221,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/asistente': typeof AuthenticatedAsistenteRouteWithChildren
   '/_authenticated/clientes': typeof AuthenticatedClientesRouteWithChildren
-  '/_authenticated/comisiones': typeof AuthenticatedComisionesRoute
   '/_authenticated/configuracion': typeof AuthenticatedConfiguracionRoute
   '/_authenticated/mi-dia': typeof AuthenticatedMiDiaRoute
   '/_authenticated/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/_authenticated/reportes': typeof AuthenticatedReportesRoute
   '/_authenticated/rutas': typeof AuthenticatedRutasRoute
-  '/_authenticated/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/c/$token': typeof CTokenRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/admin/erp': typeof AuthenticatedAdminErpRoute
   '/_authenticated/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/_authenticated/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -276,16 +249,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/asistente'
     | '/clientes'
-    | '/comisiones'
     | '/configuracion'
     | '/mi-dia'
     | '/oportunidades'
     | '/reportes'
     | '/rutas'
-    | '/tarifario'
     | '/api/chat'
     | '/c/$token'
-    | '/admin/erp'
     | '/admin/permisos'
     | '/admin/sectores'
     | '/admin/usuarios'
@@ -301,17 +271,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
-    | '/comisiones'
     | '/configuracion'
     | '/mi-dia'
     | '/oportunidades'
     | '/reportes'
     | '/rutas'
-    | '/tarifario'
     | '/api/chat'
     | '/c/$token'
     | '/'
-    | '/admin/erp'
     | '/admin/permisos'
     | '/admin/sectores'
     | '/admin/usuarios'
@@ -330,17 +297,14 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/asistente'
     | '/_authenticated/clientes'
-    | '/_authenticated/comisiones'
     | '/_authenticated/configuracion'
     | '/_authenticated/mi-dia'
     | '/_authenticated/oportunidades'
     | '/_authenticated/reportes'
     | '/_authenticated/rutas'
-    | '/_authenticated/tarifario'
     | '/api/chat'
     | '/c/$token'
     | '/_authenticated/'
-    | '/_authenticated/admin/erp'
     | '/_authenticated/admin/permisos'
     | '/_authenticated/admin/sectores'
     | '/_authenticated/admin/usuarios'
@@ -400,13 +364,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/tarifario': {
-      id: '/_authenticated/tarifario'
-      path: '/tarifario'
-      fullPath: '/tarifario'
-      preLoaderRoute: typeof AuthenticatedTarifarioRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/rutas': {
       id: '/_authenticated/rutas'
       path: '/rutas'
@@ -440,13 +397,6 @@ declare module '@tanstack/react-router' {
       path: '/configuracion'
       fullPath: '/configuracion'
       preLoaderRoute: typeof AuthenticatedConfiguracionRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/comisiones': {
-      id: '/_authenticated/comisiones'
-      path: '/comisiones'
-      fullPath: '/comisiones'
-      preLoaderRoute: typeof AuthenticatedComisionesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/clientes': {
@@ -540,13 +490,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPermisosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/erp': {
-      id: '/_authenticated/admin/erp'
-      path: '/admin/erp'
-      fullPath: '/admin/erp'
-      preLoaderRoute: typeof AuthenticatedAdminErpRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/api/public/cotizacion/$token': {
       id: '/api/public/cotizacion/$token'
       path: '/api/public/cotizacion/$token'
@@ -595,15 +538,12 @@ const AuthenticatedClientesRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAsistenteRoute: typeof AuthenticatedAsistenteRouteWithChildren
   AuthenticatedClientesRoute: typeof AuthenticatedClientesRouteWithChildren
-  AuthenticatedComisionesRoute: typeof AuthenticatedComisionesRoute
   AuthenticatedConfiguracionRoute: typeof AuthenticatedConfiguracionRoute
   AuthenticatedMiDiaRoute: typeof AuthenticatedMiDiaRoute
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedReportesRoute: typeof AuthenticatedReportesRoute
   AuthenticatedRutasRoute: typeof AuthenticatedRutasRoute
-  AuthenticatedTarifarioRoute: typeof AuthenticatedTarifarioRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedAdminErpRoute: typeof AuthenticatedAdminErpRoute
   AuthenticatedAdminPermisosRoute: typeof AuthenticatedAdminPermisosRoute
   AuthenticatedAdminSectoresRoute: typeof AuthenticatedAdminSectoresRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
@@ -614,15 +554,12 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAsistenteRoute: AuthenticatedAsistenteRouteWithChildren,
   AuthenticatedClientesRoute: AuthenticatedClientesRouteWithChildren,
-  AuthenticatedComisionesRoute: AuthenticatedComisionesRoute,
   AuthenticatedConfiguracionRoute: AuthenticatedConfiguracionRoute,
   AuthenticatedMiDiaRoute: AuthenticatedMiDiaRoute,
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedReportesRoute: AuthenticatedReportesRoute,
   AuthenticatedRutasRoute: AuthenticatedRutasRoute,
-  AuthenticatedTarifarioRoute: AuthenticatedTarifarioRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedAdminErpRoute: AuthenticatedAdminErpRoute,
   AuthenticatedAdminPermisosRoute: AuthenticatedAdminPermisosRoute,
   AuthenticatedAdminSectoresRoute: AuthenticatedAdminSectoresRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare, Package, FileText, Target,
+  ArrowLeft, Loader2, Building2, User as UserIcon, Save, Trash2, Plus, MessageSquare, Package, FileText, Target, AlertCircle, CalendarClock, Phone,
 } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -22,6 +22,7 @@ import { Seguimientos } from "@/components/clientes/seguimientos";
 import { Envios } from "@/components/clientes/envios";
 import { Cotizaciones } from "@/components/clientes/cotizaciones";
 import { ProspeccionPanel } from "@/components/clientes/prospeccion-panel";
+import { RegistrarContactoDialog } from "@/components/mi-dia/registrar-contacto-dialog";
 
 export const Route = createFileRoute("/_authenticated/clientes/$id")({
   component: ClienteDetalle,
@@ -59,6 +60,7 @@ function ClienteDetalle() {
   const [ejecutivos, setEjecutivos] = useState<Array<{ id: string; nombre: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [openRegistrar, setOpenRegistrar] = useState(false);
 
   const load = async () => {
     setLoading(true);

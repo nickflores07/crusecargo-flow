@@ -1164,37 +1164,55 @@ export type Database = {
         Row: {
           cliente_id: string
           created_at: string
+          detalles: string | null
           ejecutivo_id: string
           estado: string
           fecha_planificada: string
+          hora: string | null
           id: string
+          logro: string | null
           motivo: string | null
           notas: string | null
+          proxima_accion: string | null
+          proxima_accion_fecha: string | null
           resultado: string | null
+          tipo: string
           updated_at: string
         }
         Insert: {
           cliente_id: string
           created_at?: string
+          detalles?: string | null
           ejecutivo_id: string
           estado?: string
           fecha_planificada: string
+          hora?: string | null
           id?: string
+          logro?: string | null
           motivo?: string | null
           notas?: string | null
+          proxima_accion?: string | null
+          proxima_accion_fecha?: string | null
           resultado?: string | null
+          tipo?: string
           updated_at?: string
         }
         Update: {
           cliente_id?: string
           created_at?: string
+          detalles?: string | null
           ejecutivo_id?: string
           estado?: string
           fecha_planificada?: string
+          hora?: string | null
           id?: string
+          logro?: string | null
           motivo?: string | null
           notas?: string | null
+          proxima_accion?: string | null
+          proxima_accion_fecha?: string | null
           resultado?: string | null
+          tipo?: string
           updated_at?: string
         }
         Relationships: [

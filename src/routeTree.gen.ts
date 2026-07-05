@@ -30,6 +30,7 @@ import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAsistenteThreadIdRouteImport } from './routes/_authenticated/asistente.$threadId'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdminSectoresRouteImport } from './routes/_authenticated/admin.sectores'
+import { Route as AuthenticatedAdminPermisosRouteImport } from './routes/_authenticated/admin.permisos'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -146,6 +147,12 @@ const AuthenticatedAdminSectoresRoute =
     path: '/admin/sectores',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminPermisosRoute =
+  AuthenticatedAdminPermisosRouteImport.update({
+    id: '/admin/permisos',
+    path: '/admin/permisos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/oportunidades': typeof AuthenticatedOportunidadesRoute
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
+  '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/asistente/$threadId': typeof AuthenticatedAsistenteThreadIdRoute
@@ -178,6 +186,7 @@ export interface FileRoutesByTo {
   '/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/asistente/$threadId': typeof AuthenticatedAsistenteThreadIdRoute
@@ -202,6 +211,7 @@ export interface FileRoutesById {
   '/_authenticated/tarifario': typeof AuthenticatedTarifarioRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/admin/permisos': typeof AuthenticatedAdminPermisosRoute
   '/_authenticated/admin/sectores': typeof AuthenticatedAdminSectoresRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/asistente/$threadId': typeof AuthenticatedAsistenteThreadIdRoute
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/oportunidades'
     | '/tarifario'
     | '/api/chat'
+    | '/admin/permisos'
     | '/admin/sectores'
     | '/admin/usuarios'
     | '/asistente/$threadId'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
     | '/tarifario'
     | '/api/chat'
     | '/'
+    | '/admin/permisos'
     | '/admin/sectores'
     | '/admin/usuarios'
     | '/asistente/$threadId'
@@ -269,6 +281,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tarifario'
     | '/api/chat'
     | '/_authenticated/'
+    | '/_authenticated/admin/permisos'
     | '/_authenticated/admin/sectores'
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/asistente/$threadId'
@@ -436,6 +449,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSectoresRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/permisos': {
+      id: '/_authenticated/admin/permisos'
+      path: '/admin/permisos'
+      fullPath: '/admin/permisos'
+      preLoaderRoute: typeof AuthenticatedAdminPermisosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -483,6 +503,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOportunidadesRoute: typeof AuthenticatedOportunidadesRoute
   AuthenticatedTarifarioRoute: typeof AuthenticatedTarifarioRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAdminPermisosRoute: typeof AuthenticatedAdminPermisosRoute
   AuthenticatedAdminSectoresRoute: typeof AuthenticatedAdminSectoresRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedCotizacionesIdRoute: typeof AuthenticatedCotizacionesIdRoute
@@ -498,6 +519,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOportunidadesRoute: AuthenticatedOportunidadesRoute,
   AuthenticatedTarifarioRoute: AuthenticatedTarifarioRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAdminPermisosRoute: AuthenticatedAdminPermisosRoute,
   AuthenticatedAdminSectoresRoute: AuthenticatedAdminSectoresRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedCotizacionesIdRoute: AuthenticatedCotizacionesIdRoute,

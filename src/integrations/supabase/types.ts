@@ -87,16 +87,21 @@ export type Database = {
           ejecutivo_id: string | null
           estado: Database["public"]["Enums"]["estado_cliente"]
           fecha_alta: string
+          fuente_prospeccion: string | null
           id: string
           nombre_completo: string | null
           notas: string | null
+          probabilidad_cierre: number
+          proximo_contacto_en: string | null
           razon_social: string | null
           rubro: string | null
           ruc: string | null
           sector_id: string | null
           telefono: string | null
           tipo: Database["public"]["Enums"]["tipo_cliente"]
+          ultimo_contacto_en: string | null
           updated_at: string
+          valor_estimado_mensual: number | null
         }
         Insert: {
           area_comercial?: Database["public"]["Enums"]["area_comercial"]
@@ -111,16 +116,21 @@ export type Database = {
           ejecutivo_id?: string | null
           estado?: Database["public"]["Enums"]["estado_cliente"]
           fecha_alta?: string
+          fuente_prospeccion?: string | null
           id?: string
           nombre_completo?: string | null
           notas?: string | null
+          probabilidad_cierre?: number
+          proximo_contacto_en?: string | null
           razon_social?: string | null
           rubro?: string | null
           ruc?: string | null
           sector_id?: string | null
           telefono?: string | null
           tipo: Database["public"]["Enums"]["tipo_cliente"]
+          ultimo_contacto_en?: string | null
           updated_at?: string
+          valor_estimado_mensual?: number | null
         }
         Update: {
           area_comercial?: Database["public"]["Enums"]["area_comercial"]
@@ -135,16 +145,21 @@ export type Database = {
           ejecutivo_id?: string | null
           estado?: Database["public"]["Enums"]["estado_cliente"]
           fecha_alta?: string
+          fuente_prospeccion?: string | null
           id?: string
           nombre_completo?: string | null
           notas?: string | null
+          probabilidad_cierre?: number
+          proximo_contacto_en?: string | null
           razon_social?: string | null
           rubro?: string | null
           ruc?: string | null
           sector_id?: string | null
           telefono?: string | null
           tipo?: Database["public"]["Enums"]["tipo_cliente"]
+          ultimo_contacto_en?: string | null
           updated_at?: string
+          valor_estimado_mensual?: number | null
         }
         Relationships: [
           {

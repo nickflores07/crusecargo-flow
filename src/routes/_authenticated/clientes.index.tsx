@@ -346,9 +346,12 @@ function ClientesList() {
                         <p className="text-xs text-muted-foreground truncate">
                           {[doc, c.ciudad, c.correo, c.sector_id ? sectoresMap.get(c.sector_id) : null].filter(Boolean).join(" · ") || "Sin datos adicionales"}
                         </p>
-                        <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                          Ejecutivo: {c.ejecutivo_id ? (ejecutivosMap.get(c.ejecutivo_id) ?? "—") : <span className="text-amber-600">sin asignar</span>}
-                        </p>
+                        <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                          <p className="text-[11px] text-muted-foreground truncate">
+                            Ejecutivo: {c.ejecutivo_id ? (ejecutivosMap.get(c.ejecutivo_id) ?? "—") : <span className="text-amber-600">sin asignar</span>}
+                          </p>
+                          <ContactoBadge fecha={c.proximo_contacto_en} />
+                        </div>
                       </div>
                     </Link>
                     {canReassign && (

@@ -281,6 +281,19 @@ function ClientesList() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="min-w-0">
+                <label className="text-[11px] font-medium text-muted-foreground block mb-1">Contacto</label>
+                <Select value={contactoFilter} onValueChange={setContactoFilter}>
+                  <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Cualquier fecha</SelectItem>
+                    <SelectItem value="requieren">Requieren contacto (hoy o vencidos)</SelectItem>
+                    <SelectItem value="vencidos">Vencidos</SelectItem>
+                    <SelectItem value="hoy">Hoy</SelectItem>
+                    <SelectItem value="sin_fecha">Sin fecha programada</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             {activeFilters > 0 && (
               <div className="flex items-center justify-between pt-1">

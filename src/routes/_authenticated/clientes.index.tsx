@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Building2, User as UserIcon, Plus, Upload, Search, Loader2, Users } from "lucide-react";
+import { Building2, User as UserIcon, Plus, Upload, Search, Loader2, Users, AlertCircle, CalendarClock } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -32,6 +32,7 @@ type Cliente = {
   area_comercial: "b2b" | "b2c" | null;
   categoria_cliente: "institucional" | "comun" | null;
   canal: string | null;
+  proximo_contacto_en: string | null;
 };
 
 type Sector = { id: string; nombre: string };
@@ -65,6 +66,7 @@ function ClientesList() {
   const [sectorFilter, setSectorFilter] = useState<string>("todos");
   const [ejecutivoFilter, setEjecutivoFilter] = useState<string>("todos");
   const [canalFilter, setCanalFilter] = useState<string>("todos");
+  const [contactoFilter, setContactoFilter] = useState<string>("todos");
   const [sectores, setSectores] = useState<Sector[]>([]);
   const [ejecutivos, setEjecutivos] = useState<Ejecutivo[]>([]);
 
@@ -73,7 +75,7 @@ function ClientesList() {
     const [{ data, error }, { data: secs }, { data: profs }] = await Promise.all([
       supabase
         .from("clientes")
-        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id, ejecutivo_id, area_comercial, categoria_cliente, canal")
+        .select("id, tipo, razon_social, nombre_completo, ruc, dni, ciudad, telefono, correo, estado, created_at, sector_id, ejecutivo_id, area_comercial, categoria_cliente, canal, proximo_contacto_en")
         .order("created_at", { ascending: false }),
       supabase.from("sectores").select("id, nombre").order("nombre"),
       supabase.from("profiles").select("id, nombre").order("nombre"),
@@ -89,6 +91,12 @@ function ClientesList() {
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
+    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    const dias = (fecha: string | null) => {
+      if (!fecha) return null;
+      const t = new Date(fecha + "T00:00:00");
+      return Math.round((t.getTime() - hoy.getTime()) / 86400000);
+    };
     return rows.filter((r) => {
       if (areaFilter !== "todos" && r.area_comercial !== areaFilter) return false;
       if (categoriaFilter !== "todos" && r.categoria_cliente !== categoriaFilter) return false;
@@ -105,12 +113,19 @@ function ClientesList() {
         if (canalFilter === "__none__") { if (r.canal) return false; }
         else if (r.canal !== canalFilter) return false;
       }
+      if (contactoFilter !== "todos") {
+        const d = dias(r.proximo_contacto_en);
+        if (contactoFilter === "vencidos") { if (d === null || d >= 0) return false; }
+        else if (contactoFilter === "hoy") { if (d !== 0) return false; }
+        else if (contactoFilter === "requieren") { if (d === null ? false : d > 0) return false; }
+        else if (contactoFilter === "sin_fecha") { if (r.proximo_contacto_en) return false; }
+      }
       if (!term) return true;
       const hay = [r.razon_social, r.nombre_completo, r.ruc, r.dni, r.correo, r.telefono, r.ciudad]
         .filter(Boolean).join(" ").toLowerCase();
       return hay.includes(term);
     });
-  }, [rows, q, areaFilter, categoriaFilter, estadoFilter, sectorFilter, ejecutivoFilter, canalFilter]);
+  }, [rows, q, areaFilter, categoriaFilter, estadoFilter, sectorFilter, ejecutivoFilter, canalFilter, contactoFilter]);
 
   const canales = useMemo(() => {
     const set = new Set<string>();
@@ -124,7 +139,8 @@ function ClientesList() {
     (estadoFilter !== "todos" ? 1 : 0) +
     (sectorFilter !== "todos" ? 1 : 0) +
     (ejecutivoFilter !== "todos" ? 1 : 0) +
-    (canalFilter !== "todos" ? 1 : 0);
+    (canalFilter !== "todos" ? 1 : 0) +
+    (contactoFilter !== "todos" ? 1 : 0);
 
   const clearFilters = () => {
     setAreaFilter("todos");
@@ -133,6 +149,7 @@ function ClientesList() {
     setSectorFilter("todos");
     setEjecutivoFilter("todos");
     setCanalFilter("todos");
+    setContactoFilter("todos");
     setQ("");
   };
 

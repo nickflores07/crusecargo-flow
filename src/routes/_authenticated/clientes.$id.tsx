@@ -46,6 +46,8 @@ type ClienteRow = {
   canal: string | null;
   sector_id: string | null;
   ejecutivo_id: string | null;
+  proximo_contacto_en: string | null;
+  ultimo_contacto_en: string | null;
 };
 
 function ClienteDetalle() {

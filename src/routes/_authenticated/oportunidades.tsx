@@ -302,8 +302,8 @@ function OportunidadesPage() {
     <div className="space-y-5 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2"><Target className="h-6 w-6" /> Oportunidades</h1>
-          <p className="text-sm text-muted-foreground">Arrastra las tarjetas entre columnas o toca el lápiz para editar cada oportunidad.</p>
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2"><Target className="h-6 w-6" /> Prospecciones</h1>
+          <p className="text-sm text-muted-foreground">Cada prospecto tiene su historial de contactos y próxima acción. Arrastra entre columnas para actualizar su estado.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -317,7 +317,7 @@ function OportunidadesPage() {
             Sin actividad {">"}7d
             <Badge variant="secondary" className="text-[10px] ml-1">{staleCount}</Badge>
           </Button>
-          <Button onClick={openCreate}><Plus className="h-4 w-4" /> Nueva oportunidad</Button>
+          <Button onClick={openCreate}><Plus className="h-4 w-4" /> Nuevo prospecto</Button>
         </div>
       </div>
 
@@ -435,9 +435,9 @@ function OportunidadesPage() {
       <Dialog open={editing.open} onOpenChange={(o) => setEditing((s) => ({ ...s, open: o }))}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editing.id ? "Editar oportunidad" : "Nueva oportunidad"}</DialogTitle>
+            <DialogTitle>{editing.id ? "Editar prospecto" : "Nuevo prospecto"}</DialogTitle>
             <DialogDescription>
-              {editing.id ? "Actualiza los datos de esta oportunidad." : "Registra una posible venta para dar seguimiento."}
+              {editing.id ? "Actualiza los datos de este prospecto." : "Registra un prospecto para dar seguimiento y ver su trazabilidad."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
@@ -455,7 +455,7 @@ function OportunidadesPage() {
               )}
             </div>
             <div>
-              <Label className="text-xs">Título *</Label>
+              <Label className="text-xs">Título del prospecto *</Label>
               <Input value={form.titulo} onChange={(e) => setForm((s) => ({ ...s, titulo: e.target.value }))}
                 placeholder="Ej: Contrato mensual envíos Lima" />
             </div>
